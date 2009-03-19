@@ -1,0 +1,12 @@
+/*
+ * Styles for HTMLArea Widgets
+ */
+
+.code {
+	font-family: Monospace, Courier New, Courier;
+	color: #00a;
+}
+pre {
+	font-family: Monospace, Courier New, Courier;
+	color: #777;
+}

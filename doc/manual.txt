@@ -1,0 +1,2646 @@
+PRONTO WEB FRAMEWORK
+====================
+Judd Vinet <jvinet@zeroflux.org>
+v0.5, September 2008
+
+
+[[X0]]
+Quick Start
+-----------
+Most of this manual will be long and boring, so for those of you who
+already know everything about everything, here are the barebones steps
+necessary to get Pronto up and running.
+
+We'll assume you're using MySQL and Apache.  Also, make sure AllowOverrides
+is enabled for your Pronto directory, so Apache will honor the .htaccess
+files within.
+
+1. Untar the Pronto archive into your web root or a subdirectory thereof.
+   We'll assume `/var/www/html/pronto`.
+2. Create a database for Pronto, then edit `app/config/config.php` and
+   change the `DB_*` constants near the top to match the access credentials
+   for your new Pronto database.  Then change the `DIR_*_BASE` constants
+   to match the location of your Pronto installation.
+3. Create the necessary tables from the schema files in `app/config/sql`.
+   You can use the `load_schemas.php` script for this.
+4. Point your browser to the Pronto directory, eg,
+   `http://localhost/pronto/`.
+
+That's it!  You should see a Pronto web page staring you in the face.
+
+.Setting up Pronto
+-----------------------------------------------------
+$ cd /var/www/html
+$ tar zxf ~/pronto.tar.gz
+$ cd pronto/app
+$ vi config/config.php
+$ mysqladmin -u root create pronto
+$ php ../pronto/bin/load_schemas.php -c
+$ firefox http://localhost/pronto/
+-----------------------------------------------------
+
+
+[[X1]]
+Philosophy
+----------
+Like most web frameworks, Pronto is designed to ease the development of
+web applications by eliminating redundant code and promoting a logical
+separation of application logic, business logic, and presentation.
+
+Pronto strives to maintain a loosely-coupled set of components that,
+when combined, form a a powerful web development stack.  The reasoning
+behind our "loosely-coupled" mandate is that this encourages Pronto
+to _assist_ the developer, not take over for her.  If a developer prefers
+to forgo some of the facilities provided by Pronto, it should be
+relatively easy for her to do so, without having to step out of the
+framework entirely.
+
+Keep this in mind as you learn the framework.  It's entirely probable
+that, as you delve into it, you will find aspects that you will never use.
+Just ignore them and carry on with your business.  They are present
+because they are useful to some developers.
+
+[[X2]]
+Components
+----------
+There are four core elements to Pronto.
+
+.Core Elements:
+- Dispatcher
+- Page Controller (or simply "controller")
+- Model
+- Template
+
+Pronto also has plugin support for some layers.
+
+.Plugins:
+- Page-level Plugins (aka "plugins")
+- Template-level Plugins (aka "helpers")
+
+Underneath the four high-level components, there are additional elements
+that support the framework.
+
+.Utility Elements:
+- DB Abstraction (with protection for SQL injection)
+- Data Sanitization (protection for XSS attacks)
+- Access Control
+- Input Validation
+- Cache Layer
+- Internationalization (I18N)
+- Registry for global object storage
+- Factory for creating new objects
+
+
+[[X3]]
+The Dispatcher
+--------------
+
+The Life of a Web Request
+~~~~~~~~~~~~~~~~~~~~~~~~~
+The following diagram outlines the typical flow of execution when a web
+request is received:
+
+....................................................................
+  Entry script    Dispatcher  --> Page Controller --> Template
+   (index.php)        ^                |  ^              |
+       |              |                |  |              |
+       |              |                v  |              v
+       +--> Execution Profile       Data Model       Web Browser
+....................................................................
+
+The dispatcher is the traffic cop.  It examines the request URI and
+decides which page controller it should pass control to, based on a
+series of regular expressions that define the URL->Controller mapping.
+The URL map is set in `app/config/urls.php`.
+
+[[X3.2]]
+The `$web` object
+~~~~~~~~~~~~~~~~~
+There is exactly one dispatch object at any point in the framework, and it
+is typically referred to as `$web`.  The dispatcher receives control from
+the *web* execution profile and is charged with the task of determining
+which page controller it should pass control to.
+
+The dispatcher also provides many lower-level facilities to controllers
+and plugins, such as:
+
+- context (information about the web request)
+- non-standard status code messages (403, 404)
+- an error handler (typically only used in debug mode)
+- http header control
+- javascript execution queueing
+- debug messages
+
+[[X3.3]]
+URL Configuration
+~~~~~~~~~~~~~~~~~
+Despite the numerous facilities the dispatcher provides, its core mission
+is to direct control to the proper page controller.  This is configured
+using an array that maps URL patterns to their respective page
+controllers.
+
+.URL Routing
+[php]
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+$URLS = array(
+	'/user/(.*)'       => 'User',
+	'/book/(.*)'       => 'Book',
+
+	'/login/'          => array('User','login'),
+	'/logout/'         => array('User','logout'),
+
+	'/'                => 'Home'
+);
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+As the example suggests, each key in the `$URLS` associative array is a
+regular expression, and each value in the array is either the name of a
+specific controller class (string) or the name of a specific action within
+a specific controller class (array).
+
+When routing a request, the dispatcher will choose the first array element
+that matches the current URL being requested.  If the target is an entire
+controller (such as the `/user/(.\*)` and `/book(.\*)` examples above) then
+the portion of the regular expression surrounded by parentheses will be
+used to determine the action handler to be called within the page
+controller.
+
+For example, if the browser issues a GET request to `/user/list` then
+the dispatcher will match the first rule in the `$URLS` array.  It will
+then see that the `list` portion of the URL is the action handler
+requested, and will dispatch a request to `pUser::GET_list()`.
+
+If the action handler requested does not exist in the class, then the
+dispatcher will look for a "catch-all" handler for that request type.  For
+example, if the browser issues a POST request for `/user/list` and the
+dispatcher cannot find a `pUser::POST_list()` method, then it will look
+for a `pUser::POST()` method instead.
+
+[[X3.3.a]]
+Named Subpatterns
+^^^^^^^^^^^^^^^^^
+While most URL routes use the basic `(.*)` subpattern, it is possible to
+use more.  One such use is a *named subpattern*, which binds the
+subpattern to a name.  When a route matches, Pronto will merge the values
+of the named subpatterns into the standard request argument list
+(see <<X4.2.1,Where Input Variables Come From>>).
+
+.Using named subpatterns
+[php]
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+$URLS = array(
+	'/user/(?<uid>[0-9]+)/'     => array('User','view'),
+	'/blog/(?<name>[^/]+)/(.*)' => 'Blog',
+
+	'/' => 'Home'
+);
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+[[X3.4]]
+Generating URLs
+~~~~~~~~~~~~~~~
+Throughout any web application, you're going to need to create links and
+forms that send the browser to other areas of the application.  The
+simplest method is to just hardcode these URLs into your application (eg,
+`<a href="/pronto/user/create">Create a User</a>`).
+
+But what if the application gets installed to a different sub-directory
+than `/pronto`?  Or what if you decide to move all user management to
+`/admin/user` instead of `/user`?  Then you have to update all your code
+to reflect the change.
+
+Pronto's solution is contained within the globally-accessible `url()`
+function.  This function works in two contexts.
+
+[[X3.4.a]]
+URL Fragments
+^^^^^^^^^^^^^
+In the first context, you simply pass it the relative URL fragment, and it
+will resolve it into the full relative URL, including any sub-directory in
+which your application is installed.  For example, if the application is
+accessible via `http://localhost/blog`, then calling `url(\'/user/create\')`
+will return `/blog/user/create`.
+
+Simple enough, but this only solves the problem of a varying install
+location.  What if you decide to change the URL location of your `User`
+controller from `/user` to `/admin/user`?
+
+[[X3.4.b]]
+Controller/Action Tuples
+^^^^^^^^^^^^^^^^^^^^^^^^
+The second context handles this.  If you pass the `url()` function two
+parameters, the controller and the action, then it will use these to
+search through your URL route configuration (set in
+`app/config/urls.php`).  Once it finds the correct URL route that matches
+the controller/action tuple, it will return it.  Basically, the function
+is using your URL map _backwards_, looking through the *values* for a
+matching controller/action tuple, then returning the associated *key* when
+a match is found.
+
+Adapting our former example, we now have this: `url(\'User\',\'create\')`.
+This call would return the same code as the last one
+(`/blog/user/create`).  But, if we alter our URL routes to point the
+**User** controller to `/admin/user` instead, our new `url()` call will
+see this and return the new URL automatically.
+
+If you need to generate an absolute URL instead, you can use the sister
+function `absolute_url()`.  It does the same thing, but returns a full
+URL, which can be useful when sending out links to external sources, such
+as an email recipient.
+
+
+[[X4]]
+Page Controllers
+----------------
+The page controller is where most of your application logic will go.  They
+are typically organized by the data entities they operate on, or a common
+theme of functionality.  For example, one page controller may be
+responsible for allowing a user to register an account, login, change
+his/her password, etc.  Another page controller may be used to manipulate
+blog posts, post comments, or both.
+
+A page controller will receive control from the dispatcher and is
+responsible for a few things:
+
+- processing GET/POST input variables
+- validating authentication and access levels
+- interacting with data models (_business logic_)
+- setting template variables
+- rendering templates or redirecting to new URLs
+
+Page controllers are located in the `app/pages` directory.  Each
+controller class name will be prefixed with a lowercase *p*, followed by
+the name of the controller itself.  The file itself can technically be
+named anything you like, but conventionally it shares the same name as the
+controller.  For example, the `User` page would have a class name of
+`pUser` and would be located in `app/pages/user.php`.
+
+[[X4.1]]
+Controller Action Handlers
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+Within each page controller are a number of methods called *action
+handlers*.  These methods are responsible for performing the logic
+required for the request(s) they are linked to.
+
+To elucidate, let's begin with a simple example of a page controller.
+
+.A basic Page Controller
+[php]
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<?php
+class pUser extends Page
+{
+	function GET_hello()
+	{
+		$this->template->set('greeting', 'Hello World! You issued a GET request.');
+		$this->render('user/hello.php');
+	}
+	function POST_hello()
+	{
+		$this->template->set('greeting', 'Hello World! You issued a POST request.');
+		$this->render('user/hello.php');
+	}
+}
+?>
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Notice that action handler methods are prefixed with the type of HTTP
+request that was issued.  This separation concept is adopted from the
+WebPY framework and its subsequent PHP clone, WebPHP.
+
+While at first glance this may seem tedious, it actually proves to be a
+very effective way of logically separating your processes based on the
+type of request.  Take a minute and think about the typical uses for a GET
+and POST, especially when handling form data.  The GET request is
+responsible for GETting the record, populating the form, and showing it to
+the visitor.  The POST request receives input back from the user and is in
+charge of validating and possibly updating the record.
+
+There have been many PHP projects and frameworks that will use a GET/POST
+variable such as `$op` or `$action` to denote the current mode being
+requested (eg, `if($op == \'edit\') {} else if($op == \'update\') {}`).
+
+By splitting our logic into separate methods, we avoid the cumbersome
+`$action` variable entirely.  As a bonus, we can easily hook into other,
+lesser-used HTTP verbs if need be.  For example, if you're writing an
+RSS-friendly blog, you may want to implement a HEAD request for your blog,
+as some readers will use this to retrieve the `Last-Modified` header or the
+`E-Tag` header.  Or perhaps you'd like to write a RESTful API and need to
+leverage the PUT and DELETE verbs.
+
+
+[[X4.2]]
+Parameters
+~~~~~~~~~~
+Before we talk about retrieving input data, let's see where it comes from
+and how Pronto deals with it.
+
+[[X4.2.a]]
+Where Input Variables Come From
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Before passing control to a page controller, the dispatcher will collect
+data from a few different places.  They are listed here, in order of
+precedence.  Latter entries override previous ones.
+
+.Input Data: Sources
+- URL arguments (eg, `/user/123/edit`)
+- GET variables
+- POST variables
+- Parameters from the URL route (defined in `app/config/urls.php`)
+
+
+[[X4.2.b]]
+Retrieving Input Data
+^^^^^^^^^^^^^^^^^^^^^
+There are a few ways to collect GET/POST data from within a controller.
+The first method is through the use of two convenience methods in the
+base `Page` class.
+
+.Retrieving and Setting parameters
+[php]
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<?php
+class pUser extends Page
+{
+	function GET_hello()
+	{
+		$name = $this->param('name', 'Joe');
+		$this->tset('recipient', $name);
+		$this->render('user/hello.php');
+	}
+}
+?>
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+`Page::param()` is the quickest way to grab a specific parameter from the
+input data.  If the variable requested is blank or
+does not exist, then the second parameter will be used as a default.
+
+If you'd like to load the entire input data set into an associative
+array, then you can use `Page::load_input()`.
+
+.Retrieving all parameters with `Page::load_input()`
+[php]
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<?php
+class pUser extends Page
+{
+	function GET_hello()
+	{
+		$data = $this->load_input();
+		$this->tset('recipient', $data['name']);
+		$this->render('user/hello.php');
+	}
+}
+?>
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Of course, you're free to access variables directly through the `$_GET`
+and `$_POST` superglobals, but Pronto will take care of any `magic_quotes`
+nonsense if you go through the Page class.
+
+
+[[X4.3]]
+Wildcard Handlers, Inline Variables
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Using <<X3.3.1,named subpatterns>> is one way to use URLs that contain
+variables __inline__, ie, variables occur in the URL path itselt, not in
+the query string.
+
+For example, `/user/edit?id=3` would become `/user/edit/3`.
+
+Another way to handle situations like these (and more), is through use of
+*wildcard action handlers*.  These function like a typical action handler,
+except they can be called when only the _beginning_ of the URL request
+matches the regexp in the `$URLS` routing table.
+
+Once again, an example will elucidate.
+
+.Inline Variables
+[php]
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<?php
+class pUser extends Page
+{
+	function GET_hello__($name='Joe')
+	{
+		$this->tset('recipient', $name);
+		$this->render('user/hello.php');
+	}
+}
+?>
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Notice the two underscores trailing the method name.  This denotes the
+action handler as a wildcard one.  It means that, if an exact match cannot
+be found for the request (in this case, `GET_hello()`) then the dispatcher
+will look for a wildcard handler that matches.  If it finds one,
+everything trailing after the matching portion will be treated as a
+variable, and passed into the action handler as such.  So if the browser
+calls `/user/hello/john`, the dispatcher will call
+`pUser::GET_hello__(\'john\')`.
+
+If a specific action cannot be found and a wildcard action cannot be
+found, then the dispatcher will default to the "catch-all" handler for
+that request type.  In this case it would be `GET()`.  If the catch-all
+does not exist either, then a 404 is issued.
+
+[NOTE]
+It is important to provide a default value for any inline variable
+arguments in your action handler's method prototype.  If you don't, then
+a visitor could inadvertently trigger an error if they made a request that
+did not include the variable (eg, `/user/hello/`).
+
+[[X4.4]]
+Validating GET/POST data
+~~~~~~~~~~~~~~~~~~~~~~~~
+It's very important to validate all data coming in from the web browser,
+both to ensure data integrity and maintain security.
+
+Most validation is delegated to the data models, but there are times when
+it's necessary to validate some data that isn't destined for a data model.
+In these cases, you can validate the directory from within the page
+controller.
+
+The class in charge of data validation is predictably called `Validator`.
+
+.Data Validation Methods
+`--------------------------`----------------------------------------------
+`Validator::required()`    Check a number of _REQUEST parameters to ensure that all are present and non-empty
+`Validator::validate()`    Validate a _REQUEST parameter against a regular expression
+`Validator::is_valid()`    Same as `validate()` but just return a true/false, don't populate the `$errors` array if validation fails
+--------------------------------------------------------------------------
+
+When using `Validator::validate()` and `Validator::is_valid()`, you can pass in any
+Perl-compatible regular expression.  You can also use one of the regular
+expressions defined at the top of `pronto/core/validator.php`.
+
+.Validating Data from a Page Controller
+[php]
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<?php
+class pUser extends Page
+{
+	function POST_save()
+	{
+		$errors = array();
+		// We use the shortcut methods here, though we could
+		// alternately call them through $this->validator. Same thing.
+		$this->required($errors, array('name','address'));
+		$this->validate($errors, 'email', VALID_EMAIL, 'Invalid email address');
+		$this->validate($errors, 'age', VALID_NUMBER, 'Please provide a valid integer');
+	}
+}
+?>
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+[[X4.5]]
+Calling Page Elements from other Controllers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The typical flow of a Pronto web request usually only involves a single
+page controller, but there are some scenarios where it makes sense to
+call an action from another page controller.  This is possible with the
+`Page::render_element()` method.
+
+Most methods in a page controller start with an HTTP verb, such as `GET_`,
+`POST_`, or the lesser-used `PUT_`, `DELETE_`, etc.  Page controller can
+also provide *elements* which are methods intended to be called from other
+page controllers.  These methods must have a prefix of `ELEM_`.
+
+.Calling a Page Element - the first controller
+[php]
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<?php
+class pBlog extends Page
+{
+	function ELEM_view($user_id)
+	{
+		$this->tset('blog_data', $this->models->blog->get_by('user_id', $user_id));
+
+		// elements don't usually render() their content, but simply
+		// fetch() it and return it to the caller, who can then insert
+		// the content into a full template.
+		return $this->fetch('blog/elem.view.php');
+	}
+}
+?>
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.Calling a Page Element - the second controller
+[php]
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<?php
+class pUser extends Page
+{
+	function GET_profile()
+	{
+		$id = $this->param('user_id');
+		$blog = $this->render_element('Blog', 'view', array($id));
+		$this->tset('blog_content', $blog);
+		$this->render('user/profile.php');
+	}
+}
+?>
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+[[X5]]
+The Template
+------------
+Templates serve as the presentation layer of Pronto.  When a page
+controller has finished its business, it will typically render a template
+via the `Page::render()` or `Page::ajax_render()` methods.
+
+Templates are unique to Pronto, in that they aren't classes themselves, and
+they don't have access to other areas of Pronto, such as the dispatcher,
+controllers, models, or the database (`$db`).  However, template files are
+managed by the `Template` class, which is ultimately in charge of
+setting/getting template variables, as well as the fetching/processing of
+templates themselves.
+
+Pronto's template system is rather standard.  You can use plain HTML and
+PHP as you wish.  However, the only variables accessible are those set by
+the page controller via the `Template::set()` method.
+
+[NOTE]
+Technically, it possible to access outside variables through the
+*Registry*, but it's not encouraged.
+
+Templates can also use any active *template plugins*, also called
+*helpers*.  These will be covered later, though the example below makes
+use of the `$html` helper.
+
+.A Simple Template
+[php]
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<p>Hello, <?php echo $name ?>!</p>
+<p>I am a template.</p>
+<p><?php echo $html->link('Go home', url('/')) ?></p>
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Although most helpers are loaded from the framework config or from a page
+controller, it is possible to load helpers from within templates.
+Template files do have access to the `$this`, and so they can call methods
+in the Template class.
+
+.Loading a Helper in a Template
+[php]
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+$form = $this->import_helper('form');
+?php echo $form->text('name') ?>
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Templates are usually organized by page controller, since that's who
+typically renders them.  The logical structure is to have subdirectories
+within the `app/templates` directory that match the names of the page
+controllers that will be rendering them.  This is recommended but not
+necessary.
+
+[[X5.1]]
+Template Variables
+~~~~~~~~~~~~~~~~~~
+As shown in the example above, templates can reference their variables in
+the global scope, but they are limited only to variables that have been
+set using `Template::set()`, `Page::tset()`, or objects that serve as
+template plugins.
+
+The `Template` class offers methods for setting, getting, and testing the
+existence of template variables.
+
+[NOTE]
+While `Template::set()` is the real variable setter, you're also free to
+use `Page::tset()` which is a shortcut method to the real one.  Likewise,
+there are shortcuts for `Template::get()`, `Template::is_set()`, and
+`Template::un_set()`.
+
+.Template Variables
+[php]
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<?php
+class pUser extends Page
+{
+	function GET()
+	{
+		// set it...
+		$this->template->set('name', 'Joe');
+		// get it back...
+		$name = $this->template->get('name';
+		// has it been set?
+		if($this->template->is_set('name')) {
+			// then unset it
+			$this->template->un_set('name');
+		}
+
+		// alternately, we can use the shortcuts...
+		$this->tset('name', 'John');
+		$name = $this->tget('name');
+	}
+}
+?>
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+[[X5.2]]
+Rendering a Template
+~~~~~~~~~~~~~~~~~~~~
+There are three functions that can be used to render templates.
+
+.Rendering Functions
+`---------------------`--------------------------------------------------------
+`Page::render()`      Parse a template and render it to the browser
+`Page::fetch()`       Parse a template and return the output to the caller
+`Page::ajax_render()` Render a template as an AJAX response (covered more later)
+-------------------------------------------------------------------------------
+
+You'll probably use the `Page::render()` function the most, but
+`Page::fetch()` can be useful if you're combining templates, or rendering
+them somewhere other than the browser (eg, email).  Both functions allow
+you to pass in additional template variables that are not set globally via
+`Template::set()` or `Page::tset()`.
+
+.Rendering a Template
+[php]
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<?php
+class pUser extends Page
+{
+	function GET()
+	{
+		$this->set('name', 'Joe');
+		// this path is relative the app/templates directory
+		$this->render('user/hello.php', array('age'=>27));
+	}
+}
+?>
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Like the template methods, the real functionality is actually in the
+`Template` class itself.  The methods in `Page` are merely convenience
+methods that call the real ones.
+
+[[X5.3]]
+Layouts
+~~~~~~~
+Layouts provide a way of establishing one or more outer structures to your
+web application.  Most of the application's structure and styling will be
+relegated to the layout, leaving the core content in the templates
+themselves.  While not considered a regular template, layouts still have
+access to template variables and plugins.
+
+.A Typical Layout
+[php]
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=<?php echo CHARSET ?>">
+	<title><?php echo SITE_NAME ?></title>
+	<?php echo $html->favicon('favicon') ?>
+	<?php echo $html->css('main') ?>
+	<?php echo $html->js('jq/jquery') ?>
+	<?php echo $HTML_HEAD ?>
+</head>
+
+<body>
+	<div id="header">
+		Super Cool Web App v1.0
+	</div>
+	<div id="content">
+		<?php echo $CONTENT_FOR_LAYOUT ?>
+	</div>
+</body>
+</html>
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+As you can see, all the "outer" stuff gets thrown in the layout.  When a
+template is rendered within a layout, it will be substituted for the
+variable `$CONTENT_FOR_LAYOUT`.  The other special layout variable is
+`$HTML_HEAD`, a placeholder variable for any additional tags that may need
+to be inserted into the `<head>` of your document.
+
+Multiple layouts are supported.  You can bind to a specific layout with
+the `Page::render()` method, or you can set a layout in a page
+controller's `\_\_init()\_\_` method.
+
+.Rendering a template within a different layout
+[php]
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<?php
+class pUser extends Page
+{
+	function __init__()
+	{
+		// set a different layout for this page.
+		// path is relative to app/templates.
+		$this->set_layout('layout.other.php');
+	}
+
+	function GET()
+	{
+		$this->set('name', 'Joe');
+		// render this template in a specific layout
+		$this->render('user/hello.php', array(), 'layout.new.php');
+	}
+}
+?>
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+[[X6]]
+The Model
+---------
+Models are responsible for any logic that surrounds the manipulation of a
+data entity.  Its typical responsibilities are to faciliate create,
+retrieve, update and delete (CRUD) operations.  If more advanced
+manipulation/processing functions are required for an entity, they will
+also be located here.
+
+Models do not actually perform any data introspection or Object Relational
+Mapping (ORM) by default.  They simply act as a place to store functions
+that relate directly to a data entity.  You are still responsible for
+writing your own SQL for the most part.  The creation and execution of
+safe SQL is reinforced by a well-designed database abstraction class that
+focuses on the DRY (Don't Repeat Yourself) principle.
+
+While Pronto does not provide any full ORM capabilities, the base `Model`
+class does provide some convienience functions for the more simple queries,
+such as PK-based lookups or lookups with a single column in the WHERE
+clause. See the `DB_Base` class in the API Reference for a list of
+methods.
+
+[[X6.1]]
+The Core Operations
+~~~~~~~~~~~~~~~~~~~
+The base `Model` class provides an interface for the common operations
+associated with a simple data entity.
+
+.Common data entity operations
+`----------------------`--------------------------------------------------
+`validate_for_insert`  Validate form data for an insert operation
+`validate_for_update`  Validate form data for an update operation
+`sanitize`             Perform any necessary data sanitization prior to operating
+`create`               Return a "default" set of data to populate a form for entity creation
+`get`                  Return a full data record, retrieved by Primary Key (PK)
+`get_record`           Do the actual retrieval of a data record (see NOTE below)
+`delete`               Delete a record by PK
+`insert`               Insert a new record
+`update`               Update an existing record
+`list_params`          Provide parameters necessary to generate a
+                       comprehensive list of records
+--------------------------------------------------------------------------
+
+[NOTE]
+You'll notice that models use both `get()` and `get_record()`.  `get()` is
+the method that should be used by controllers and other models to fetch an
+entity through this model.  But you will rarely every override the
+`get()` method in your model, only the `get_record()` method.  This is
+because the `get()` method actually uses `get_record()` to fetch the data,
+while wrapping it in some logic that employs full record caching.
+
+Depending on your data entity, some or all of these functions may not be
+relevant.  If you are using the specialized controller `Page_CRUD`, then
+it will expect these functions to be complete.
+
+For extremely simple entities, the implementation within the base `Model`
+class will probably suffice.  For all others, you will want to override
+the functionality within your own model class.
+
+Model class names are prefixed with a lowercase `m`.
+
+[[X6.2]]
+The `$db` Object
+~~~~~~~~~~~~~~~~
+The gatekeeper to all database access is the `$db` object.  Like `$web`,
+it is available pretty much everywhere (either through `$web` or
+directly), though it is typically most used within data models.
+
+The DB class provides some simple convenience methods for selects,
+inserts, and updates, while using the third-party *SafeSQL* library for
+parameter substitution and protection against SQL injection attacks.
+
+An example is below, though you'll want to consult the API documentation
+for a full list of methods available.
+
+.Using the `$db` object
+[php]
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<?php
+class mUser extends Model
+{
+	function do_stuff($id)
+	{
+		// get a full record...
+		$data = $this->db->get_item("SELECT * FROM users WHERE id=%i", array($id));
+		// this works too...
+		$data = $this->db->get_item_by_pk('users', 'id', $id);
+		if($data) {
+			// update it with new data...
+			$data['last_login'] = date('Y-m-d');
+			$this->db->update_row('users', $data, 'id=%i', array($id));
+		}
+		// count users who logged in today...
+		$ct = $this->db->get_value("SELECT COUNT(*) FROM users WHERE last_login=CURDATE()");
+		return $ct;
+	}
+}
+?>
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+As you can see, you can use placeholders within your SQL queries to denote
+variables that can be substituted by SafeSQL when it's time to execute the
+query.  This is the recommended method of using variables in your queries,
+as SafeSQL can ensure that any malicious SQL (or other poorly-formed data)
+is properly escaped before being passed to the database engine.
+
+There are different types of placeholders you can use, depending on what
+type of data you'll be passing in.  If the variable type does not match
+the placeholder, SafeSQL will attempt to cast it.
+
+.SafeSQL Variable Placeholders
+`----`-----------------------------------------------------
+`%s` string
+`%i` integer
+`%f` float
+`%c` comma-separated list, each element casted to integer
+`%l` comma-separated list, no quotes or casting
+`%q` comma-separated list, each element quoted (string)
+`%n` wrap the value in quotes unless it is NULL
+-----------------------------------------------------------
+
+In a well-organized application, almost all of your DB work will be in the
+models themselves.  But just in case, `$db` is available to the dispatch
+and page controllers.  It can be passed to plugins as well, though there
+are usually better ways of doing this.
+
+[[X6.3]]
+Defining Parameters for Record Listings
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Of all the operations listed in the beginning of this section, the one
+that probably stands out is the last one, `Model::list_params()`.  Within
+the Pronto framework itself, this method is only used by one method, and
+that is `Page_CRUD::GET_list()`.  The `Page_CRUD` class will be covered
+later, but `Model::list_params()` can be used by application code that you
+write as well, so we'll cover it here.
+
+The purpose of `Model::list_params()` is to return the information
+required to construct a SQL query that will return a useful dataset to
+populate a record listing.  It is often used in conjuction with
+`SQL_Generator::enumerate()`, which can convert list parameters into full
+SQL code.
+
+That's a bit of a mouthful, so perhaps a well-contrived example will serve
+us better.
+
+Let's say you need to show a tabled list of records for a data entity.  In
+a perfect world, you could just issue a `"SELECT * FROM $table"` and pass
+it to a template plugin that generates the table.  But what if some
+columns are not mapped directly to a column in your table?  What if you
+need to join against other tables, or restrict your data with a `WHERE`
+clause?
+
+All of this is a cinch to do with SQL (that's what it was designed for,
+after all), but if a plugin or controller action is in charge of deciding
+which field to sort by or which data to restrict, then it can be easier to
+start by separating your query into its logical segments.  That's what
+`Model::list_params()` does.
+
+`Model::list_params()` returns an associative array that contains eight
+elements.
+
+[NOTE]
+Like the rest of the Model interface, you only need to implement this
+method if you're actually going to use it.
+
+.Elements of `Model::list_params()`
+`------------`------------`-----------------------------------------------------------------------------------
+`from`       __string__   The FROM clause that will be used.  This should be well-formed SQL.
+`exprs`      __array__    Zero or more SQL expressions that will be used in the SELECT clause of the query.  These are typically pieces of data that aren't regular data columns, but are passed through some SQL functions or similar.  When creating a WHERE clause to filter a result set, Pronto will check this array first.  If a match is found, it will use the SQL expression instead of the literal column name.
+`gexprs`     __array__    Like `exprs`, except Pronto will use this when building a HAVING clause for a SQL query.  Not usually needed unless you're also using `group_by`.
+`select`     __string__   The main SELECT clause of the query.  Can be as simple as `*` or you can select certain columns (eg, `u.id,u.name`).
+`where`      __mixed__    An array or string of elements that will construct your WHERE clause.  If an array, these will be AND'ed together, along with any other filter data that might be added by your controller. (eg, `array('status="active"', 'confirmed=1')`)
+`group_by`   __string__   The column(s) to group by, if any.
+`having`     __string__   The column(s) to sort by.  If not specified, your model's `default_sort` will be used.
+`order`      __string__   The column(s) to sort by.  If not specified, your model's `default_sort` will be used.
+`limit`      __string__   The amount of records to return, if you choose to limit them.  If not specified, your model's `per_page` will be used.
+--------------------------------------------------------------------------------------------------------------
+
+[NOTE]
+You can optionally pass any of the query chunks through `$this->db->query()`
+first to do proper argument substitution.  `$this->db->query()` will not
+actually execute a query, it simply performs the variable substitution that
+should occur before a query is executed.
+
+.Using `Model::list_params()`
+[php]
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<?php
+class mPost extends Model
+{
+	function list_params()
+	{
+		/* Note that we've omitted the 'limit' and 'group_by' elements.
+		 * If they're not present, sensible defaults will be used.
+		 */
+		return array(
+			'from'       => 'posts p INNER JOIN blogs b ON b.id=p.blog_id',
+			'exprs'      => array('posted_at' => "CONCAT(p.post_date,' ',p.post_time)"),
+			'select'     => 'p.*,b.name',
+			'where'      => $this->db->query('b.user_id=%i', ACCESS_ID),
+			'order'      => 'p.post_date DESC'
+		);
+	}
+}
+?>
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you'd like to see how this data is used, take a look at the
+`SQL_Generator::enumerate()` method in `pronto/core/sql.php`.
+
+[[X6.4]]
+Example: A model and its use
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Let's look at a simple example of a model and how it might be used from a
+page controller.
+
+.A simple model
+[php]
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<?php
+class mUser extends Model
+{
+	// these are used by the CRUD record listing facility, and
+	// can be used by any custom code you write as well.
+	var $default_sort = 'last_name ASC';
+	var $per_page     = 50;
+
+	function validate_for_insert($data)
+	{
+		// all our errors will be returned in this array
+		$errors = array();
+		// we can use the Validator::validate() and Validator::required() functions
+		$this->validator->required($errors, array('first_name','last_name','password'), $data);
+		$this->validator->validate($errors, 'email', VALID_EMAIL, 'Valid email required', $data);
+		// make sure passwords match
+		if(!empty($data['password']) && $data['password'] != $data['password2']) {
+			$errors['password2'] = 'Passwords do not match';
+		}
+		// check for a duplicate username
+		if($this->db->get_value("SELECT id FROM users WHERE email='%s'", array($data['email']))) {
+			$errors['email'] = 'This email address is already in use.';
+		}
+		return $errors;
+	}
+
+	function validate_for_update($data)
+	{
+		// similar to validate_for_insert, so we'll leave this out for
+		// brevity...
+	}
+
+	// If it's more convenient, you can omit the two methods above and
+	// combine them with this one...
+	function validate($data, $is_update)
+	{
+		if($is_update) {
+			// same code as validate_for_update()
+		} else {
+			// same code as validate_for_insert()
+		}
+	}
+
+	function create()
+	{
+		// this method is used by the Page_CRUD::GET_create() method to set
+		// some default values in the create form.  However, we don't really
+		// have any defaults to put in here...
+		return array();
+	}
+
+	function get_record($id)
+	{
+		$data = parent::get_record($id);
+		// we don't need the password, remove it before giving
+		// data back to the caller...
+		unset($data['password']);
+		return $data;
+	}
+
+	function insert($data)
+	{
+		// set some metadata...
+		$data['created_on'] = date('Y-m-d');
+		$data['status']     = 'active';
+		// encrypt password
+		$data['password'] = sha1($data['password']);
+
+		// this will return the new insert ID
+		return parent::insert($data);
+	}
+
+	function update($data)
+	{
+		// don't let the user change these fields...
+		unset($data['status'], $data['created_on']);
+		// encrypt password, if it was changed
+		if(!empty($data['password'])) {
+			$data['password'] = sha1($data['password']);
+		} else {
+			unset($data['password']);
+		}
+
+		return parent::update($data);
+	}
+
+	function delete($id)
+	{
+		// we employ lazy deletion...
+		$this->db->execute("UPDATE users SET status='deleted' WHERE id=%i", array($id));
+	}
+}
+?>
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Now we can create a page controller that uses these methods.  Our basic
+controller will provide a registration facility for new users.
+
+.Using the model from a page controller
+[php]
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<?php
+class pUser extends Page
+{
+	function __init__()
+	{
+		// import the model so it can be accessed via $this->models
+		$this->import_model('user');
+	}
+
+	function GET_signup()
+	{
+		if(!$this->template->is_set('data')) {
+			// no form data is set yet, give it some defaults
+			$this->template->set('data', $this->models->user->create());
+		}
+		$this->render('user/signup.php');
+	}
+
+	function POST_signup()
+	{
+		// grab the POST data into an associative array
+		$data = $this->load_input();
+		// validate
+		$errors = $this->models->user->validate($data, false);
+		if(!empty($errors)) {
+			// validation failed... return the visitor to the signup
+			// form... The Page class provides a mechanism for this.  It will
+			// pass the form data and the errors back through the session and
+			// issue a redirect to the signup form.
+			$this->return_to_form(url('/signup'), $data, $errors);
+			return;
+		}
+		// validation passed, do the insert
+		$user_id = $this->models->user->insert($data);
+		// now send them to their profile page
+		$this->redirect(url("/profile?id=$user_id"));
+	}
+}
+?>
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+As you can see, the separation of data logic and controller logic makes
+for some well-organized, readable code, and the GET/POST split in the
+controller makes it easy to tell which stage we're at in the signup
+process.
+
+[[X6.5]]
+Using other models from within a model
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+It's possible for a model to depend on other models.  This occurs a lot
+when you have entities that link to each other.  A model for managing
+users probably shouldn't directly modify another entity type, so instead
+it can ask the respective model to do the work on its behalf.
+
+.Using other models
+[php]
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<?php
+class mUser extends Model
+{
+	function delete($id)
+	{
+		// load the Blog model as a dependency so we can delete this user's
+		// blog record as well.
+		$this->depend('blog');
+
+		$user = $this->get($id);
+		$this->depends->blog->delete($user['blog_id']);
+		parent::delete($id);
+	}
+}
+?>
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+[[X7]]
+Sessions and Authentication
+---------------------------
+There is no special facility in place for storing and retrieving session
+data, so you can use the standard PHP superglobal `$_SESSION` just as you
+would in a basic PHP script.
+
+.Storing session variables
+[php]
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<?php
+	$_SESSION['rocket_science'] = false;
+	$_SESSION['other_stuff']    = 'Pretty basic...';
+?>
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Likewise, there is no policy on authentication either, though Pronto does
+provide a facility for access control lists (ACLs) and access checks.
+
+What this means is that you're free to authenticate your users however you
+like.  Once authenticated, you can use Pronto's access control features to
+keep track of whether a user is logged in or not, and what areas of the
+web application they are allowed to access.
+
+[[X7.1]]
+Access Control
+~~~~~~~~~~~~~~
+In Pronto, there are two pieces of data that constitute your access policy
+framework: The *access model* and the *access keys*.
+
+An access key, when assigned to a user, gives that user access to parts
+of the site that require it.  The access model determines how the access
+key structure will be interpreted and used.
+
+There are two primary *access models* in Pronto: *roles* and *discrete*.
+In both models, your *access keys* will be an associative array of
+__keys__ and __values__.
+
+[NOTE]
+Unfortunately, the term __key__ is used for two meanings here: as an
+access key, and as an array key.  Pay close attention to which one we're
+talking about.
+
+.Access Models
+`-----------`------------------------------------------------------------
+*roles*     Within your access key set, each array key is a role or group name, and the array value is an array of access keys (strings) that will be assigned to that role.  A user can be assigned to zero or more roles.  The role names themselves should be stored in the DB record for the user.  At login time, they will be resolved to the individual access keys and assigned.
+*discrete*  The structure of your access key set is the same as in the *roles* model. However, in this model, the actual keys themselves should be assigned to the user within the DB, so you can pick and choose which keys from which modules get assigned.  This provides a higher level of control for each user, but is slightly more complicated to conceptualize and implement.
+-------------------------------------------------------------------------
+
+If you're not sure which one to use, start with the *roles* model.
+Conceptually, it is simpler, analagous to assigning a "rank" to each user
+in the system.
+
+Both the *access model* and the *access_keys* are configured in
+`app/config/access.php`.
+
+.A default access policy
+[php]
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<?php
+
+define('ACCESS_MODEL', 'roles');
+
+// Though the roles model can support each user having more than one role,
+// our application will only assign one role per user.  If the user's
+// record says they are a "User", then we assign them the 'USER' access
+// key.  If they're marked as an "Administrator", then we assign them both
+// the 'USER' and the 'ADMIN' access keys.
+
+$ACCESS_KEYS = array(
+	'User'          => array('USER'),
+	'Administrator' => array('USER','ADMIN')
+);
+
+?>
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Once a user is logged in, Pronto's access layer will set the
+constant `ACCESS_ID` to the unique ID of that user.  You can use this
+constant throughout the web application to check if a user is logged in
+(regardless of access keys assigned) and to link entities to the logged-in
+user.
+
+To protect your controllers (or actions within) against unauthorized
+access, you can use the `Web::check_access()` and `Access::has_access()`
+methods.
+
+.Checking for valid access
+[php]
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<?php
+class pUser extends Page
+{
+	function __init__()
+	{
+		$this->import_model('user');
+	}
+
+	function GET_edit_profile()
+	{
+		// check that this person has the 'USER' key... if not, then one of
+		// two things will happen:
+		//   1. if the user isn't logged in, they'll be sent to the login page
+		//   2. if the user is logged in but doesn't have this key, they will
+		//      see a "403 Forbidden" page.
+		//
+		$this->web->check_access('USER');
+
+		// okay, they're logged in and they have the 'USER' access key, so
+		// grab their profile data
+		$profile = $this->models->user->get(ACCESS_ID);
+		$this->tset('profile', $profile);
+		$this->render('user/edit_profile.php');
+	}
+}
+?>
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You can also use `Access::has_access()` if you merely want to see if the user
+has valid access, but not act on the result.  There is also a global
+shortcut function to `Access::has_access()` called `a()`, which can be used
+anywhere in Pronto.
+
+.Using Access::has_access()
+[php]
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<?php
+class pUser extends Page
+{
+	function GET_stuff()
+	{
+		// the Web object contains a shortcut method to Access::has_access()
+		if($this->web->has_access('USER')) {
+			echo "You are allowed";
+		}
+
+		// this would do the same
+		if(a('USER')) {
+			echo "You are allowed";
+		}
+}
+?>
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+[[X7.2]]
+User Authentication
+~~~~~~~~~~~~~~~~~~~
+So now that we know how to test for proper access, how do we tell Pronto
+that a user is authenticated?
+
+The `$web` object holds a reference to the `Access` class, which is the
+brains of Pronto's access control facility.  To set, get, or clear keys,
+you can go through `$web->access` or get a reference to the object by
+asking the Registry.
+
+.Getting an object from the Regsitry
+[php]
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<?php
+	$access =& Registry::get('pronto:access');
+?>
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Let's add a couple methods to our `mUser` model class that can handle
+authentication.
+
+.Authenticating a user
+[php]
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<?php
+class mUser extends Model
+{
+	/**
+	 * Returns true if the user is authenticated, else returns an error
+	 * string to be passed back to the browser.
+	 */
+	function authenticate($email, $password)
+	{
+		$user = $this->db->get_item("SELECT * FROM users WHERE email='%s'", array($email));
+
+		if(!$user)                               return 'Invalid email/password';
+		if($user['password'] != sha1($password)) return 'Invalid email/password';
+		if($user['status'] != 'active')          return 'This account is not active';
+
+		// Okay, everything checks out, so assign the user's access id and
+		// his/her keys...
+		$access =& Registry::get('access');
+		$access->set_id($user['id']);
+		$access->set_keys($user['access_keys']);
+
+		$this->db->execute("UPDATE users SET last_login=CURDATE() WHERE id=%i", array($user['id']));
+
+		// Now we'll store the user's record in the session so we don't have
+		// to fetch it from the DB each time
+		$_SESSION['USER'] = $this->get($user['id']);
+		return true;
+	}
+
+	function clear_authentication()
+	{
+		$access =& Registry::get('access');
+		$access->clear_authentication();
+		unset($_SESSION['USER']);
+	}
+}
+?>
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+As you can see, we've stored the user's access in a database column called
+`access_keys`.  It's just a `VARCHAR` field, so it could be a
+comma-delimited list of keys if we chose to use the *discrete* access
+model instead.  Our `authenticate` method above will work for both models,
+but we'll stick with *roles* for now.
+
+When a user logs out, we call the model's `clear_authentication` method,
+which in turn calls the one in `$access`, which will clear out the
+user's access id and access keys, returning them to a "visitor" state,
+completely unauthenticated.
+
+[NOTE]
+To track access variables across page loads, Pronto uses a special session
+variable called `_ACCESS` to store them.  You can see what this looks like
+by throwing this in a page controller: `debug($_SESSION[\'_ACCESS\']);`
+
+[[X8]]
+Specialized Controllers
+-----------------------
+The `Page` class is the one that you will extend most of your page
+controllers from, but Pronto does provide a couple other page controller
+classes that serve a more specialized purpose.  If their features appeal
+to you, you can always extend your page controller from one of them.
+
+Currently there are only two specialized controllers.
+
+[[X8.1]]
+The Static Controller
+~~~~~~~~~~~~~~~~~~~~~
+The beautiful harmony of page controllers, models, and templates can be a
+wonderful thing, but if all you want to do is render a simple template,
+then it feels a little overkill to have to do something like this:
+
+.The lame way of rendering static content
+[php]
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<?php
+class pHome extends Page
+{
+	function GET_about()
+	{
+		$this->render('home/about.php');
+	}
+
+	function GET_contact()
+	{
+		$this->render('home/contact.php');
+	}
+
+	function GET_features()
+	{
+		$this->render('home/features.php');
+	}
+}
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This method works fine and still looks clean, but do we really need to
+explicitly list each action when all we need to do is render the
+correponsding template?
+
+No.  We can use the `Page_Static` class.
+
+.The better way of rendering static content
+[php]
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<?php
+class pHome extends Page_Static
+{
+	function __init__()
+	{
+		// Set the template directory where all our templates live.
+		// Once again, this is relative to the app/templates directory.
+		$this->set_dir('home');
+	}
+}
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Done.  Now, whenever a URL is routed to this page controller, it will
+examine the URL and look for a corresponding template.  So if you surf to
+`/about` in your application, the `Page_Static` class will look for a
+`about.php` template in the directory set by the `Page_Static::set_dir()`
+method.  If the template isn't found, a 404 will be issued.
+
+To route URLs to your page server, you can simply put a "catch-all" at the
+bottom of your routing table.
+
+.Routing to the page server (`app/config/urls.php`)
+[php]
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+$URLS = array(
+	'/user/(.*)'       => 'User',
+	'/book/(.*)'       => 'Book',
+	'/login/'          => array('User','login'),
+	'/logout/'         => array('User','logout'),
+
+	// send the rest to our Home controller
+
+	'/(.*)'            => 'Home'
+);
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+[[X8.2]]
+The CRUD Controller
+~~~~~~~~~~~~~~~~~~~
+Most web developers recognize the common operations around a data entity.
+We lovingly call them CRUD, and they stand for *Create*, *Retrieve*,
+*Update*, and *Delete*.
+
+The `Page_CRUD` class provides a generic facility to fulfill these
+operations.  It will provide the following actions:
+
+`----------------------`-------------------------------------------------
+`GET_create()`         Render a create form
+`POST_create()`        Validate and insert a new record
+`GET_edit()`           Retrieve a record and populate it into a edit form (usually same template as the create one)
+`POST_edit()`          Validate and update an existing record
+`GET_delete()`         Delete a record
+`GET_list()`           List records
+`GET_file__preview()`  If a file is associated with the record, this optional method can be used to preview it.
+`GET_file__remove()`   If a file is associated with the record, this optional method can delete it.
+-------------------------------------------------------------------------
+
+Of course, like any page controller, you can override these actions and/or
+add your own if the basic `Page_CRUD` ones do not fulfill your needs.
+
+[[X8.2.a]]
+Setting the Entity
+^^^^^^^^^^^^^^^^^^
+When using `Page_CRUD`, the first thing you need to do is to tell it which
+entity it should be managing.  This is done with the
+`Page_CRUD::set_entity()` method.
+
+.Setting up Page_CRUD
+[php]
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<?php
+class pBook extends Page_CRUD
+{
+	function __init__()
+	{
+		// First import the model...
+		$this->import_model('book');
+
+		// This tells Page_CRUD to use the 'book' model, and to use the human
+		// name "Book" when referencing the entity in human-readable messages.
+		$this->set_entity('book', 'Book');
+	}
+}
+?>
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Technically, this is all that's required at the controller level.
+`Page_CRUD` will implement the actions described in the table above and it
+will render templates in the `app/templates/<entity_name>` directory.
+
+Even though `Page_CRUD` will do the controller logic for you, you still
+have to create the templates yourself, as they will certainly vary from
+entity to entity.
+
+[[X8.2.b]]
+Controlling Access to Actions
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Most entities should be protected by some sort of access checks.  Since
+`Page_CRUD` handles most of the actions for us, we can't insert a call to
+`$this->web->check_access()` in each one.  Instead, simply override the
+`Page_CRUD::authenticate()` method.
+
+.Protecting CRUD operations
+[php]
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<?php
+class pBook extends Page_CRUD
+{
+	function __init__()
+	{
+		$this->import_model('book');
+		$this->set_entity('book', 'Book');
+	}
+
+	function authenticate()
+	{
+		$this->web->check_access('ADMIN');
+	}
+}
+?>
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If various operations will require different access, then you can use the
+`auth_\*` methods instead.  There are three.
+
+.Operation-specific CRUD authentication methods
+`----------------`------------------------------------------
+`auth_create()`  Called for *create* and *edit* operations
+`auth_delete()`  Called for *delete* operations
+`auth_list()`    Called for *list* operations
+------------------------------------------------------------
+
+In some circumstances, you may actually want to block access to certain
+operations of `Page_CRUD` while allowing the rest.  There are two ways to
+do this.  You can either override the specific actions with empty methods,
+or you can change the value of `Page_CRUD::$enabled_actions`.
+
+.Disabling specific operations
+[php]
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<?php
+class pBook extends Page_CRUD
+{
+	function __init__()
+	{
+		$this->import_model('book');
+		$this->set_entity('book', 'Book');
+		// we'll leave out 'delete' and 'edit' to disable them
+		$this->enabled_actions = array('create','list');
+	}
+}
+?>
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+[[X8.2.c]]
+Process Hooks
+^^^^^^^^^^^^^
+`Page_CRUD` does a good job at covering the fundamental operations of a
+data entity.  However, every entity is different, and there are often
+times when you need to add a little code at certain points in the process.
+
+In Pronto parlance, this points are called *process hooks*.  There are a
+number process hooks that `Page_CRUD` uses.  To access one of them, you
+simply need to implement that particular method name in your controller
+class.
+
+Listed below are all the process hooks available to the `Page_CRUD` class.
+Their names are rough indication of when they are called within each
+process, but it's recommended that you consult the actual code in
+`pronto/core/page_crud.php` to see the exact points at which each hook is
+called.
+
+.CRUD process hooks
+`--------------------------------`------------------------------------
+`hook__pre_edit`                 *create*/*edit*
+`hook__failed_validation`        *create*/*edit*
+`hook__pre_save`                 *create*/*edit*
+`hook__post_save`                *create*/*edit*
+`hook_create__pre_edit`          *create*
+`hook_create__failed_validation` *create*
+`hook_edit__pre_edit`            *edit*
+`hook_edit__failed_validation`   *edit*
+`hook_insert__pre_save`          *create*
+`hook_insert__post_save`         *create*
+`hook_update__pre_save`          *update*
+`hook_update__post_save`         *update*
+`hook_delete__pre_delete`        *delete*
+`hook_delete__post_delete`       *delete*
+`hook_list__params`              *list*
+`hook_list__post_select`         *list*
+----------------------------------------------------------------------
+
+.Using process hooks
+[php]
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<?php
+class pBook extends Page_CRUD
+{
+	function __init__()
+	{
+		$this->import_model('book','category');
+		$this->set_entity('book', 'Book');
+	}
+
+	function hook__pre_edit(&$data)
+	{
+		// Each book belongs to a category, so we have to pull a list
+		// of them and pass them to the template so we can populate
+		// the dropdown widget.
+		$cats = $this->models->category->get_list();
+		$this->tset('categories', $cats);
+	}
+
+	function hook__pre_save(&$data)
+	{
+		// If we want, we can actually change things in the current record
+		// before they are passed to the template.
+		//
+		// This should probably be in the model itself, but we'll put here for
+		// example's sake.
+		$data['last_edited_by'] = ACCESS_ID;
+	}
+}
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+[[X8.2.d]]
+Using the CRUD generator
+^^^^^^^^^^^^^^^^^^^^^^^^
+The `Page_CRUD` class can greatly speed up development.  While it serves
+as a great scaffolding method in early stages of development, it's also
+featureful enough to work with entities in later development and
+production.
+
+But for each entity, you still have to manually create your page
+controller, your model, and your two template files (one for
+creating/editing and one for listing).
+
+Fear not, lazy coder.  The CRUD generator can do the mundane part for you.
+It will create these four files for you from a template, so all you need
+to do is modify them to suit the entity you're CRUD'ing.
+
+The CRUD generator is a PHP script intended to be run from the
+commandline.  It takes at least two arguments, `entity` and `db_table`.
+`entity` tells it the name of the entity it is generating files for, and
+`db_table` tells it which database table it should use for basic
+introspection.
+
+The generator will then look at all the columns in the database table and
+use this data to build form and grid widgets for you.  They won't be very
+useful right out of the box, but it's much quicker to tweak an existing
+template than it is to create one from scratch.
+
+Let's look at an example. The first thing we do is create the database
+table.  Here is our database schema for the purposes of this example:
+
+.Our "books" table
+[sql]
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+CREATE TABLE `books` (
+    `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+
+    `title` VARCHAR(128) NOT NULL,
+    `category` VARCHAR(128) NOT NULL,
+    `author` VARCHAR(128) NOT NULL,
+    `excerpt` MEDIUMTEXT NOT NULL,
+
+    `created_on` DATE NOT NULL,
+    `status` ENUM('active','deleted') NOT NULL DEFAULT 'active',
+
+    PRIMARY KEY(`id`),
+    KEY(`title`)
+) DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Now let's use the CRUD generator to bootstrap this entity.
+
+.Using the CRUD generator
+-----------------------------------------------------
+$ php pronto/bin/generators/crud/generate.php book books
+Entity:   book
+DB Table: books
+
+Examining DB table for data introspection...
+
+New Model:           models/book.php
+New Page Controller: pages/book.php
+New Template:        templates/book/list.php
+New Template:        templates/book/create.php
+-----------------------------------------------------
+
+Voila.  Take a look at the files the generator outputs and you'll see you
+have the basic functionality for this entity already done for you.  It
+uses the `tpTable` and `tpForm` template plugins to build forms and grids
+for you.
+
+The generator can't be smart enough to style your forms/grids and to know
+which fields should be which data types, etc.  This is where your tweaking
+skills come in.  Modify the files to complete the functionality and
+carry on the to the next entity.  Both the `tpTable` and `tpForm` plugins
+support a number of customizations and control, but if they don't suit
+your needs, you can always do things the old-fashioned way.
+
+[[X9]]
+Plugins
+-------
+Pronto makes avid use of plugins both at the *controller* and the
+*template* layers.  The interface between controllers/templates and their
+plugins is very light, so you're free to use them in pretty much any way
+you want.
+
+In Pronto parlance, plugins at the template layer are called template
+plugins or *helpers*.  Plugins at the controller layer are called page
+plugins or simply *plugins*.
+
+You can control which plugins are active by changing the `PLUGINS`
+and `HELPERS` values in `app/config/config.php`.
+
+To access a plugin from within a page controller, simply reference
+its name through `$this->plugins`.
+
+.Accessing a page plugin
+[php]
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<?php
+class pUser extends Page
+{
+	function GET_send_email()
+	{
+		$email = $this->param('email');
+		// use the 'mailer' page plugin
+		$this->plugins->mailer->send($email, 'Hello World', 'Hello from Pronto!');
+	}
+}
+?>
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To access a helper from within a template, simply reference it as
+if it were a regular template variable (though it will be an object).
+
+.Accessing a template plugin
+[html]
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<p>We're in a template</p>
+<p>Here is a link: <?php echo $html->link('Go Home', url('/')) ?></p>
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+[[X9.1]]
+Template Plugins
+~~~~~~~~~~~~~~~~
+There are currently six helpers included with Pronto.  Each class name is
+prefixed with a `tp`.
+
+.Helpers
+`--------------`-----------------------------------------------------------
+`tpHTML`       Convenience methods for basic HTML elements: URLs, Links, JS, CSS, etc.
+`tpForm`       Generate individual form elements and full, tableless forms
+`tpTable`      Generate simple data tables and full-featured grids for record listings
+`tpAJAX`       Some AJAX-y functionality such as modal dialogs
+`tpNavigation` Generate a two-tiered, tabbed navigation menu
+`tpPager`      Generate a pager control for enumerating records
+---------------------------------------------------------------------------
+
+We will cover each of these in brief.  For a more thorough understanding,
+it's not a bad idea to examine the API docs or the plugin code itself.
+
+[[X9.1.a]]
+The `html` Plugin
+^^^^^^^^^^^^^^^^^
+Most of the methods in the `html` plugin are pretty self-explanatory.  The
+API Reference will probably serve you best.
+
+The more interesting methods in this plugin are probably the Javascript
+and CSS queuing methods.  These methods can insert Javascript files/code
+or CSS files into a document, without having to resort to setting more
+variables in your template layout.
+
+The best part is that these queueing mechanisms will work with regular
+_and_ AJAX reponses, so you can code your templates in an agnostic
+fashion, without having to worry how they'll be rendered.  Bonus!
+
+All code chunks use a basic key/value hash method, which ensures that
+files are not loaded more than once per page, as long as you are
+consistent with your key names.
+
+.Using the queueing methods
+[php]
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<?php
+	// If this is a regular response, all this stuff will show up in
+	// the document <head>.  If it's an AJAX response, then it will
+	// be loaded dynamically.
+
+	// this will load css/style.css (autogenerated key)
+	$html->css_load('style');
+
+	// this will load js/stuff.js with a key of "misc"
+	$html->js_load('misc', 'stuff');
+
+	// execute a little chunk of JS (the blank key means Pronto will
+	// autogenerate one)
+	$html->js_run('', "alert('Hello World!');");
+?>
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+[[X9.1.b]]
+The `form` Plugin
+^^^^^^^^^^^^^^^^^
+The `form` plugin is used to build fully-functional forms or to generate
+individual form elements.  It's pretty smart and robust, but don't expect
+it to be smart enough to generate every fancy form you can think of.
+
+.Generating an individual form element
+[php]
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Username: <?php echo $form->text('username') ?><br />
+Password: <?php echo $form->password('password') ?>
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+What's the advantage of this over typing out the raw HTML?  It may save
+you a few seconds, but it can also do a few other things to save you time.
+If you open a new form (with `tpForm::open_form()`) you can preload your
+form with any relevant error messages, and they will be displayed
+beside/below their respective form elements.
+
+Also, using a structured interface like this allows us to build full forms
+without carving out the HTML ourselves.  `tpForm::build_form()` will
+generate tableless HTML.
+
+.A basic single-column form
+[php]
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<?php
+// 'action'   will be used for the form's "action=" attribute.
+// 'submit'   contains two strings used as labels for the Submit button, one
+//            for the creation of a new item and one for the update of an
+//            existing one.
+// 'data_id'  points to the PK of this entity, so build_form() knows if it
+//            is updating or creating.
+// 'layout'   defines the columnar layout of the resulting form.
+// 'elements' is a sub-array that describes the elements that will be used
+//            in this form (can be separated into multiple columns).
+
+$f = array(
+	'action'  => url(CURRENT_URL),
+	'submit'  => array('Create User', 'Update User'),
+	'data_id' => $data['id'],
+	'layout' => array(
+		'col1' => array('colspan'=>1, 'label_width'=>'auto'),
+		'col2' => array('colspan'=>1, 'label_width'=>'auto'),
+	),
+	'elements' => array(
+		'col1' => array(
+			'first_name'  => array('prompt'=>'First Name:', 'type'=>'text'),
+			'last_name'   => array('prompt'=>'Last Name:', 'type'=>'text'),
+			'email'       => array('prompt'=>'Email Address:', 'type'=>'text', 'help'=>'Email address must be unique.'),
+		),
+		'col2' => array(
+			'language'  => array('prompt'=>__('Language:'), 'type'=>'select', 'options'=>$languages),
+			'password'  => array('prompt'=>__('Login Password:'), 'type'=>'password'),
+			'password2' => array('prompt'=>__('Confirm Password:'), 'type'=>'password'),
+		),
+	)
+);
+
+// along with the form definition, we pass build_form() the form data and
+// any relevant errors, so it can prefill data and position errors
+// accordingly.
+echo $form->build_form($f, $data, $errors);
+?>
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+`tpForm::build_form()` is the plugin's main method.  It will construct the
+various `<form>` and `<div>` tags for the form, then call the individual
+form element generators for each element, depending on the value of the
+`type` field within each element of the `elements` sub-array.
+
+There are many more options that can be provided to the `build_form()`
+method, both at the form level and at the element level.  We suggest you
+read through the code and comments in `pronto/plugins/template/form.php`
+to see them.  Also consult the example applications provided on the Pronto
+website, as they can elucidate.
+
+[[X9.1.c]]
+The `table` Plugin
+^^^^^^^^^^^^^^^^^^
+The `table` plugin only provides two primary methods: `build_table()` and
+`build_grid()`.
+
+`tpTable::build_table()` is just a dumb table generator, but can be useful
+for assembling simple tables.  It will handle zebra-coloured rows and a
+highlighting hover effect.
+
+`tpTable::build_grid()` is another table generator, but it generates what
+we call a *grid*.  A *grid* is a smarter table, one that provides sorting,
+filtering, pagination, and totals.
+
+Grid definitions somewhat resemble the form definitions we saw in the
+`tpForm::build_form()` example.  We'll pass one giant array to
+`tpTable::build_grid()` and it will figure out what goes where.
+
+.A grid for record listings
+[php]
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<h1>Users</h1>
+
+<?php
+// 'options'  is an array that contains options that override default grid
+//            behavior.
+// 'columns'  is the primary sub-array - it defines each column, what data
+//            it will be using, and what sort of search filter to use.
+//            The special '_OPTIONS_' column contains action icons that
+//            can be clicked on to operate on specific rows.
+// 'data'     is the actual record data we're listing, probably passed to
+//            us from a GET_list() action.
+// 'perpage'  tells the grid how many records to display per page.
+// 'curpage'  tells the grid what page we're currently on.
+// 'rows'     tells the grid how many total rows there are so it can build
+//            the pagination links accordingly.
+
+$t = array(
+	'options'  => array('ajax'=>true),
+	'columns'  => array(
+		'_OPTIONS_'   => array(
+			'edit'   => $html->link($html->image('icons/edit.gif', array('title'=>'Edit User','class'=>'ajax_action')), url('User','edit').'?id=<id>'),
+			'delete' => $html->link($html->image('icons/delete.gif', array('title'=>'Delete User')), url('User','delete').'?id=<id>', 'Are you sure?')),
+		'first_name'  => array('label'=>'First Name'),
+		'last_name'   => array('label'=>'Last Name'),
+		'email'       => array('label'=>'Email'),
+		'language'    => array('label'=>'Language','type'=>'select','options'=>array('en'=>'English','fr'=>'French')),
+		'last_login'  => array('label'=>'Last Login','type'=>'date','display_map'=>array('0000-00-00'=>'Never'))
+	),
+	'data'    => $data,
+	'perpage' => $perpage,
+	'curpage' => $curpage,
+	'rows'    => $totalrows
+));
+
+echo $table->build_grid($t);
+?>
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Most of this is hopefully self-explanatory, but there are a couple
+interesting points.  Firstly, you can see we've enable "AJAX mode" for
+this grid.  This means that any links that hava class of `ajax_action`
+will be treated as an AJAX request instead of a regular one.  When
+clicked, the data will be fetched through an AJAX channel and populated
+_within_ the grid itself, incurring no page loads.
+
+Also, notice how we're generating our relative URLs for the "edit" and
+"delete" actions:
+
+.Dynamic URL Generation
+[php]
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	'edit'   => $html->link($html->image('icons/edit.gif', array('title'=>'Edit User','class'=>'ajax_action')), url('User','edit').'?id=<id>'),
+	'delete' => $html->link($html->image('icons/delete.gif', array('title'=>'Delete User')), url('User','delete').'?id=<id>', 'Are you sure?')),
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+We're using the globally-available `url()` function in its second context,
+which can take a controller/action pair and generate a valid URL for it.
+Then we append the variable portion of the URL, such as `?id=<id>`.  The
+`<id>` token will be replaced with the `id` element of the record that
+is displayed on this line of the grid.  You're free to use other elements
+as well.
+
+For example, if you want to use SEO-friendly URLs for your blog, you may
+want to use a "slug" in the article URL instead of a numeric ID.  Assuming you
+have a column in your table called "slug" that stores this, you could generate
+an URL like so:
+
+.A new URL pattern
+[php]
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	echo $html->link('Read Article', url('Article','view').'/<slug>');
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Depending on your URL route configuration (set in `app/config/urls.php`),
+the generated URL would look something like this:
+`/article/view/My_Article_Slug`.
+
+The final interesting activity in this grid is the use of the
+`display_map` directive in the `last_login` column.  Using this, we can
+override the default display behavior of that column for specific values.
+We pass in an array of key/values.  If the record's value is found within
+the array keys, then the corresponding array value will be displayed
+instead.  We use this to display "Never" instead of "0000-00-00" if that
+user has never logged in.
+
+Like `tpForm::build_form()`, there are many more options available, and
+it's best to consult the API documentation, examples apps, or the code
+itself to see how they work.
+
+[[X9.1.d]]
+The `ajax` Plugin
+^^^^^^^^^^^^^^^^^^
+The `ajax` plugin provides widgets that have an AJAX/DHTML element to
+them, such as a find-as-you-type autocomplete widget or a modal dialog
+window.
+
+See the API Reference for a list of all methods in this plugin.  As an
+example, here's a way of displaying a little popup next to the item that
+triggered it, then loading new content into the popup based on the button
+clicked.
+
+[NOTE]
+We'll skip the controller logic for now and just show you the templates,
+since that's the focus of this section.
+
+.Hot popup action: the main template
+[php]
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<div id="mypop" class="popup">
+	Do you want to proceed?
+</div>
+
+<div>
+	<a href="#" id="pop_link">Pop It!</a>
+	<?php
+		$ajax->popup_bind('mypop', '#pop_link', array(
+			'OK'     => array('action'=>'ajax_load', 'url'=>url('/proceed')),
+			'Cancel' => array('action'=>'close')
+		));
+	?>
+</div>
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.Hot popup action: the template rendered if "OK" is clicked
+[php]
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+You proceeded!  What a brave soul.
+<?php echo $ajax->popup_buttons('Close' => array('action'=>'close')) ?>
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The `ajax` plugin is still in a state of flux, but its modest offering has
+already proven to be very useful for building rich user interfaces.
+
+[[X9.1.e]]
+The `navigation` Plugin
+^^^^^^^^^^^^^^^^^^^^^^^
+The `navigation` plugin provides a simple method of defining and rendering
+a two-level nagivation menu.  It's understood that most applications will
+have a customized public-facing layout, but many applications may want to
+use the default Pronto layout for the private backend/administration
+section.  The `navigation` plugin works nicely for administration menus.
+
+You can configure the navigation menu by editing
+`app/config/navigation.php`.
+
+.A basic navigation menu
+[php]
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<?php
+$NAV_MENU = array(
+	'Home'  => array('access'=>'', 'url'=>url('/')),
+	'Users' => array('access'=>'ADMIN', 'menu'=>array(
+		'New'   => array('url'=>url('/user/create')),
+		'List'  => array('url'=>url('/user/list')))),
+	'Books' => array('access'=>'ADMIN', 'url'=>url('/book/list'), 'base'=>url('/book/'))
+);
+?>
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+As you can see, the array keys are the labels for each menu item, while
+the value arrays define the destination URL, access requirements, and an
+optional submenu.  Submenus can have infinite depth. You can also set the
+`base` field which tells the plugin when to highlight a tab as the active
+one.
+
+To render a navigation element, you simply call the `menu()` method from
+within your template or layout.
+
+.Rendering the navigation element
+[php]
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<?php echo $navigation->menu() ?>
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+[[X9.1.f]]
+The `pager` Plugin
+^^^^^^^^^^^^^^^^^^
+Most web applications will, at some point, need to provide some sort of
+record listing.  If there are many records to list, then it makes sense to
+break these up into sections.  The `pager` plugin will render a pagination
+control that creates links to other pages.
+
+.Using the `pager` plugin
+[php]
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<?php
+// list some records
+foreach($data as $row) {
+	echo "{$row['name']}<br />\n";
+}
+echo $pager->generate(CURRENT_URL, 10, $curpage, $totalrow);
+?>
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You can adjust the styling of the pagination control by modifying the
+`pagination` classes in `css/main.css`.
+
+
+[[X9.2]]
+Page Plugins
+~~~~~~~~~~~~
+Page plugins are just like template plugins except that they operate at
+the page controller level.  As such, they have a little more leeway in
+what they can do.  For example, if you really wanted, you could pass in
+the `$db` object or some models and let them do some work with them, or
+you might just use them to do some common tasks that you don't want to
+keep implementing in specific page controllers.
+
+[NOTE]
+While they are named "page plugins", these plugins are actually accessible
+from data models as well.  In fact, they are stored in the global registry
+and so can be used by anything that can access the registry, including
+commandline scripts.  All plugins are stored in a `stdClass` object under
+the registry key `plugins`.
+
+There are currently six page plugins included with Pronto.  Each
+page plugin class name is prefixed with a `pp`.
+
+.Plugins
+`-------------`-------------------------------------------------------------
+`ppFile`      Handles file uploads that come through a <form>
+`ppImage`     Handles image uploads: format conversion and resizing
+`ppMailer`    A frontend to SwiftMailer, an email facility
+`ppOS`        A couple useful OS-level methods
+`ppPHPMailer` A frontend to PHPMailer, deprecated in favor of SwiftMailer
+`ppPDF`       Converts HTML to PDF using either DOMPDF or PrinceXML
+-------------------------------------------------------------------------
+
+The usage of these plugins is a little easier to understand than some of
+the helpers, so we won't spend too much time on them.
+
+Here are a couple examples to get you started, though.
+
+.Using ppFile and ppMailer
+[php]
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+class pBook extends Page_CRUD
+{
+	function __init__()
+	{
+		$this->import_model('book');
+		$this->set_entity('book', 'Book');
+	}
+
+	function hook__post_save(&$data)
+	{
+		// if an image was uploaded with this record, convert/resize and store
+		// it somewhere
+		if($this->plugins->file->is_uploaded('book_image')) {
+			$fn = DIR_FS_IMAGES . DS . $data['id'] . '.jpg';
+			// the ppFile plugin will use the ppImage plugin for image operations
+			$this->plugins->file->process_image('book_image', $fn, 150, 150);
+		}
+	}
+
+	function GET_email_image()
+	{
+		// for fun, let's email a book's image to someone
+		list($id,$email) = $this->params('id','email');
+		$book = $this->models->book->get($id);
+		$fn   = DIR_FS_IMAGES . DS . $book['id'] . '.jpg';
+		$mail = $this->plugins->mailer->create($email, 'Book Image', $this->fetch('book/email/book_image.php'));
+		$mail->add_attachment($fn);
+		$mail->send();
+	}
+
+}
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+[[X9.3]]
+Custom Plugins
+~~~~~~~~~~~~~~
+It's easy (and encouraged!) to write your own plugins for Pronto.  If they
+are useful outside your specific application, you may want to submit them
+to the Pronto Project so they can be used by others as well.
+
+To create your own page/template plugin, simply copy one of the existing
+ones to get the class structure, then add your own functionality.  To
+activate it, add your plugin name to the `PLUGINS` or
+`HELPERS` in `app/config/config.php`.
+
+[[X9.3.a]]
+Depending on other plugins
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+Like models, plugins can depend on each other for cross-functionality.
+The format is the same as with models.
+
+.Depending on other plugins
+[php]
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<?php
+class ppFoo extends Plugin
+{
+	function do_stuff()
+	{
+		// the 'bar' plugin will help us out...
+		$this->depend('bar');
+		$stuff = $this->depends->bar->do_stuff();
+	}
+}
+?>
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+[[X10]]
+Internationalization
+--------------------
+Pronto provides its own facility for internationalization (herein referred
+to as *i18n*).  Currently it only supports string translation, but in the
+future we plan to support other forms of localization, such as date/time
+formats, currency, numbers, etc.
+
+I18n can be a real pain to do, but if you start your application with it
+in mind, it can smooth the process significantly.
+
+The process goes something like this:
+
+1. Make sure all your strings are passed through `__()` or `_e()`
+2. When ready, run `pronto/bin/i18n_scan.php` to generate a *messages*
+   file.  It will scan your code and pluck out all strings enclosed in either
+   of the i18n functions.
+3. Translate your messages file into other languages.
+4. Reap the benefits of using a multilingual web application.
+
+The first trick with i18n is to run _all_ your static strings through one
+of the i18n string functions, `\_\_()` or `\_e()`.  These functions will take
+in a string, look at the current language in use, and translate the string
+to that language, if such a translation exists.  The only functional
+difference between these two functions is that `\_\_()` will return the
+translated string, while `\_e()` will `echo` it to the output buffer.
+`\_e()` can be useful in templates so you don't have to write `echo
+\_\_("foo")` all the time.
+
+[NOTE]
+It is highly recommended that you keep the default *UTF-8* character set
+in Pronto (it is set in `app/config/config.php`), as this will ensure you
+don't run into encoding issues when changing languages.
+
+[[X10.1]]
+Using `__()` and `_e()`
+~~~~~~~~~~~~~~~~~~~~~~~
+These functions both act somewhat akin to the way `printf()` style functions
+do.  They accept a regular string, and optionally, can take a number of
+arguments that will be substituted into the string, just as `printf()`
+would.
+
+These functions are global, so they can be accessed at any layer of the
+framework.
+
+.Using `__()`
+[php]
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<?php
+	echo __('You have %d bottles of beer on the wall', $num);
+?>
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Why not just write the number in the string itself?  If you think about
+it, the reason will be obvious.
+
+When you compile your messages file, each string needs to be represented.
+If you introduce a variable into your string, then the string itself will
+be different for every possible value of the variable within.  In the
+interest of saving your translators some headache, you probably don't want
+them to have to translate the "bottles of beer" string 99 times, once for
+each number.
+
+By using printf-style placeholders, we ensure the string itself only
+appears once in the messages file.
+
+[[X10.2]]
+Compiling the messages file
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Okay, so now all your strings are enclosed in `__()` or `_e()`.  The next
+step is to generate the messages file.
+
+I18n messages files are stored in `app/config/i18n`.  Each file resides in
+a subdirectory named after the ISO language code.  So the messages file
+for the English language will be found at
+`app/config/i18n/en/messages.php`.
+
+So with all your strings nicely i18n'ed, you can now generate the messages
+file using the `i18n_scan.php` script.
+
+.Using the I18N Scanner
+-----------------------------------------------------
+$ php ../pronto/bin/i18n_scan.php en English
+-----------------------------------------------------
+
+If `i18n_scan.php` finishes without error, you should have a nice big array
+of strings in `app/config/i18n/en/messages.php` now.  This file can then
+be passed to translaters, who will translate the array _values_ into the
+new language.  The array _keys_ must stay as they are, so the i18n system
+can use them for string lookups.
+
+Here's an excerpt of a messages file for French.
+
+.`app/config/i18n/fr/messages.php`
+[php]
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<?php
+/*
+ * Generated by i18n_scan.php at 2007-12-20 12:57:24
+ */
+
+$LANGUAGE_CODE = 'fr';
+$LANGUAGE_NAME = 'French';
+
+$MESSAGES = array(
+	"Access" => "Accès",
+	"Access Level" => "Niveau d'accès:",
+	"Access levels determine the amount of control a user will have." => "Niveaux d'accès déterminer le montant de contrôle auront un utilisateur.",
+	"An error occurred during file upload.  Please try again." => "Une erreur s'est produite pendant le téléchargement de fichiers. Veuillez réessayer.",
+	"An error occurred while uploading - please try again" => "Une erreur s'est produite lors du transfert - Réessayez",
+	"Are you sure you want to remove this file?" => "Etes-vous sûr de vouloir supprimer ce fichier?",
+	"Are you sure?" => "Etes-vous sûr?",
+);
+?>
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+[[X10.2.a]]
+Using Google Translate for Translations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Pronto provides two scripts that use Google Translate to translate
+messages files into new language.
+
+.Translation scripts
+`----------------------`-------------------------------------------------
+`google_translate.php` Translate a messages file from English to another language.
+`translate_all.php`    Translate the English messages file into all other languages supported by Google Translate.
+-------------------------------------------------------------------------
+
+[NOTE]
+Translations provided by machines ("robot translations") are rarely
+accurate enough for a production-quality site.  However, they can be quite
+useful in earlier stages of development.
+
+.Using `google_translate.php`
+-----------------------------------------------------
+$ mkdir config/i18n/fr
+$ cp config/i18n/en/messages.php config/i18n/fr/
+<edit config/i18n/fr/messages.php and change $LANGUAGE_CODE to 'fr'>
+$ php ../pronto/bin/google_translate.php config/i18n/fr/messages.php
+-----------------------------------------------------
+
+.Using `translate_all.php`
+-----------------------------------------------------
+$ php ../pronto/bin/translate_all.php
+Translating English to Arabic...
+Translating English to Chinese Simplified...
+Translating English to Chinese Traditional...
+Translating English to Dutch...
+Translating English to French...
+Translating English to German...
+Translating English to Greek...
+Translating English to Italian...
+Translating English to Japanese...
+Translating English to Korean...
+Translating English to Portuguese...
+Translating English to Russian...
+Translating English to Spanish...
+-----------------------------------------------------
+
+[[X10.3]]
+The `i18n` Class
+~~~~~~~~~~~~~~~~
+Like the `Access` class and others, the `I18N` class is a utility-level
+class that is instantiated only once per Pronto invocation.  The object is
+held by the `$web` object, so it can be referenced through that.
+
+You typically won't have to use the `$web->i18n` object.  When Pronto
+starts processing a web request, it will try to autoset the language of
+choice, based on a few values available.  Here are the values it will look
+for, in this order:
+
+.Values used for setting a language
+`------------------------------------`-----------------------------------
+`$_SESSION[\'LANGUAGE\']`            The application is responsible for setting this.  It is intended to be used by site visitors who likely have no user/preferences record in the DB.  Perhaps your application has a "Language" select dropdown that the visitor can choose from.
+`$_SESSION[\'USER\'][\'language\']`  When a user logs in, typically their record is stored in `$_SESSION[\'USER\']`.  If a `language` field is present, it would be found here.
+`$_SERVER[\'HTTP_ACCEPT_LANGUAGE\']` If the visitor's browser provides an `Accept-Language` HTTP header, Pronto will look through it for languages that your application supports, and choose the first it finds.
+-------------------------------------------------------------------------
+
+The one function you'll probably need the `$i18n` object for is
+retrieving a list of languages that your application supports.  You can
+use the results to populate a dropdown widget or equivalent, so the user
+can choose his/her preferred language.
+
+.Retrieving a list of all languages
+[php]
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<?php
+class pUser extends Page
+{
+	function GET_languages()
+	{
+		// fetch the i18n object from the registry...
+		$i18n =& Registry::get('i18n');
+		$this->tset('languages', $i18n->get_languages());
+	}
+}
+?>
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+[[X11]]
+Modules
+-------
+Most of your page controllers, models, and templates will sit in their
+respective subdirectories under the `app` directory.  But it's also
+possible to localize related controllers/models/templates into a more
+modular layout, so they can be easily packaged and used in different
+Pronto applications.
+
+Modules are basically just that -- collections of page controllers,
+models, and templates, located in a subdirectory of `app/modules`.  The
+Pronto distribution code includes a sample module called `dummy` that can
+be used as a template.  There is also a module generator available in the
+`pronto/bin/generators` directory.
+
+[[X11.1]]
+Enabling Modules
+~~~~~~~~~~~~~~~~
+Once you have a module you want to include in your application, you must
+enable it by adding it to the `MODULES` constant in `app/config.php`.
+
+Each module typically comes with its own URL routing rules, which are
+stored in `app/modules/<module_name>/config/urls.php`.  These rules will
+be automatically prepended to the master URL routing table.
+
+[[X11.2]]
+Using The Module Generator
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+Like the CRUD generator, the module generator can save you a few minutes
+of copy/paste time by setting up the basic file structure for a new
+Pronto module.
+
+.Using the Module generator
+---------------------------------------------------------------------
+$ php pronto/bin/generators/module/generate.php my_module
+Module:  my_module
+Path:    /home/jvinet/work/pronto/app/modules/my_module
+
+New Config:          app/modules/my_module/config/config.php
+New Config:          app/modules/my_module/config/urls.php
+New Page Controller: app/modules/my_module/pages/page.php
+
+To enable this module, add it to the MODULES constant in app/config/config.php
+---------------------------------------------------------------------
+
+[[X12]]
+Caching
+-------
+Caching is a very effective way of getting more performance out of your
+application.  In a stateless environment such as the web, it becomes
+necessary to make many queries to the database to retrieve all the data
+required to fulfill a page request, and each time the page is requested,
+this data needs to be fetched again.
+
+By caching the data entities after the first request, additional trips to
+the database can be avoided by using the cached version instead.  Pronto
+supports transparent caching of data entities for which this feature is
+enabled, and also provides a generic caching facility for explicit caching
+of other data.
+
+[[X12.1]]
+Enabling the Cache Layer
+~~~~~~~~~~~~~~~~~~~~~~~~
+To enable caching, you must edit `app/config/cache.php`.  In it you can
+enable caching and define the cache driver you wish to use as well as any
+additional driver-specific configuration options.
+
+.Enabling the `files` cache driver
+[php]
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<?php
+define('USE_CACHE',        true);
+define('CACHE_DRIVER',    'files');
+define('CACHE_FILES_DIR'  DIR_FS_CACHE.DS.'cache');
+?>
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Make sure you create the `cache` directory in the appropriate location.
+Also make sure that your web server has write permission to this
+directory, or you will see an error.
+
+[NOTE]
+The `files` cache driver is functional, but there are other
+memory-baesd caches that will probably be faster for you.  If
+you have other caches available such as Memcache or APC, it's
+recommended to use one of those instead.
+
+[[X12.2]]
+Caching in Data Models
+~~~~~~~~~~~~~~~~~~~~~~
+Pronto's data models support automatic caching at the entity level, but to
+use it, you must enable this feature for each data model.
+
+.Enabling Caching for a Data Model
+[php]
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<?php
+class mUser extends Model
+{
+	// to enable data caching, simply set $enable_cache to true in the
+	// model class.
+	var $enable_cache = true;
+}
+?>
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+While this is all it takes to enable the caching for a data model, you
+must also program your data models with caching in mind.
+
+What does this mean?  Well, you have to be diligent about _invalidating_
+a cached data record whenever you modify it, or else Pronto will not know
+when to use the cached version or the "live" version from the database.
+
+.Invalidating a cached record
+[php]
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<?php
+class mUser extends Model
+{
+	var $enable_cache = true;
+
+	function set_password($user_id, $password)
+	{
+		$this->db->execute("UPDATE users SET password=SHA1('%s') WHERE id=%i", array($password, $user_id));
+		$this->invalidate($user_id); // invalidate/expire this cache entry
+	}
+}
+?>
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Also, whenever you want to fetch an entity (either from controllers, other
+data models, or the model for which we're caching entries), you should go
+through the model's `get()` method.  This is because `Model::get()` will
+automatically check the cache.  If a cached record exists, it will be
+returned.  If it doesn't exist, then `get_record()` will be called to
+fetch the entity from the database.  It will then be stored in the cache
+and returned.
+
+[NOTE]
+This is why your data models should never override `Model::get()`, only
+`Model::get_record()`.  `Model::get()` should be left alone, as it
+contains the special cache-handling logic.  If you do need to override
+`Model::get()`, then make sure to call `parent::get($id)` within it.
+
+[[X12.3]]
+Explicit Caching
+~~~~~~~~~~~~~~~~
+You can also use Pronto's caching facility directly if you wish to cache
+other types of data.  The cache object can be acquired through
+the global `Registry` class.  It is a simple key/value system with the
+normal access methods you would find in such a class.
+
+.Using the `cache` object
+[php]
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<?php
+class pUser extends Page
+{
+	function __init__()
+	{
+		$this->import_model('user');
+	}
+
+	function GET()
+	{
+		$cache =& Registry::get('pronto:cache');
+		if(!($data = $cache->get('my_unique_key'))) {
+			// cache miss, get the live record from the DB
+			$data = $this->models->user->get_stuff();
+
+			// now store the record in the cache for next time
+			$cache->set('my_unique_key', $data);
+		}
+	}
+}
+?>
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+[[X13]]
+Extending Pronto
+----------------
+Pronto attempts to provide a good base on which to develop, but sometimes
+its desireable to be able to modify some of the underlying functionality.
+
+You'll rarely have to do this, but Pronto does provide a few areas that
+can be easily overridden.
+
+[[X13.1]]
+Overriding base functionality of Models, Pages, and Plugins
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The base classes for page controllers, data models, and plugins can be
+found in the `pronto/core` directory.  However, you'll notice that these
+classes are actually named `Page_Base`, `Model_Base`, and `Plugin_Base`,
+respectively.
+
+The _real_ base classes are actually in the `app/core` directory, and
+they're intended to be modified by you if need be.  To add any base-level
+methods or override existing ones, simply add them to these classes.
+
+[[X13.2]]
+Execution Profiles
+~~~~~~~~~~~~~~~~~~
+By now, we all know that the life of a Pronto request begins at
+`index.php`.  But this script's primary job is to pass control to an
+*execution profile*, which is in charge of setting up the runtime
+environment before passing control to the next phase (which is usually the
+dispatcher for a web request).
+
+There are two execution profiles included with Pronto: `web` and
+`cmdline`.  You can probably guess what each profile is for, but in case
+you can't -- `web` is called from `index.php` and handles web requests,
+while the `cmdline` profile is used for commandline scripts, typically
+stored in `app/bin` or `pronto/bin`.
+
+The standard execution profiles are stored in `pronto/profiles`, but you
+can extend them by modifying their counterpart files in `app/profiles`.
+Again, this is intended so you can safely modify Pronto code without
+actually modifying any files in the `pronto` directory, which eases the
+pain of upgrading the framework code at a later time.
+

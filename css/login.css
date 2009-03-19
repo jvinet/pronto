@@ -1,0 +1,64 @@
+/*
+ * Styling for the login box
+ */
+div.login {
+	margin: 150px auto 0 auto;
+	width: 266px;
+}
+div.login h2 {
+	width: 214px;
+	height: 57px;
+	background: url(/img/login/member_login.gif) 0 0 no-repeat;
+	padding: 0 0 0 50px;
+	font: bold 24px/57px Arial, Helvetica, sans-serif;
+	font-variant: small-caps;
+	color: #fff;
+	margin: 0;
+	background-color: inherit;
+}
+div.login form {
+	background: url(/img/login/memberlogin_bg.gif) 0 0 repeat-y;
+	width: 228px;
+	padding: 0 18px;
+	margin: 0;
+}
+div.login form input.text {
+	width: 220px;
+	height: 19px;
+	font-size: 16px;
+	border-left: #808080 solid 1px;
+	border-top: #808080 solid 1px;
+	border-right: #D4D0C8 solid 1px;
+	border-bottom: #D4D0C8 solid 1px;
+	color: #000;
+	background-color: #d4e0f4;
+	margin: 0 0 17px 0;
+	padding: 0 0 0 5px;
+}
+div.login form input.login {
+	background: url(/img/login/btn_login.gif) 0 0 no-repeat;
+	width: 53px;
+	height: 13px;
+	border: none;
+	cursor: pointer;
+	float: right;
+}
+div.login p.bottom {
+	background: url(/img/login/memberlogin_bot.gif) bottom left no-repeat;
+	width: 264px;
+	height: 25px;
+	margin: 0 0 5px 0;
+	padding: 0;
+}
+
+div.login-error {
+	width: 245px;
+	margin: 0 auto;
+	text-align: center;
+}
+div.login-opts {
+	width: 245px;
+	margin: 0 auto;
+	font-size: 8pt;
+	text-align: right;
+}

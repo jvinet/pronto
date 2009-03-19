@@ -1,0 +1,51 @@
+<html>
+<head>
+	<title>Search Filters</title>
+	<style type="text/css">
+		body {
+			font-family: Verdana, Arial, Helvetica, Sans Serif;
+			font-size: 12px;
+		}
+		tt {
+			background-color: #ddd;
+			color: #00a;
+			font-size: 12px;
+			padding-left: 2px;
+			padding-right: 2px;
+		}
+	</style>
+</head>
+
+<body>
+	<h2>Search Filters</h2>
+	<hr />
+	<p>Search filters are an easy way to narrow down a listing of
+		records to quickly find the one(s) you need.</p>
+	<p>At the top of each column, you will typically see either a text box
+		or a dropdown list of options.  These are called filters.  When you
+		enter data into one or more filters and click the "Filter" button, the table
+		will return only data that matches the filters.</p>
+	<p>Dropdown lists are easy -- just select the option you want to view, or
+		a blank for all records.</p>
+	<p>Text fields have slightly more control.  For example, imagine you're
+		searching for a user with the last name "Doe".  If you type "Doe" into
+		the filter in the Last Name column, the table will return all last names
+		that contain "doe" anywhere in them (eg, "Doeson", "Podadoe", etc).  If
+		you only want to see names that exactly match "Doe", you can prefix your
+		search with the <tt>=</tt> sign, eg, <tt>=Doe</tt>.</p>
+	<p>This can work with numbers as well.  If you have a "Total" field, you
+		can search for all totals greater than 100 by entering <tt>&gt;100</tt> in the
+		filter.  Likewise, you can search for totals less than 100 by entering
+		<tt>&lt;100</tt>.  You can also use <tt>&gt;=</tt> and <tt>&lt;=</tt>
+		if needed.  If you want to find rows with total equal to 100,
+		use <tt>=100</tt>.</p>
+	<p>You can search a number or date field by range as well.  Just enter the
+	lower and upper bounds of your range with a <tt>&lt;&gt;</tt> between
+	them.  For example, to find all rows with a field between 10 and 20, use
+	<tt>10&lt;&gt;20</tt>.  To find all rows with a date in the year 2007, use
+	<tt>2007-01-01&lt;&gt;2007-12-31</tt>.</p>
+	<br /><br />
+	<p align="center"><a href="javascript:window.close()">Close This Window</a></p>
+</body>
+
+</html>

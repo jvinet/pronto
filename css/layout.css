@@ -1,0 +1,128 @@
+html,body {
+	height: 100%;
+}
+body {
+	font-family: Verdana, Arial, Helvetica;
+	font-size: 12pt;
+	margin: 0 0 0 0;
+	background: #fff url(/img/bg.png) repeat-x 0 93px;
+}
+
+h1 {
+	font-size: 20pt;
+	font-weight: bold;
+	margin: 10px 0 20px 0;
+}
+
+/********************************************************************
+ * HEADER REGION
+ *******************************************************************/
+#header {
+	width: 100%;
+	height: 93px;
+	background: #000 url(/img/header.png) repeat-x top left;
+}
+#header .title {
+	position: absolute;
+	top: 10px;
+	left: 20px;
+	font-size: 36px;
+	font-weight: bold;
+	font-family: Lucida Sans, Arial, Helvetica;
+	font-variant: small-caps;
+	color: #fff;
+}
+#header .language {
+	position: absolute;
+	font-size: 10pt;
+	top: 35px;
+	right: 32px;
+	color: #ddd;
+	text-align: right;
+}
+#header .language select {
+	font-size: 8pt;
+	border: none;
+	background-color: #aaa;
+}
+#lang-form-div {
+	font-size: 8pt;
+	padding-top: 6px;
+}
+#lang-a {
+	display: block;
+	padding-top: 8px;
+	font-size: 7pt;
+	color: #777;
+	font-weight: bold;
+	text-decoration: none;
+}
+#lang-a:hover {
+	color: #449afb;
+}
+#header .status {
+	position: absolute;
+	font-size: 10pt;
+	top: 10px;
+	right: 32px;
+	color: #ddd;
+}
+#header .status a {
+	color: #fff;
+	text-decoration: none;
+	font-weight: bold;
+}
+#header .status a:hover {
+	color: #e8bf67;
+}
+#header .status span.dark {
+	color: #777;
+}
+#flash {
+	display: none;
+	position: absolute;
+	right: 32px;
+	top: 40px;
+	color: #e8bf67;
+}
+
+/********************************************************************
+ * CONTAINER/CONTENT/FOOTER REGIONS
+ *******************************************************************/
+div.container {
+	position: relative;
+	min-height: 100%;
+	height: 100%;
+	voice-family: "\"}\"";
+	voice-family: inherit;
+	height: auto;
+}
+html>body div.container {
+	height: auto;
+}
+div.content {
+	margin-left: 20px;
+	margin-right: 20px;
+	margin-top: 20px;
+	padding-bottom: 70px;
+}
+div.footer {
+	position: absolute;
+	bottom: 0;
+	width: 100%;
+	height: 30px;
+	background: #000 url(/img/footer.png) repeat-x top left;
+	color: #ddd;
+	font-size: 10pt;
+	line-height: 30px;
+}
+div.copyright {
+	padding-left: 108px;
+	text-align: center;
+}
+div.badge {
+	float: right;
+	padding-top: 8px;
+	padding-right: 8px;
+	width: 100px;
+}

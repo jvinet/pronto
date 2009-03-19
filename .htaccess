@@ -1,0 +1,19 @@
+DirectoryIndex index.php
+
+php_flag display_errors on
+php_value mbstring.func_overload 7
+
+<IfModule mod_rewrite.c>
+	RewriteEngine On
+
+	# Fix the 400 (bad request) errors Apache throws if we miss
+	# the trailing slash
+	RewriteCond %{SCRIPT_FILENAME} -d
+	RewriteCond %{SCRIPT_FILENAME} ^.*[^\/]$
+	RewriteRule ^(.*)$ $1/ [N]
+
+	RewriteCond %{REQUEST_FILENAME} !-f
+	RewriteCond %{REQUEST_URI} !-d
+	RewriteRule (.*) index.php
+</IfModule>
+

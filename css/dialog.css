@@ -1,0 +1,64 @@
+/*
+ * Popup Windows
+ */
+div.popup {
+	display: none;
+	width: 350px;
+	background: #83acca;
+	color: #fff;
+	font-size: 10pt;
+	font-weight: bold;
+	border: 2px outset #000;
+	margin: 15px;
+	padding: 8px;
+	position: absolute;
+	z-index: 999;
+}
+div.popup div.buttons {
+	float: right;
+	padding: 0 15px 15px 0px;
+}
+
+/*
+ * Dialog Windows
+ */
+.dialog {
+	display: none;
+	position: absolute;
+	padding: 0;
+	margin: 0;
+	border: 1px solid black;
+	width: 250px;
+	height: 100px;
+	background-color: #dcf2ff;
+	color: #333;
+}
+.dialog-close {
+	cursor: pointer;
+	float: right;
+}
+.dialog-tb {
+	background-color: #9fdcff;
+	color: #00a;
+	width: 100%
+	margin: 4px;
+	padding: 4px;
+	font-size: 8pt;
+	cursor: move;
+}
+.dialog-content {
+	margin: 8px 4px 4px 4px;
+}
+img.dialog-resize {
+	position: absolute;
+	bottom: 0;
+	right: 0;
+	cursor: se-resize;
+}
+div.dialog div.buttons {
+	padding: 0 15px 15px 0px;
+	position: absolute;
+	bottom: 0;
+	right: 0;
+}
+.jqmOverlay { background-color: #000; }

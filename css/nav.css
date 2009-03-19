@@ -1,0 +1,94 @@
+/* Navigation Styles */
+
+/* Top-level stuff (the horizontal tabs) */
+ul.nav { 
+	position: absolute;
+	right: 20px;
+	top: 74px;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	font: bold 16px/18px Tahoma, Arial, Helvetica, sans-serif;
+	z-index: 99;
+}
+ul.nav li {
+	float: left;
+	margin: 0 10px 0 0;
+	padding: 0;
+	position: relative;
+}
+ul.nav li a, ul.nav li a:link, ul.nav li a:active, ul.nav li a:visited {
+	border-right: 1px solid #999;
+	border-left: 1px solid #999;
+	border-top: 1px solid #999;
+	background: #565656;
+	color: #ccc;
+	display: block;
+	padding: 0 9px;
+	text-decoration: none;
+}
+ul.nav li a.current, ul.nav li a.current:link, ul.nav li a.current:active, ul.nav li a.current:visited {
+	background: #769ada;
+	color: #333;
+}
+ul.nav li a:hover {
+	border-right: 1px solid #ccc;
+	border-left: 1px solid #ccc;
+	border-top: 1px solid #ccc;
+	background: #333;
+	color: #e8bf67;
+}
+
+/* The submenu stuff, mostly used from the CSS included with the
+ * jQuery plugin:
+ * http://p.sohei.org/jquery-plugins/menu/
+ */
+* html #root-menu-div li {
+	height: 1.5em; /* fixing ie6 problem */
+}
+#root-menu-div ul {
+	border: 1px solid #999;
+	background-color: #565656;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	font: bold 16px/21px Tahoma, Arial, Helvetica, sans-serif;
+}
+#root-menu-div li {
+	white-space: nowrap;
+	cursor: pointer;
+}
+#root-menu-div a {
+	color: #ccc;
+	text-decoration: none;
+	display: block;
+}
+#root-menu-div li.menu-separator.active {
+	background-color: transparent;
+}
+#root-menu-div li.active {
+	background-color: #333;
+}
+#root-menu-div li.active a {
+	color: #e8bf67;
+}
+
+* html div.menu-item {
+	display: inline; /* fixes problem in ie6 */
+}
+#root-menu-div div.menu-item {
+	padding: 1px 10px 1px 4px;
+	/*border-bottom: 1px solid #ccc;*/
+}
+#root-menu-div img.menu-item-arrow {
+	position: absolute;
+	right: 4px;
+	top: 8px;
+}
+#root-menu-div li.menu-separator {
+	border-bottom: 1px solid #888;
+	font-size: 0; /* for ie */
+	height: 0;
+	line-height: 0; /* for ie */
+	margin: 2px 0;
+}

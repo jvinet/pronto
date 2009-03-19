@@ -1,0 +1,30 @@
+THIRD-PARTY LIBRARIES INCLUDED IN PRONTO
+
+- jQuery
+  - Copyright John Resig, 2007
+  - http://www.jquery.com
+- many jQuery plugins!
+
+- DHTML Calendar
+  - Copyright Mihai Bazon, 2002-2005
+  - http://www.dynarch.com/projects/calendar
+
+- PHPMailer
+  - Copyright Brent R. Matzelle, 2001-2003
+  - http://phpmailer.sourceforge.net/
+
+- SafeHTML Parser
+  - Copyright Roman Ivanov 2004-2005
+  - http://pixel-apes.com/safehtml/
+
+- FCK Editor
+  - Copyright Frederico Caldeira Knabben, 2003-2007
+  - http://www.fckeditor.net
+
+- Safe SQL
+  - Copyright ispi of Lincoln, Inc., 2001-2004
+  - http://www.phpinsider.com/php/code/SafeSQL/
+
+- FireBug Lite
+  - Copyright Parakey, Inc., 2007
+  - http://getfirebug.com/lite.html
