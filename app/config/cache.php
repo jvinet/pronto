@@ -15,7 +15,6 @@
  * General Cache Settings
  *   USE_CACHE    :: enable/disable caching
  *   CACHE_DRIVER :: select the cache driver to use
- *
  */
 define('USE_CACHE',      false);
 define('CACHE_DRIVER',  'file');
@@ -33,14 +32,12 @@ define('CACHE_DRIVER',  'file');
  *         the web root so people cannot access the cache files with
  *         a web browser.  If this is not feasible, then you should
  *         deny access to the directory with an .htaccess file.
- *
  */ 
 define('CACHE_FILES_DIR', DIR_FS_BASE.DS.'cache');
 
 /**
  * DRIVER: SHM
  *   CACHE_SHM_SIZE :: total size of cache (bytes)
- *
  */ 
 define('CACHE_SHM_SIZE', 4194304); // total memory size used
 
