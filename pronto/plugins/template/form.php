@@ -905,7 +905,8 @@ EOT;
 				$out .= 'clear:left;';
 				$clearnext = false;
 			} else if($c_loc % $numcols == 0) {
-				$out .= 'clear:right;';
+				// IE6 workaround: use clear:both if $numcols==1
+				$out .= $numcols == 1 ? 'clear:both' : 'clear:right;';
 				$clearnext = true;
 			}
 			$out .= '">';
