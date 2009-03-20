@@ -39,5 +39,6 @@ $css = str_replace('url(/', 'url('.$urlbase.'/', $css);
 header('Last-Modified: '.gmdate('D, d M Y H:i:s \G\M\T', $lastmod));
 header('Content-Type: text/css');
 echo $css;
-exit;
+die;
+
 ?>
