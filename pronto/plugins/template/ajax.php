@@ -52,6 +52,9 @@ class tpAJAX extends Plugin
 	 */
 	function dialog($dlg_id, $target, $buttons=array(), $overlay=false, $modal=false, $opts=array())
 	{
+		// IE6 fix: if the dialog is inside a postion:relative element, then the
+		// overlay will appear over the dialog box.
+		$opts[] = 'toTop:true';
 		if(!$overlay) $opts[] = 'overlay:0';
 		if($modal)    $opts[] = 'modal:true';
 		if(empty($opts)) {
