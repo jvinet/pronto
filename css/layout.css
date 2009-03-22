@@ -98,7 +98,7 @@ div.container {
 	height: auto;
 }
 html>body div.container {
-	height: auto;
+	/*height: auto;*/
 }
 div.content {
 	margin-left: 20px;

@@ -5,7 +5,6 @@
 <?php
 $f = array(
 	'action'   => url('User','resetpass'),
-	'options'  => array(),
 	'submit'   => __('Reset Password'),
 	'form_id'  => 'resetpass-frm',
 	'layout'   => array(

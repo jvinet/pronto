@@ -1,4 +1,5 @@
-<?php $html->css_load('login','login') ?>
+<?php $html->css_load('login') ?>
+<?php $html->css_load('modal') ?>
 
 <div class="login">
 <h2><?php _e('Login') ?></h2>
@@ -45,7 +46,7 @@ if(isset($error)) {
 	<?php echo $html->link(__('New Account'), url('User','signup')) ?>
 </div>
 
-<div id="resetpass-dlg" title="<?php _e('Reset Password') ?>" style="width:400px;height:200px">
+<div id="resetpass-dlg" title="<?php _e('Reset Password') ?>" style="width:420px;height:200px">
 	<?php $nosubmit = true; include('resetpass.php'); ?>
 </div>
 <?php
@@ -55,3 +56,4 @@ $btns = array(
 );
 $ajax->dialog('resetpass-dlg', '#resetpass-btn', $btns, true, false);
 ?>
+

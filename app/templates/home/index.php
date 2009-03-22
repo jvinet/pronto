@@ -18,7 +18,3 @@
 		<li><?php echo $html->link(__("API Reference"), $_SERVER['REQUEST_URI'].'doc/api/index.html') ?></li>
 	</ul>
 </p>
-
-<p>
-	<?php _e("If you're stuck or have any questions, visit our %s for help.", $html->link(__('forums'), 'http://forum.prontoproject.com')) ?>
-</p>

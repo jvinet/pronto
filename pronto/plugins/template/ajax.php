@@ -75,6 +75,7 @@ class tpAJAX extends Plugin
 		$js .= "$('#$dlg_id').parent().attr('style', $('#$dlg_id').attr('style'));"; // move styling to parent
 		$js .= "$('#$dlg_id').parent().attr('class', $('#$dlg_id').attr('class'));"; // move class to parent
 		$js .= "$('#$dlg_id').parent().addClass('dialog');";
+		$js .= "$('#$dlg_id').removeAttr('style').removeAttr('class');";
 		$js .= "$('#$dlg_id').addClass('dialog-content');";
 		$js .= "$('#$dlg_id').attr('id', '').parent().attr('id', '$dlg_id');"; // move ID up to parent
 		$js .= "$('#$dlg_id').find('.dialog-tb').append($('#$dlg_id').find('.dialog-content').attr('title'));";
@@ -95,8 +96,8 @@ class tpAJAX extends Plugin
 			$js .= "$('#$dlg_id').jqmShowCenter(); return false; });";
 		}
 
-		$this->depends->html->css_load('dialog', 'dialog');
-		$this->depends->html->js_load('jq_modal', 'jq/jquery.modal');
+		$this->depends->html->css_load('dialog');
+		$this->depends->html->js_load('jq/jquery.modal');
 		$this->depends->html->js_run('jq_dlg_'.$dlg_id, $js);
 	}
 
