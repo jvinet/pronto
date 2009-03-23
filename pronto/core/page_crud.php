@@ -126,7 +126,7 @@ class Page_CRUD extends Page
 		$this->auth_create();
 
 		$data = $this->load_input();
-		$is_update = isset($data['id']);
+		$is_update = isset($data['id']) && !empty($data['id']);
 
 		if(!$is_update && !in_array('create', $this->enabled_actions)) $this->web->forbidden();
 
