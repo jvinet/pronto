@@ -1,11 +1,11 @@
 <?php
 
-class mUser extends Model
+class mUser extends RecordModel
 {
 	var $default_sort = 'last_name ASC';
 	var $enable_cache = true;
 
-	function validate($data, $is_update)
+	function validate($data)
 	{
 		$errors = array();
 		$this->validator->required($errors, array('first_name','last_name'));
@@ -15,7 +15,7 @@ class mUser extends Model
 		}
 
 		// check for a duplicate email address
-		if($is_update) {
+		if($data['id']) {
 			if($this->db->get_item("SELECT * FROM users WHERE email='%s' AND id!=%i", array($data['email'],$data['id']))) {
 				$errors['email'] = __('This email address is already in use. Please try another one.');
 			}
@@ -36,20 +36,29 @@ class mUser extends Model
 		return $errors;
 	}
 
-	function create() {
+	function create_record() {
 		return array(
 			'access_keys' => 'User'
 		);
 	}
 
-	function get_record($id) {
-		$data = parent::get_record($id);
+	function load_record($id) {
+		$data = parent::load_record($id);
 		if(!$data) return false;
 
 		// do extra data massaging here...
 		$data['name'] = $data['first_name'].' '.$data['last_name'];
 
 		return $data;
+	}
+
+	function save_record($data)
+	{
+		if($data['id']) {
+			$this->update($data);
+		} else {
+			$this->insert($data);
+		}
 	}
 
 	function insert($data)
@@ -66,26 +75,26 @@ class mUser extends Model
 		// encrypt password
 		$data['password'] = sha1($data['password']);
 
-		if(!a('ADMIN')) {
+		if(!$this->context != 'ADMIN') {
 			$data['access_keys']   = 'User';
 			$data['status']        = 'pending';
 			$data['confirm_token'] = $this->generate_token();
 			$data['confirm_sent']  = date('Y-m-d');
 		}
 
-		return parent::insert($data);
+		return parent::save_record($data);
 	}
 
 	function update($data)
 	{
-		if(!a('ADMIN')) {
+		if(!$this->context != 'ADMIN') {
 			unset($data['status'], $data['access_keys']);
 			unset($data['created_on'], $data['last_login']);
 			unset($data['confirm_token'], $data['confirm_sent']);
 			unset($data['openid']);
 		}
 
-		$old = $this->get($data['id']);
+		$old = $this->fetch($data['id']);
 		// encrypt password, if exists
 		if(!$old['openid'] && $data['password']) {
 			$data['password'] = sha1($data['password']);
@@ -93,17 +102,16 @@ class mUser extends Model
 			unset($data['password']);
 		}
 
-		return parent::update($data);
+		return parent::save_record($data);
 	}
 
 
-	function delete($id)
+	function delete_record($id)
 	{
 		$this->db->execute("UPDATE {$this->table} SET status='deleted' WHERE id=%i", array($id));
-		$this->invalidate($id);
 	}
 
-	function list_params()
+	function enum_schema()
 	{
 		return array(
 			'from'       => $this->table,
@@ -119,11 +127,13 @@ class mUser extends Model
 	/**
 	 * New user confirmation/activation routines
 	 */
-	function get_by_token($token)
+	function confirm_by_token($token)
 	{
-		$id = $this->db->get_value("SELECT id FROM {$this->table} WHERE confirm_token='%s' LIMIT 1", array($token));
-		if($id) return $this->get($id);
-		return false;
+		$user = $this->find("confirm_token='%s'", $token)->fetch();
+		if(!$user) return false;
+		$this->activate($user['id']);
+		$this->authenticate($user);
+		return true;
 	}
 
 	function generate_token($length=20)
@@ -142,8 +152,7 @@ class mUser extends Model
 
 	function activate($id)
 	{
-		$this->db->execute("UPDATE {$this->table} SET status='active',confirm_token='' WHERE id=%i", array($id));
-		$this->invalidate($id);
+		$this->find("id=%i", $id)->set(array('status'=>'active', 'confirm_token'=>''));
 	}
 
 	/**
@@ -160,14 +169,14 @@ class mUser extends Model
 		$access->set_id($user['id']);
 		$access->set_keys($user['access_keys']);
 
-		$this->db->execute("UPDATE {$this->table} SET last_login='%s' WHERE id=%i", array(date('Y-m-d'),$user['id']));
+		$this->find('id=%i', $user['id'])->set('last_login', date('Y-m-d'));
 
-		$_SESSION['USER'] = $this->get($user['id']);
+		$_SESSION['USER'] = $this->find("id=%i", $user['id'])->load();
 		return true;
 	}
 	function authenticate_password($email, $password)
 	{
-		$user = $this->get_by('email', $email);
+		$user = $this->find("email='%s'", $email)->fetch();
 		if(!$user)                               return __('Invalid email/password');
 		if(empty($password))                     return __('Invalid email/password');
 		if($user['password'] != sha1($password)) return __('Invalid email/password');

@@ -48,12 +48,12 @@ class pUser extends Page
 	{
 		$data = $this->load_input();
 		$is_update = false;
-		if(isset($_SESSION['USER'])) {
+		if(ACCESS_ID) {
 			$is_update = true;
-			$data['id'] = $_SESSION['USER']['id'];
+			$data['id'] = ACCESS_ID;
 		}
 
-		$errors = $this->models->user->validate($data, $is_update);
+		$errors = $this->models->user->validate($data);
 		if(!$is_update) {
 			if(!isset($_SESSION['captcha']) || strcasecmp($_SESSION['captcha'],$data['captcha'])) {
 				$errors['captcha'] = __("String did not match image -- please try again.");
@@ -64,17 +64,15 @@ class pUser extends Page
 			return;
 		}
 
+		$id = $this->models->user->save($data);
 		if($is_update) {
-			$this->models->user->update($data);
-			$_SESSION['USER'] = $this->models->user->get($data['id']);
+			$_SESSION['USER'] = $this->models->user->load($data['id']);
 
 			$this->flash(__('Your profile has been updated.'));
 			$this->redirect(url('User','profile'));
 		} else {
-			$id = $this->models->user->insert($data);
-
 			// send confirmation email
-			$user = $this->models->user->get_bare($id);
+			$user = $this->models->user->fetch($id);
 			$this->tset('user', $user);
 			$tmpl = $this->fetch('email/confirm.php');
 			$this->plugins->mailer->send($user['email'], __('%s: Confirm Your Account', SITE_NAME), $tmpl);
@@ -97,14 +95,10 @@ class pUser extends Page
 			return;
 		}
 
-		$user = $this->models->user->get_by_token($token);
-		if(!$user) {
+		if(!$this->models->user->confirm_by_token($token)) {
 			$this->render('confirm_error.php');
 			return;
 		}
-
-		$this->models->user->activate($user['id']);
-		$this->models->user->authenticate($user);
 		$this->flash(__("Your account has been activated!"));
 		$this->redirect(url('/'));
 	}
@@ -115,7 +109,7 @@ class pUser extends Page
 	function GET_profile()
 	{
 		$this->web->check_access('USER');
-		$data = $this->models->user->get(ACCESS_ID);
+		$data = $this->models->user->load(ACCESS_ID);
 		unset($data['password']);
 		$this->tset('data', $data);
 
@@ -145,7 +139,8 @@ class pUser extends Page
 	}
 	function POST_resetpass()
 	{
-		$user = $this->models->user->get_by('email', $this->param('email'));
+		$r =& $this->models->user->find("email='%s'", $this->param('email'));
+		$user = $r->load();
 		if(!$user) {
 			$this->tset('error', __('No user account found'));
 			$this->render('login.php');
@@ -158,7 +153,7 @@ class pUser extends Page
 		}
 
 		$password = $this->models->user->generate_password();
-		$this->models->user->set_password($user['id'], $password);
+		$r->set('password', $password);
 		$this->tset('user', $user);
 		$this->tset('password', $password);
 

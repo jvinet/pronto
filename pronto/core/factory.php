@@ -89,8 +89,14 @@ class Factory
 				$filespec[] = DIR_FS_APP.DS.'modules'.DS.$mod.DS.'models'.DS.'*.php';
 			}
 		}
+		require_once(DIR_FS_PRONTO.DS.'core'.DS.'record_model.php');
+		require_once(DIR_FS_PRONTO.DS.'core'.DS.'record_selector.php');
+		require_once(DIR_FS_APP.DS.'core'.DS.'record_model.php');
+
+		// old model -- backwards compatibility
 		require_once(DIR_FS_PRONTO.DS.'core'.DS.'model.php');
 		require_once(DIR_FS_APP.DS.'core'.DS.'model.php');
+
 		$o =& Factory::newobj('models', 'm'.$name, $filespec);
 		return $o;
 	}

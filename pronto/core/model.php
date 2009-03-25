@@ -7,6 +7,9 @@
  * Description: Base class for all data models.  Many of the methods here
  *              will be overridden by subclasses.
  *
+ * NOTE: This class is now deprecated in favor of the newer RecordModel
+ *       and RecordSelector classes.  Please use those instead.
+ *
  **/
 
 class Model_Base
@@ -249,7 +252,6 @@ class Model_Base
 			if(!$item) {
 				$item = $this->get_record($id);
 				$this->cache->set($key, $item);
-			} else {
 			}
 			return $item;
 		}
@@ -473,6 +475,30 @@ class Model_Base
 		trigger_error("Method does not exist: $name");
 	}
 
+	/**
+	 * BACKWARDS COMPATIBILITY
+	 *
+	 * This makes the basic model functions compatible with the newer RecordModel
+	 * class.
+	 */
+	function save($data)
+	{
+		if($data['id']) {
+			return $this->update($data);
+		} else {
+			return $this->insert($data);
+		}
+	}
+
+	function load($id)
+	{
+		return $this->get($id);
+	}
+
+	function enum_schema()
+	{
+		return $this->list_params();
+	}
 }
 
 ?>

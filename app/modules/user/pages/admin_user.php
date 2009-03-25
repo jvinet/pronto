@@ -11,6 +11,8 @@ class pUser_Admin extends Page_CRUD
 		$this->import_model('user');
 		$this->set_entity('user', __('User'), 'admin/');
 		$this->set_module('user');
+
+		$this->models->user->context = 'ADMIN';
 	}
 
 	/**********************************************************************

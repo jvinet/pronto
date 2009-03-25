@@ -83,8 +83,8 @@ define('DIR_FS_APP',    DIR_FS_BASE.DS.'app');
  * Enable Plugins/Helpers/Modules (space-delimited)
  */
 define('PLUGINS', 'mailer image file os');
-define('HELPERS', 'html form table pager navigation ajax grid');
-define('MODULES', 'user person');
+define('HELPERS', 'html form table pager navigation ajax');
+define('MODULES', 'user');
 
 /*
  * Cache Settings

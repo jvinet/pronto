@@ -364,7 +364,8 @@ function assert_type(&$var, $type)
 {
 	switch($type) {
 		case 'array':
-			if(!is_array($var)) $var = array();
+			// only put $var in the new array if it's not zero/false/null
+			if(!is_array($var)) $var = $var ? array($var) : array();
 			break;
 		case 'string': 
 			if(!is_string($var)) $var = is_array($var) ? "".current($var) : "$var";

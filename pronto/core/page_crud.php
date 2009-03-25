@@ -130,7 +130,12 @@ class Page_CRUD extends Page
 
 		if(!$is_update && !in_array('create', $this->enabled_actions)) $this->web->forbidden();
 
-		$errors = $this->model->validate($data, $is_update);
+		if(ereg('^Model', get_parent_class($this->model))) {
+			// Backwards Compatibility
+			$errors = $this->model->validate($data, $is_update);
+		} else {
+			$errors = $this->model->validate($data);
+		}
 
 		// validate file uploads, if any
 		if(is_array($this->model->files)) {
@@ -181,12 +186,12 @@ class Page_CRUD extends Page
 			$id = $data['id'];
 			$this->hook_update__pre_save($data);
 			$this->hook__pre_save($data);
-			$this->model->update($data);
+			$this->model->save($data);
 			$flash = __('%s has been updated.', $this->human_name);
 		} else {
 			$this->hook_insert__pre_save($data);
 			$this->hook__pre_save($data);
-			$id = $this->model->insert($data);
+			$id = $this->model->save($data);
 			$data['id'] = $id;
 			$flash = __('%s has been created.', $this->human_name);
 		}
@@ -252,7 +257,7 @@ class Page_CRUD extends Page
 			// passed control back to GET_create() for failed validation.
 		} else {
 			$id = $this->param('id');
-			$data = $this->model->get_or_404($id);
+			$data = $this->model->load($id) or $this->web->notfound();
 		}
 		$this->hook_edit__pre_edit($data);
 		$this->hook__pre_edit($data);
@@ -290,7 +295,7 @@ class Page_CRUD extends Page
 
 		$ids = $this->param('delete_ids', $this->param('ids', array($this->param('id'))));
 		foreach($ids as $id) {
-			$data = $this->model->get_or_404($id);
+			$data = $this->model->load($id) or $this->web->notfound();
 			$this->hook_delete__pre_delete($data);
 			$this->model->delete($data['id']);
 
@@ -318,9 +323,9 @@ class Page_CRUD extends Page
 		if(!in_array('list', $this->enabled_actions)) $this->web->forbidden();
 
 		// Gather list parameters from the model
-		$params = $this->model->list_params();
-		if(!isset($params['order'])) $params['order'] = $this->model->default_sort; 
-		if(!isset($params['limit'])) $params['limit'] = $this->model->per_page;
+		$params = $this->model->enum_schema();
+		if(!isset($params['order'])) $params['order'] = "{$this->model->pk} ASC"; 
+		if(!isset($params['limit'])) $params['limit'] = 50;
 		$this->hook_list__params($params);
 
 		list($data,$ttlrows,$curpage,$perpage) = $this->sql->enumerate($params);
@@ -367,7 +372,7 @@ class Page_CRUD extends Page
 		if(!isset($this->model->files[$key])) $this->web->notfound();
 
 		// build the filename
-		$data = $this->model->get_or_404($id);
+		$data = $this->model->load($id) or $this->web->notfound();
 		$filename = $this->model->files[$key]['filename'];
 		foreach($data as $k=>$v) {
 			if(is_array($v)) continue;

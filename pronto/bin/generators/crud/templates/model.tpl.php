@@ -1,63 +1,50 @@
 <?php
 
-class m_UENTITY_ extends Model
+class m_UENTITY_ extends RecordModel
 {
 	var $table        = '_DB_TABLE_';
-	var $default_sort = '_DEFAULT_SORT_ ASC';
-	var $per_page     = 50;
 	var $enable_cache = false;
 
-	function validate_for_insert($data)
+	function validate($data)
 	{
 		$errors = array();
 		$this->validator->required($errors, array(), $data);
 		return $errors;
 	}
 
-	function validate_for_update($data)
+	function create_record()
 	{
-		$errors = array();
-		$this->validator->required($errors, array(), $data);
-		return $errors;
+		return parent::create_record();
 	}
 
-	function create()
+	function save_record($data)
 	{
-		return parent::create();
+		return parent::save_record($data);
 	}
 
-	function insert($data)
+	function load_record($id)
 	{
-		return parent::insert($data);
+		return parent::load_record($id);
 	}
 
-	function update($data)
+	function delete_record($id)
 	{
-		return parent::update($data);
+		parent::delete_record($id);
 	}
 
-	function delete($id)
-	{
-		parent::delete($id);
-	}
-
-	function list_params()
+	function enum_schema()
 	{
 		return array(
 			'from'       => $this->table,
 			'exprs'      => array(),
+			'gexprs'     => array(),
 			'select'     => '*',
-			'where'      => array(),
-			'where_args' => array(),
-			'order'      => $this->default_sort,
-			'limit'      => $this->per_page,
-			'group_by'   => ''
+			'where'      => '',
+			'group_by'   => '',
+			'having'     => '',
+			'order'      => '_DEFAULT_SORT_ ASC',
+			'limit'      => 50
 		);
-	}
-
-	function get_record($id)
-	{
-		return parent::get_record($id);
 	}
 }
 
