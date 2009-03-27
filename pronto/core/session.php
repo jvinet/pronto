@@ -140,7 +140,7 @@ function start_session($sess_id='')
 	ini_set('session.gc_divisor', 100);
 	ini_set('session.name', SESSION_COOKIE);
 	if(defined('SESSION_USEDB') && SESSION_USEDB === true) {
-		$db =& Registry::get('pronto:db');
+		$db =& Registry::get('pronto:db:main');
 		$session = new Session_DB($db);
 		Registry::set('pronto:session', $session);
 	}

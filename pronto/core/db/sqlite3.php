@@ -14,6 +14,7 @@ class DB_SQLite3 extends DB_Base
 {
 	function DB_SQLite3($conn, $persistent) {
 		$this->safesql =& new SafeSQL_ANSI;
+		$this->type = 'sqlite3';
 		
 		$this->conn = new SQLite3($conn['file']);
 

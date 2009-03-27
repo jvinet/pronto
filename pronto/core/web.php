@@ -333,7 +333,7 @@ class Web {
 					if($v['msg']) echo "<h4>{$v['loc']}</h4><pre>{$v['msg']}</pre>";
 				}
 			}
-			$db =& Registry::get('pronto:db');
+			$db =& Registry::get('pronto:db:main');
 			if($db && $db->profile === true) {
 				echo '<h2>Summary</h2>';
 				echo '<table class="query_profile" cellspacing="0">';

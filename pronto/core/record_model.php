@@ -93,7 +93,7 @@ class RecordModel_Base
 	 */
 	function RecordModel_Base()
 	{
-		$this->db    =& Registry::get('pronto:db');
+		$this->db    =& Registry::get('pronto:db:main');
 		$this->cache =& Registry::get('pronto:cache');
 		$this->web   =& Registry::get('pronto:web');
 		$this->validator =& Registry::get('pronto:validator');

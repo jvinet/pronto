@@ -20,7 +20,7 @@
 /**
  * The current version of Pronto.
  */
-define('PRONTO_VERSION', '0.5');
+define('PRONTO_VERSION', '0.7');
 
 class Factory
 {
@@ -33,8 +33,12 @@ class Factory
 	 */
 	function &db($config)
 	{
-		if(!defined('DB_DRIVER')) define('DB_DRIVER', 'mysql');
-		switch(DB_DRIVER) {
+		if($config['type']) {
+			$type = $config['type'];
+		} else if(defined('DB_DRIVER')) {
+			$type = DB_DRIVER;
+		}
+		switch($type) {
 			case 'mysql':      $cn = 'DB_MySQL';      break;
 			case 'postgresql': $cn = 'DB_PostgreSQL'; break;
 			case 'mssql':      $cn = 'DB_MSSQL';      break;
@@ -44,10 +48,14 @@ class Factory
 			case 'pdo':        $cn = 'DB_PDO';        break;
 			case 'none':       return new stdClass;
 		}
-		$persistent = (defined('DB_PERSISTENT') && DB_PERSISTENT === true);
+		if(is_array($config['opts'])) {
+			$persistent = !!$config['opts']['persistent'];
+		} else {
+			$persistent = (defined('DB_PERSISTENT') && DB_PERSISTENT === true);
+		}
 
 		require_once(DIR_FS_PRONTO.DS.'core'.DS.'db.php');
-		require_once(DIR_FS_PRONTO.DS.'core'.DS.'db'.DS.DB_DRIVER.'.php');
+		require_once(DIR_FS_PRONTO.DS.'core'.DS.'db'.DS.$type.'.php');
 
 		return new $cn($config, $persistent);
 	}

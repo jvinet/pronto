@@ -31,7 +31,7 @@ class Page_Base
 	function Page_Base()
 	{
 		$this->web     =& Registry::get('pronto:web');
-		$this->db      =& Registry::get('pronto:db');
+		$this->db      =& Registry::get('pronto:db:main');
 		$this->sql     =  new SQL_Generator($this); 
 		$this->models  =  new stdClass;
 		$this->plugins =  new stdClass;

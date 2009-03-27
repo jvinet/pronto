@@ -105,7 +105,7 @@ class tpForm extends Plugin
 		if(!$icon) $icon = 'icons/info.gif';
 		$this->depends->html->js_load('jq_tooltip', 'jq/jquery.tooltip');
 		$this->depends->html->js_run('jq_tooltip', '$(\'img.helpicon\').Tooltip({showURL:false,delay:0});');
-		$this->depends->html->css_load('tooltip', 'tooltip');
+		$this->depends->html->css_load('tooltip');
 
 		// escape double-quotes
 		$text = mb_ereg_replace('"', '\\"', $text);
@@ -113,7 +113,7 @@ class tpForm extends Plugin
 	}
 
 	/**
-	 * Bind tooltip functionality to oneo or more elements.  The value of the
+	 * Bind tooltip functionality to one or more elements.  The value of the
 	 * element's "title" attribute will be used for the tooltip content.
 	 *
 	 * @param string $dom_id The jQuery selector of the elements.

@@ -119,8 +119,8 @@ class mUser extends RecordModel
 			'select'     => '*',
 			'where'      => array(),
 			'where_args' => array(),
-			'order'      => $this->default_sort,
-			'limit'      => $this->per_page
+			'order'      => "last_name ASC",
+			'limit'      => 50
 		);
 	}
 

@@ -8,26 +8,6 @@ define('DS', DIRECTORY_SEPARATOR);
 define('CHARSET', 'UTF-8');
 
 /*
- * Database Settings
- */
-define('DB_PERSISTENT', true);
-define('DB_DRIVER',    'mysql');
-
-/*
- * Database Connection
- *   - HOST/USER/PASS/NAME are used for any client/server RDBMS
- *   - FILE is for SQLite only
- *   - DSN is an URL-style descriptor used for the PDO driver
- */
-define('DB_HOST', 'localhost');
-define('DB_USER', 'root');
-define('DB_PASS', '');
-define('DB_NAME', 'pronto');
-//define('DB_FILE', 'db'.DS.'pronto.db');
-//define('DB_DSN',  'sqlite:db'.DS.'pronto.db');
-//define('DB_DSN',  'mysql:host='.DB_HOST.';dbname='.DB_NAME);
-
-/*
  * Mail Settings
  */
 define('SMTP_HOST', 'smtp.eastlink.ca');

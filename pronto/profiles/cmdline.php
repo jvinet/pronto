@@ -71,15 +71,25 @@ if(extension_loaded('mbstring')) {
 }
 
 /************************************************************************
- * CONNECT TO DATABASE
+ * CONNECT TO DATABASE(S)
  ************************************************************************/
-$db =& Factory::db(array(
-	'file' => DB_FILE,
-	'host' => DB_HOST,
-	'user' => DB_USER,
-	'pass' => DB_PASS,
-	'name' => DB_NAME));
-Registry::set('pronto:db', $db);
+if(defined('DB_NAME')) {
+	$db =& Factory::db(array(
+		'dsn'  => DB_DSN,
+		'file' => DB_FILE,
+		'host' => DB_HOST,
+		'user' => DB_USER,
+		'pass' => DB_PASS,
+		'name' => DB_NAME));
+	Registry::set('pronto:db:main', $db);
+} else {
+	require_once(DIR_FS_APP.DS.'config'.DS.'databases.php');
+	foreach($DATABASES as $key=>$dbcfg) {
+		$db =& Factory::db($dbcfg);
+		Registry::set('pronto:db:'.$key, $db);
+	}
+	unset($key, $dbcfg);
+}
 
 /************************************************************************
  * INTERNATIONALIZATION

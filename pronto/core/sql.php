@@ -21,7 +21,7 @@ class SQL_Generator
 	 */
 	function SQL_Generator(&$page)
 	{
-		$this->db   =& Registry::get('pronto:db');
+		$this->db   =& Registry::get('pronto:db:main');
 		$this->page =& $page;
 	}
 
@@ -76,12 +76,12 @@ class SQL_Generator
 		$page_sql = $this->paginate($limit);
 
 		// Get data rows
-		if(DB_DRIVER == 'mysql') $select = "SQL_CALC_FOUND_ROWS $select";
+		if($this->db->type == 'mysql') $select = "SQL_CALC_FOUND_ROWS $select";
 		$sql  = $this->db->build_sql($select, $from, $w_sql, $group_by, $h_sql, $sort_sql, $page_sql);
 		$data = $this->db->get_all($sql, $args);
 
 		// Count all matching rows
-		if(DB_DRIVER == 'mysql') {
+		if($this->db->type == 'mysql') {
 			$ttlrows = $this->db->get_value("SELECT FOUND_ROWS()");
 		} else {
 			$ttlrows = $this->db->get_value($this->db->build_sql("COUNT(*)", $from, $w_sql, $group_by, $h_sql), $args);

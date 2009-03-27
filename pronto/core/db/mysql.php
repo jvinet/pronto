@@ -12,6 +12,7 @@ class DB_MySQL extends DB_Base
 {
 	function DB_MySQL($conn, $persistent) {
 		$this->safesql =& new SafeSQL_MySQL;
+		$this->type = 'mysql';
 		
 		if($persistent) {
 			$this->conn = mysql_pconnect($conn['host'], $conn['user'], $conn['pass']);

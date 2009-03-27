@@ -95,6 +95,7 @@ class tpTable extends Plugin
 	 *   - perpage       :: number of rows per page
 	 *   - curpage       :: the current page number
 	 *   - rowclick      :: action URL to go to if a table row is clicked
+	 *   - perpage_opts  :: array of rows-per-page options for pagination control
 	 *   - options array :: override default table behavior ('noheaders','nosorting','nofilters','nofilterbutton''nototals','nopagination')
 	 *   - totals array  :: array of data row indices that we should tally/display
 	 *                      eg, 'totals' => array('amount' => array('format'=>'%.2f'))
@@ -124,6 +125,7 @@ class tpTable extends Plugin
 		$options  = $this->_getparam($params, 'options', array());
 		$data_id  = $this->_getparam($params, 'data_id', 'id');
 		$grid_url = $this->_getparam($params, 'url', $this->depends->html->url(CURRENT_URL));
+		$pp_opts  = $this->_getparam($params, 'perpage_opts', array(50,200,500,1000));
 
 		if(!isset($params['noresults_txt'])) $params['noresults_txt'] = __('No Matches');
 
@@ -491,9 +493,11 @@ class tpTable extends Plugin
 			$out .= rtrim($page);
 			$out .= '</div>';
 			$out .= __('Showing').' ';
-			$pp_opts = array('50'=>'50','200'=>'200','500'=>'500','1000'=>'1000');
-			if(!isset($pp_opts["$pp"])) $pp_opts = array("$pp"=>$pp)+$pp_opts;
-			$out .= $this->depends->form->select('p_pp', $pp, $pp_opts, '', false, array('onChange'=>'document.changepp.submit();'));
+			if(!isset($pp_opts[$pp])) {
+				$pp_opts[] = $pp;
+				sort($pp_opts);
+			}
+			$out .= $this->depends->form->select('p_pp', $pp, array_hash($pp_opts), '', false, array('onChange'=>'document.changepp.submit();'));
 			$out .= " ".__('per page').' ('.__('total records').": {$params['rows']})\n";
 
 			$out .= "</td>\n";

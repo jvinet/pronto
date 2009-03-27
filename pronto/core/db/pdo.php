@@ -14,6 +14,7 @@ class DB_PDO extends DB_Base
 {
 	function DB_PDO($conn, $persistent) {
 		$this->safesql =& new SafeSQL_ANSI;
+		$this->type = 'pdo';
 		
 		$att = array(PDO::ATTR_PERSISTENT => $persistent);
 		try {

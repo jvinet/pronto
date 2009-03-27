@@ -12,6 +12,7 @@ class DB_PostgreSQL extends DB_Base
 {
 	function DB_PostgreSQL($conn, $persistent) {
 		$this->safesql =& new SafeSQL_ANSI;
+		$this->type = 'postgresql';
 		
 		$connstr = "dbname={$conn['name']}";
 		if($conn['user']) $connstr .= " user={$conn['user']}";
