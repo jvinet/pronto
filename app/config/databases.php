@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * DATABASE CONNECTIONS
+ *
+ * NOTE: If you're using MySQL and you want to connect to multiple
+ * databases using the same host/user/pass connection parameters, then
+ * you may run into some side effects, as PHP will implicitly use the same
+ * connection internally.  This can result in queries being executed on the
+ * wrong database.  To work around this, use slightly different connection
+ * values (eg, "127.0.0.1" instead of "locahost") for each connection.
+ */
+
 $DATABASES = array(
 	'main' => array(
 		'type' => 'mysql',

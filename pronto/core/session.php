@@ -64,9 +64,7 @@ class Session_DB
 	 */
 	function gc($lifetime)
 	{
-		global $DB;
 		$t = time() - $lifetime;
-
 		$this->db->execute("DELETE FROM sessions WHERE lastupdate<%i", array($t));
 		return true;
 	}
