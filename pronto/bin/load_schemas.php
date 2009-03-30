@@ -12,7 +12,7 @@ if(!file_exists('profiles/cmdline.php')) {
 	die("Run this script from your top-level app directory (eg, /var/www/html/app)\n");
 }
 require_once('profiles/cmdline.php');
-$GLOBALS['db'] = Registry::get('pronto:db');
+$GLOBALS['db'] = Registry::get('pronto:db:main');
 
 $args = $_SERVER['argv'];
 array_shift($args);

@@ -43,12 +43,12 @@ jQuery.fn.position_near_click = function(e) {
 	var w = $(this).width();
 	var ex = e.pageX || (e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft);
 	var ey = e.pageY || (e.clientY + document.body.scrollTop  + document.documentElement.scrollTop);
-	var vx1 = $(window).scrollLeft();
-	var vx2 = vx1 + $(window).width();
-	var vy1 = $(window).scrollTop();
-	var vy2 = vy1 + $(window).height();
-	var x = (ex + w > vx2) ? ex - w : ex;
-	var y = (ey + (h+20) > vy2) ? ey - h-20: ey+20;
+	var vx = $(window).scrollLeft() + $(window).width();
+	var vy = $(window).scrollTop() + $(window).height();
+	var x = (ex + w > vx) ? ex - w : ex;
+	var y = (ey + (h+20) > vy) ? ey - h-20 : ey+20;
+	if(x < 0) x = 0;
+	if(y < 0) y = 0;
 	$(this).css({left:x, top:y});
 	return this;
 }

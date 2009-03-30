@@ -16,7 +16,7 @@ if(!file_exists('profiles/cmdline.php')) {
 }
 require_once('profiles/cmdline.php');
 
-$db = Registry::get('pronto:db');
+$db = Registry::get('pronto:db:main');
 
 if($_SERVER['argc'] < 3) {
 	echo "usage: php generate.php <entity> <db_table> [basename] [module]\n\n";
