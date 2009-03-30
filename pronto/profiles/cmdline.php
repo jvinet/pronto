@@ -120,7 +120,8 @@ unset($p);
  ************************************************************************/
 error_reporting(E_ALL & ~E_NOTICE);
 if(DEBUG === true) {
-	$db->profile = true;
+	$db =& Registry::get('pronto:db:main');
+	if($db) $db->profile = true;
 }
 
 /************************************************************************

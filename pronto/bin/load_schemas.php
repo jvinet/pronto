@@ -35,10 +35,14 @@ if(empty($opts)) {
 
 $files = array();
 if(isset($opts['t'])) {
-	// Scan all directories for the specified table file
-	$dirs = array(DIR_FS_APP.DS.'config'.DS.'sql');
-	foreach(explode(' ', MODULES) as $mod) {
-		$dirs[] = DIR_FS_APP.DS.'modules'.DS.$mod.DS.'config'.DS.'sql';
+	if(isset($opts['m'])) {
+		$dirs = array(DIR_FS_APP.DS.'modules'.DS.$opts['m'].DS.'config'.DS.'sql');
+	} else {
+		// Scan all directories for the specified table file
+		$dirs = array(DIR_FS_APP.DS.'config'.DS.'sql');
+		foreach(explode(' ', MODULES) as $mod) {
+			$dirs[] = DIR_FS_APP.DS.'modules'.DS.$mod.DS.'config'.DS.'sql';
+		}
 	}
 	foreach($dirs as $dir) {
 		$fn = $dir.DS.$opts['t'].'.sql';

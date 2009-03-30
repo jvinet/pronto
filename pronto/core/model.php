@@ -495,6 +495,11 @@ class Model_Base
 		return $this->get($id);
 	}
 
+	function create_record()
+	{
+		return $this->create();
+	}
+
 	function enum_schema()
 	{
 		return $this->list_params();

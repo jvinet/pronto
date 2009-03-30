@@ -165,9 +165,8 @@ unset($p);
 error_reporting(E_ALL & ~E_NOTICE);
 if(DEBUG === true) {
 	$web->enable_debug();
-	//$web->profile();  // This is disabled by default, as it doesn't work
-	                    // with threaded web server modules.
-	$db->profile = true;
+	$db =& Registry::get('pronto:db:main');
+	if($db) $db->profile = true;
 }
 
 // Error handler for Debug and Production mode, defined in core/util.php.

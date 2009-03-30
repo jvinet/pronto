@@ -105,7 +105,7 @@ class Page_CRUD extends Page
 			// POST_create() has already called the pre-edit hook, before it
 			// passed control back to GET_create() for failed validation.
 		} else {
-			$data = $this->model->create();
+			$data = $this->model->create_record();
 			$this->hook_create__pre_edit($data);
 			$this->hook__pre_edit($data);
 		}
