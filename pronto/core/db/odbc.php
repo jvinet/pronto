@@ -59,7 +59,7 @@ class DB_ODBC extends DB_Base
 	}
 
 	function get_insert_id() {
-		$r = odbc_fetch_row(odbc_exec("select @@IDENTITY"));
+		$r = odbc_fetch_row(odbc_exec("select @@IDENTITY", $this->conn));
 		return $r[0];
 	}
 }

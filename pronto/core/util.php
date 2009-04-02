@@ -265,7 +265,8 @@ function pronto_error($errno, $message, $file, $line)
 		require(DIR_FS_PRONTO.DS.'core'.DS.'error'.DS.'text.php');
 		$content = ob_get_contents();
 		ob_end_clean();
-		@mail(ADMIN_EMAIL, SITE_NAME.": Error", $content);
+		$email = defined('TECH_EMAIL') ? TECH_EMAIL : ADMIN_EMAIL;
+		@mail($email, SITE_NAME.": Error", $content);
 
 		if(is_object($web)) {
 			// call Web's error handler, which usually renders an error page to

@@ -46,6 +46,9 @@ BACKTRACE:
 REQUEST INFORMATION:
 -------------------------------------------------------------------------<?php
 	foreach($data as $name=>$global) {
+		// skip $_ENV and CONSTANTS, as they can contain sensitive information
+		if(in_array($name, array('$_ENV','CONSTANTS'))) continue;
+
 		echo "\n{$name}:\t\t";
 		if(!empty($global)) {
 			// trim off the "Array (" and ")" portions from print_r()

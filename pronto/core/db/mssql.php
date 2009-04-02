@@ -61,7 +61,7 @@ class DB_MSSQL extends DB_Base
 	}
 
 	function get_insert_id() {
-		$r = mssql_fetch_row(mssql_query("select @@IDENTITY"));
+		$r = mssql_fetch_row(mssql_query("select @@IDENTITY", $this->conn));
 		return $r[0];
 	}
 }

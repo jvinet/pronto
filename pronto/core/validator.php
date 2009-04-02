@@ -14,7 +14,7 @@
  */
 define('VALID_NOT_EMPTY', '/.+/');
 define('VALID_NUMBER',    '/^[0-9]+$/');
-define('VALID_FLOAT',     '/^[0-9.]+$/');
+define('VALID_FLOAT',     '/^[0-9]*\.?[0-9]+$/');
 define('VALID_EMAIL',     '/\\A(?:^([a-z0-9][a-z0-9_\\-\\.\\+]*)@([a-z0-9][a-z0-9\\.\\-]{0,63}\\.(com|org|net|biz|info|name|net|pro|aero|coop|museum|[a-z]{2,4}))$)\\z/i');
 define('VALID_URL',       '@((ht|f)tps?://([-\w\.]+)+(:\d+)?(/([\w/_\.]*(\?\S+)?)?)?)@');
 define('VALID_DATE',      '/^[12][0-9]{3}-[01][0-9]-[0123][0-9]$/');

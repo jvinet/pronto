@@ -73,7 +73,7 @@ class DB_MySQL extends DB_Base
 	}
 
 	function get_insert_id() {
-		return mysql_insert_id();
+		return mysql_insert_id($this->conn);
 	}
 }
 
