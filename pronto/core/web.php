@@ -119,13 +119,13 @@ class Web {
 		$basepath   = $this->context->basepath == WDS ? '' : $this->context->basepath;
 		$classes    = get_declared_classes();
 		$full_url   = (isset($_SERVER['HTTPS']) ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'] . $this->context->fullpath;
-		$url_parts  = parse_url($full_url);
+		$url_parts  = @parse_url($full_url);
 		if($path === false) {
 			$this->context->path = ltrim(substr($url_parts['path'], strlen($basepath)), WDS);
 		} else {
 			$this->context->path = ltrim($path, WDS);
 		}
-		$this->context->querystring = @$url_parts['query'];
+		$this->context->querystring = $url_parts['query'];
 		$uri_parts                  = explode(WDS, trim($this->context->path, WDS));
 		$strip_array                = create_function('&$array', 'foreach ($array as $key => $item) if ($item === "") unset($array[$key]);');
 
