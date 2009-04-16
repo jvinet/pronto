@@ -149,6 +149,7 @@ class Template
 				$template_path = DIR_FS_APP.DS.'templates'.DS.$filename;
 			}
 		}
+		$vars['__template_path'] = dirname($template_path);
 
 		$i18n = Registry::get('pronto:i18n');
 		$old = ($language && $i18n) ? $i18n->set_language($language) : '';
