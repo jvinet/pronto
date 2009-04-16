@@ -602,11 +602,18 @@ EOT;
 	 * @param string $name
 	 * @param string $value
 	 * @param array $options
+	 * @param string $sep Separator to use between options (default is a BR tag)
 	 * @param array $attribs Additional HTML attributes
 	 * @return string
 	 */
-	function radio($name, $value='', $options=array(), $attribs=array())
+	function radio($name, $value='', $options=array(), $sep='<br />', $attribs=array())
 	{
+		// backwards compatibility
+		if(is_array($sep)) {
+			$attribs = $sep;
+			$sep = '<br />';
+		}
+
 		list($name) = $this->_escape($name);
 		$err = $this->_error($name, $attribs);
 		$id  = $this->dom_id($name);
@@ -615,7 +622,7 @@ EOT;
 			$out .= '<input type="radio" name="'.$name.'" value="'.$val.'"';
 			if($val == $value) $out .= ' checked="checked"';
 			$out .= $this->depends->html->_attribs(array_merge(array('id'=>$id, 'style'=>'border:none'),$attribs));
-			$out .= ' /> '.$label.'<br />';
+			$out .= ' /> '.$label.$sep;
 		}
 		return $out.$err;
 	}
