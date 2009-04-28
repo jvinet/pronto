@@ -10,6 +10,8 @@
 
 class DB_PostgreSQL extends DB_Base
 {
+	var $table_defns = array();
+
 	function DB_PostgreSQL($conn, $persistent) {
 		$this->safesql =& new SafeSQL_ANSI;
 		$this->type = 'postgresql';
@@ -40,7 +42,16 @@ class DB_PostgreSQL extends DB_Base
 	}
 
 	function get_table_defn($table) {
-		return false;
+		if(isset($this->table_defns[$table])) return $this->table_defns[$table];
+
+		// XXX: this only works if there's already a row in the table
+		$fs = array();
+		$res = pg_query($this->conn, "SELECT * FROM $table LIMIT 1");
+		$i = pg_num_fields($res);
+		for($j = 0; $j < $i; $j++) $fs[pg_field_name($res, $j)] = '';
+
+		$this->table_defns[$table] = $fs;
+		return $fs;
 	}
 
 	function run_query($sql) {
@@ -69,7 +80,9 @@ class DB_PostgreSQL extends DB_Base
 
 	function get_insert_id() {
 		// requires PostgreSQL 8.1 or higher
-		return $this->get_value("SELECT LASTVAL()");
+		// don't use $this->get_value() or we'll infinitely recurse
+		$q = @pg_query($this->conn, "SELECT lastval()");
+		return $q ? array_shift($this->fetch_row($q)) : 0;
 	}
 }
 

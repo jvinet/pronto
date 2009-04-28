@@ -13,9 +13,9 @@
 
 $DATABASES = array(
 	'main' => array(
-		'type' => 'mysql',
+		'type' => 'postgresql',
 		'host' => 'localhost',
-		'user' => 'root',
+		'user' => 'pronto',
 		'pass' => '',
 		'name' => 'pronto',
 		'opts' => array('persistent' => true)

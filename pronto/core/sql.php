@@ -282,7 +282,7 @@ class SQL_Generator
 		$perpage = $this->page->param('p_pp', $perpage);
 		$offset  = max(0,($page-1) * $perpage);
  
-		return "$offset,$perpage";
+		return "$perpage OFFSET $offset";
 	}
 
 }

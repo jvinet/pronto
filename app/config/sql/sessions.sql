@@ -1,7 +1,7 @@
 DROP TABLE IF EXISTS "sessions";
 CREATE TABLE "sessions" (
-	"id" CHAR(255) NOT NULL,
-	"lastupdate" INT UNSIGNED NOT NULL,
+	"id" VARCHAR(255) NOT NULL,
+	"lastupdate" INT NOT NULL,
 	"data" TEXT,
 
 	PRIMARY KEY("id")

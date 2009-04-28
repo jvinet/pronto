@@ -88,6 +88,7 @@ if(defined('DB_NAME')) {
 		$db =& Factory::db($dbcfg);
 		Registry::set('pronto:db:'.$key, $db);
 	}
+	// we leave $db set for scripts that expect it
 	unset($key, $dbcfg);
 }
 

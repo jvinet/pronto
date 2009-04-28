@@ -67,6 +67,8 @@ if(empty($files)) {
 	exit(1);
 }
 
+$db =& Registry::get('pronto:db:main');
+
 foreach($files as $f) {
 	unset($GLOBALS['insql_done'], $GLOBALS['LFILE']);
 	echo "Loading $f...\n";
@@ -74,10 +76,11 @@ foreach($files as $f) {
 }
 
 function do_sql($sql) {
+	global $db;
+
 	$sql = trim($sql);
 	if(empty($sql)) return true;
 
-	$db =& $GLOBALS['db'];
 	return !!$db->execute($sql);
 }
 

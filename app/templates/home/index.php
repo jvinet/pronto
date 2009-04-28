@@ -18,3 +18,4 @@
 		<li><?php echo $html->link(__("API Reference"), $_SERVER['REQUEST_URI'].'doc/api/index.html') ?></li>
 	</ul>
 </p>
+

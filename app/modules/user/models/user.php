@@ -10,7 +10,7 @@ class mUser extends RecordModel
 		$errors = array();
 		$this->validator->required($errors, array('first_name','last_name'));
 		$this->validator->validate($errors, 'email', VALID_EMAIL, __('Valid email address is required'));
-		if(!$is_update && !isset($_SESSION['openid_identity'])) {
+		if(!$data['id'] && !isset($_SESSION['openid_identity'])) {
 			$this->validator->required($errors, array('password'));
 		}
 
@@ -64,7 +64,6 @@ class mUser extends RecordModel
 	function insert($data)
 	{
 		$data['created_on'] = date('Y-m-d');
-		$data['last_login'] = '0000-00-00';
 
 		if(isset($_SESSION['openid_identity'])) {
 			// an empty password ensures that this user cannot login with
