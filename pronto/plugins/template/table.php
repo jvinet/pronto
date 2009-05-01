@@ -124,7 +124,7 @@ class tpTable extends Plugin
 		$class    = $this->_getparam($params, 'class', 'grid');
 		$options  = $this->_getparam($params, 'options', array());
 		$data_id  = $this->_getparam($params, 'data_id', 'id');
-		$grid_url = $this->_getparam($params, 'url', $this->depends->html->url(CURRENT_URL));
+		$grid_url = $this->_getparam($params, 'url', url(CURRENT_URL));
 		$pp_opts  = $this->_getparam($params, 'perpage_opts', array(50,200,500,1000));
 
 		if(!isset($params['noresults_txt'])) $params['noresults_txt'] = __('No Matches');

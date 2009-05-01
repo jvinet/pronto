@@ -98,6 +98,8 @@ class Page_CRUD extends Page
 		if(!in_array('create', $this->enabled_actions)) $this->web->forbidden();
 
 		$json = array();
+		// if the template already has 'data' set, it means we came
+		// from POST_create() because there were validation errors
 		if($this->template->is_set('data')) {
 			$data = $this->template->get('data');
 			$this->template->un_set('data');
@@ -250,9 +252,13 @@ class Page_CRUD extends Page
 		$this->auth_create();
 		if(!in_array('edit', $this->enabled_actions)) $this->web->forbidden();
 
+		$json = array();
+		// if the template already has 'data' set, it means we came
+		// from POST_edit() because there were validation errors
 		if($this->template->is_set('data')) {
 			$data = $this->template->get('data');
 			$this->template->un_set('data');
+			$json['errors'] = $this->template->get('errors');
 			// POST_create() has already called the pre-edit hook, before it
 			// passed control back to GET_create() for failed validation.
 		} else {
@@ -276,7 +282,7 @@ class Page_CRUD extends Page
 		}
 
 		if($this->ajax) {
-			$this->ajax_render($this->edit_template);
+			$this->ajax_render($this->edit_template, $json);
 		} else {
 			$this->render($this->edit_template);
 		}
