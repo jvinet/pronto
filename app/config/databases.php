@@ -8,14 +8,14 @@
  * you may run into some side effects, as PHP will implicitly use the same
  * connection internally.  This can result in queries being executed on the
  * wrong database.  To work around this, use slightly different connection
- * values (eg, "127.0.0.1" instead of "locahost") for each connection.
+ * values (eg, "127.0.0.1" instead of "localhost") for each connection.
  */
 
 $DATABASES = array(
 	'main' => array(
-		'type' => 'postgresql',
+		'type' => 'mysql',
 		'host' => 'localhost',
-		'user' => 'pronto',
+		'user' => 'root',
 		'pass' => '',
 		'name' => 'pronto',
 		'opts' => array('persistent' => true)

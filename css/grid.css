@@ -57,18 +57,19 @@ table.grid tr.pagination select {
 table.grid tr.label th {
 	text-align: left;
 	vertical-align: top;
-	border-right: 1px solid #fff;
+	border-right: 1px solid #a7a7a7;
 	padding: 2px 3px;
-	background-color: #ccc;
-	color: #000;
+	background: #dadada url(/img/thead.gif) top left repeat-x;
+	color: #333;
 	white-space: nowrap;
 }
 table.grid tr.filter th {
 	text-align: left;
 	vertical-align: top;
-	border-right: 1px solid #fff;
+	border-right: 1px solid #a7a7a7;
 	padding: 2px 3px;
-	background-color: #ccc;
+	background: #dadada url(/img/thead.gif) top left repeat-x;
+	color: #333;
 	white-space: nowrap;
 }
 table.grid tr.filter input {
@@ -88,11 +89,11 @@ table.grid input.spinner {
 	background: #484848 url(/img/spinner-dark.gif) center right no-repeat;
 }
 table.grid tr th.hover {
-	background-color: #7db8dd;
+	background: #9fdcff url(/img/thead-hl.gif) top left repeat-x;
 	cursor: pointer;
 }
 table.grid tr th.hover a {
-	color: #fff;
+	color: #000;
 }
 table.grid th a.help {
 	font-family: Verdana, Arial, Helvetica, Sans Serif;
@@ -101,12 +102,11 @@ table.grid th a.help {
 	text-decoration: none;
 }
 table.grid th a {
-	color: #000;
+	color: #333;
 	text-decoration: none;
 }
 table.grid td {
 	padding: 2px 15px 2px 1px;
-	/*font-family: Courier, Courier New, Monospace;*/
 }
 table.grid td.options {
 	font-family: Verdana, Arial, Helvetica;

@@ -213,7 +213,7 @@ class tpTable extends Plugin
 						foreach($GET as $k=>$v) $qs[] = "$k=$v";
 						$qs = implode('&', $qs);
 						if($_GET['s_f'] == $name) {
-							$arrowimg = $_GET['s_d'] == 'desc' ? 'arrow_down.gif' : 'arrow_up.gif';
+							$arrowimg = $_GET['s_d'] == 'desc' ? 'arrow_black_down.gif' : 'arrow_black_up.gif';
 							$out .= ' '.$this->depends->html->image('icons/'.$arrowimg, array('style'=>'float:right'));
 						}
 						$label = '<a href="'.$grid_url.'?'.$qs.'">'.$label.'</a>';
