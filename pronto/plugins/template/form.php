@@ -359,15 +359,6 @@ class tpForm extends Plugin
 		$this->depends->html->js_load('calendar_lang', 'calendar/calendar-en');
 		$this->depends->html->js_load('calendar_setup', 'calendar/calendar-setup');
 		$js = <<<EOT
-	// fix the width if in a table cell
-	var inp = $('#$id');
-	var dad = inp.parent()[0].nodeName.toLowerCase();
-	if(dad == 'th' || dad == 'td') {
-		inp.css('width', inp.width()+'px');
-		inp.parent().css('width', (inp.width()+20+'px'));
-	}
-	inp.parent().find('img').css('cursor','pointer');
-
 	Calendar.setup({
 		inputField:  "$id",
 		ifFormat:    "$format",

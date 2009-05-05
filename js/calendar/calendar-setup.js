@@ -62,6 +62,17 @@
 Calendar.setup = function (params) {
 	function param_default(pname, def) { if (typeof params[pname] == "undefined") { params[pname] = def; } };
 
+	/**
+	 * PRONTO: Fix the input field width if the trigger is inside a table cell
+	 */
+	var inp = $('#'+params.inputField);
+	var dad = inp.parent()[0].nodeName.toLowerCase();
+	if(dad == 'th' || dad == 'td') {
+		inp.css('width', inp.width()+'px');
+		inp.parent().css('width', (inp.width()+20+'px'));
+	}
+	inp.parent().find('img').css('cursor','pointer');
+
 	param_default("inputField",     null);
 	param_default("displayArea",    null);
 	param_default("button",         null);
