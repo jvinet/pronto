@@ -4,7 +4,7 @@
  * for the preg_match() function to see more examples of regular
  * expressions.
  *
- * Regexps are evaulated in order, with the first match being the one
+ * Regexps are evaluated in order, with the first match being the one
  * used.
  *
  * FORMAT:

@@ -435,10 +435,10 @@ if(!function_exists('mb_strlen')) {
 		return eregi($pattern, $string, $regs);
 	}
 	function mb_ereg_replace($pattern, $replacement, $string, $option='') {
-		return ereg_replace($pattern, $replacement, $string, $option);
+		return ereg_replace($pattern, $replacement, $string);
 	}
 	function mb_eregi_replace($pattern, $replacement, $string, $option='') {
-		return eregi_replace($pattern, $replacement, $string, $option);
+		return eregi_replace($pattern, $replacement, $string);
 	}
 	function mb_split($pattern, $string, $limit=-1) {
 		return split($pattern, $string, $limit);

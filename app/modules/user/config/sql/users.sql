@@ -18,9 +18,6 @@ CREATE TABLE "users" (
 
 	"status" VARCHAR(40) NOT NULL DEFAULT 'active',
 
-	-- for any RDBMS that doesn't support ENUM --
-	--"status" CHAR(7) NOT NULL DEFAULT 'active'
-
 	"confirm_token" VARCHAR(32),
 	"confirm_sent"  DATE
 
