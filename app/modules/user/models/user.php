@@ -74,7 +74,7 @@ class mUser extends RecordModel
 		// encrypt password
 		$data['password'] = sha1($data['password']);
 
-		if(!$this->context != 'ADMIN') {
+		if($this->context != 'ADMIN') {
 			$data['access_keys']   = 'User';
 			$data['status']        = 'pending';
 			$data['confirm_token'] = $this->generate_token();
@@ -86,7 +86,7 @@ class mUser extends RecordModel
 
 	function update($data)
 	{
-		if(!$this->context != 'ADMIN') {
+		if($this->context != 'ADMIN') {
 			unset($data['status'], $data['access_keys']);
 			unset($data['created_on'], $data['last_login']);
 			unset($data['confirm_token'], $data['confirm_sent']);

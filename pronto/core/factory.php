@@ -110,6 +110,32 @@ class Factory
 	}
 
 	/**
+	 * Return an ad-hoc ("on the fly") model object.  A fly-model is
+	 * just an instance of RecordModel that's been configured to use
+	 * the specified table.
+	 *
+	 * This is convenient for simple tables, when explicitly defining a
+	 * model class may be overkill.
+	 *
+	 * @param string $table The database table that this fly-model
+	 *                      will operate on.
+	 * @return object
+	 */
+	function &fly_model($table)
+	{
+		require_once(DIR_FS_PRONTO.DS.'core'.DS.'record_model.php');
+		require_once(DIR_FS_PRONTO.DS.'core'.DS.'record_selector.php');
+		require_once(DIR_FS_APP.DS.'core'.DS.'record_model.php');
+
+		$o = new RecordModel();
+		$o->table = $table;
+		// no caching for fly-models
+		$o->enable_cache = false;
+
+		return $o;
+	}
+
+	/**
 	 * Return a new plugin object
 	 *
 	 * @param string $name
