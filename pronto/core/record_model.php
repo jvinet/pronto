@@ -315,7 +315,22 @@ class RecordModel_Base
 	 */
 	function load_record($id)
 	{
-		return $this->fetch($id);
+		$data = $this->fetch($id);
+		if(!$data) return false;
+
+		// Load in file web locations.  The model subclass can override these
+		// if necessary.
+		if(is_array($this->files)) foreach($this->files as $k=>$f) {
+			$fn = $f['filename'];
+			foreach($data as $dk=>$dv) {
+				if(is_array($dv)) continue;
+				$fn = str_replace("<$dk>", $dv, $fn);
+			}
+			if(!file_exists($f['fileroot'].DS.$fn)) continue;
+			$data[$k] = $f['webroot'].'/'.$fn;
+		};
+
+		return $data;
 	}
 
 	/**

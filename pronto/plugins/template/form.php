@@ -282,16 +282,25 @@ class tpForm extends Plugin
 		list($name,$value) = $this->_escape($name,$value);
 		$id  = $this->dom_id($name);
 		$err = $this->_error($name, $attribs);
-		$preview_url = str_replace(array('_ID_','<id>'), $this->data_id, $preview_url);
-		$remove_url  = str_replace(array('_ID_','<id>'), $this->data_id, $remove_url);
+
 		$out = '<input type="file" name="'.$name.'" value="'.$value.'"';
 		if($size) $out .= ' size="'.$size.'"';
 		$out .= $this->depends->html->_attribs(array_merge(array('id'=>$id), $attribs));
 		$out .= ' />';
-		if($value) {
-			$out .= ' &nbsp; ';
-			if($preview_url) $out .= $this->depends->html->link(__('Preview'), url($preview_url), '', false, array('target'=>'_blank'));
-			if($remove_url)  $out .= ' | '.$this->depends->html->link(__('Remove'), url($remove_url), __('Are you sure you want to remove this file?'));
+
+		$preview_url = str_replace(array('_ID_','<id>'), $this->data_id, $preview_url);
+		$remove_url  = str_replace(array('_ID_','<id>'), $this->data_id, $remove_url);
+
+		if($preview_url) {
+			$out .= ' &nbsp; '.$this->depends->html->link(__('Preview'), url($preview_url), '', false, array('target'=>'_blank'));
+		} else if($value && $preview_url !== false) {
+			// Use a sensible default URL (direct link to the file).
+			// Don't url()-ize it, it's already absolute
+			$out .= ' &nbsp; '.$this->depends->html->link(__('Preview'), $value, '', false, array('target'=>'_blank'));
+		}
+		if($remove_url) {
+			$sep = $preview_url !== false ? ' | ' : ' &nbsp; ';
+			$out .= $sep.$this->depends->html->link(__('Remove'), url($remove_url), __('Are you sure you want to remove this file?'));
 		}
 		return $out.$err;
 	}

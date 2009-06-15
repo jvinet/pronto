@@ -159,7 +159,7 @@ class Page_CRUD extends Page
 					} else {
 						if($f['type'] == $v['type']) $match = true;
 					}
-					if(!$match) $errors[$k] = __('Invalid file type uploaded');
+					if(!$match) $errors[$k] = __('%s: Invalid file type uploaded', ucwords(str_replace('_',' ',$k)));
 				}
 			}
 		}
