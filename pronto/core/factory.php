@@ -179,6 +179,17 @@ class Factory
 		return $o;
 	}
 
+	/**
+	 * Return a new helper (aka "template plugin") object
+	 *
+	 * @param string $name
+	 * @return object
+	 */
+	function &helper($name)
+	{
+		return Factory::plugin($name, 'template');
+	}
+
 	/********************************************************************
 	 * INTERNAL METHODS
 	 *******************************************************************/

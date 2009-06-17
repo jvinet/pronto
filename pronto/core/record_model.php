@@ -200,6 +200,10 @@ class RecordModel_Base
 
 	/*********************************************************************
 	 * PRIMITIVES
+	 *
+	 * These methods are very basic and have no knowledge of the cache or
+	 * any higher-order data handling.  Do not override these unless you
+	 * really know what you're doing.
 	 *********************************************************************/
 
 	/**
@@ -219,6 +223,7 @@ class RecordModel_Base
 	 * Store a bare record in the DB.
 	 * 
 	 * @param array $data
+	 * @return ID of the inserted/updated record
 	 */
 	function store($data)
 	{
@@ -244,6 +249,11 @@ class RecordModel_Base
 
 	/*********************************************************************
 	 * HIGHER-ORDER, CACHE-AWARE
+	 *
+	 * These are the methods that will be called by other components of
+	 * the application.  These methods will then call the "cache-transparent"
+	 * methods defined below, which are the ones your model class should
+	 * override.
 	 *********************************************************************/
 
 	/**
@@ -336,6 +346,9 @@ class RecordModel_Base
 	/**
 	 * Save a full record.  Override this method to control what
 	 * gets saved into the final record.
+	 *
+	 * @param array $data
+	 * @return ID of the inserted/updated record
 	 */
 	function save_record($data)
 	{
@@ -345,6 +358,8 @@ class RecordModel_Base
 	/**
 	 * Delete a full record.  Override this method to control what
 	 * else needs to happen when a record is deleted.
+	 *
+	 * @param integer ID
 	 */
 	function delete_record($id)
 	{

@@ -129,11 +129,7 @@ class Template
 			$helpers_arr[$k] = $v;
 		}
 
-		$vars = array_merge(
-			$this->variables,
-			$vars,
-			$helpers_arr
-		);
+		$vars = array_merge($this->variables, $vars, $helpers_arr);
 		// this makes it easier for template functions to access plugins
 		$GLOBALS['PLUGINS'] = $helpers_arr;
 		$GLOBALS['HELPERS'] = $helpers_arr;
