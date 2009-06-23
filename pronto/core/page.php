@@ -374,6 +374,9 @@ class Page_Base
 	 * page controllers, except they can only be called by other page
 	 * controllers and they return rendered content of some kind.
 	 *
+	 * This method can be called through the Page class directly.
+	 * Example: Page::render_element('MyPage', 'MyElement');
+	 *
 	 * @param string $pagename Name of the page class to use
 	 *                     (exclude the 'p' prefix)
 	 * @param string $element Name of the element to fetch
@@ -394,7 +397,8 @@ class Page_Base
 		}
 		$content = call_user_func_array(array(&$page, "ELEM_$element"), $args);
 
-		if($merge_vars) {
+		// can't merge vars if we're called as a class (eg, Page::render_element())
+		if($this && $merge_vars) {
 			// merge in template variables from the rendered element
 			foreach($page->template->variables as $k=>$v) $this->tset($k, $v);
 		}
@@ -428,6 +432,20 @@ class Page_Base
 		} else {
 			$this->web->render($this->template, $filename, $vars, $layout);
 		}
+	}
+
+	/**
+	 * Convenience function to render a string through a layout.
+	 * @param string $content Content to render
+	 * @param array $vars Additional variables to include in template
+	 * @param string $layout Layout template to use.  Empty string for default ($this->template_layout) or set to false for none.
+	 */
+	function render_string($content, $vars=array(), $layout='')
+	{
+		if($layout === '') $layout = $this->template_layout;
+
+		$vars['CONTENT_FOR_LAYOUT'] = $content;
+		$this->web->render($this->template, DIR_FS_APP.DS.'templates'.DS.$layout, $vars);
 	}
 
 	/**

@@ -9,21 +9,31 @@ if(!defined('_TINYBROWSER_CONFIG')) {
 	define('_TINYBROWSER_CONFIG', true);
 
 	require(dirname(__FILE__).'/../../../../app/config/config.php');
+	require(dirname(__FILE__).'/../../../../app/config/databases.php');
 
 	// these are needed to start the session
 	require_once(DIR_FS_PRONTO.DS.'core'.DS.'registry.php');
 	require_once(DIR_FS_PRONTO.DS.'core'.DS.'factory.php');
 	require_once(DIR_FS_PRONTO.DS.'core'.DS.'session.php');
 	if(defined('SESSION_USEDB') && SESSION_USEDB === true) {
-		// connect to DB
-		$db = Factory::db(array(
-			'dsn'  => DB_DSN,
-			'file' => DB_FILE,
-			'host' => DB_HOST,
-			'user' => DB_USER,
-			'pass' => DB_PASS,
-			'name' => DB_NAME));
-		Registry::set('pronto:db', $db);
+		// taken from pronto/profiles/web.php
+		if(defined('DB_NAME')) {
+			$db =& Factory::db(array(
+				'dsn'  => DB_DSN,
+				'file' => DB_FILE,
+				'host' => DB_HOST,
+				'user' => DB_USER,
+				'pass' => DB_PASS,
+				'name' => DB_NAME));
+			Registry::set('pronto:db:main', $db);
+		} else {
+			require_once(DIR_FS_APP.DS.'config'.DS.'databases.php');
+			foreach($DATABASES as $key=>$dbcfg) {
+				$db =& Factory::db($dbcfg);
+				Registry::set('pronto:db:'.$key, $db);
+			}
+			unset($key, $dbcfg);
+		}
 	}
 	if(isset($_GET['sessidpass'])) session_id($_GET['sessidpass']); // workaround for Flash session bug
 	start_session();

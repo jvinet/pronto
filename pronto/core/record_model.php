@@ -279,6 +279,23 @@ class RecordModel_Base
 	}
 
 	/**
+	 * Return multiple records by PK, optionally ignoring empty/false records.
+	 *
+	 * @param array $ids
+	 * @param boolean $ignore_empty Ignore empty records.
+	 * @return array
+	 */
+	function load_all($ids, $ignore_empty=true)
+	{
+		$data = array();
+		foreach($ids as $id) {
+			$rec = $this->load($id);
+			if($rec || !$ignore_empty) $data[] = $rec;
+		}
+		return $data;
+	}
+
+	/**
 	 * Save a full record to the DB.
 	 *
 	 * @param array $data

@@ -109,9 +109,12 @@ class RecordSelector
 	 * If multiple records are round, it will return an array of associative
 	 * arrays.
 	 *
+	 * @param ret2d boolean Always return an array of associative arrays, even
+	 *                      if only one record was found.
+	 *
 	 * @return array
 	 */
-	function load()
+	function load($ret2d=false)
 	{
 		// let the model do the load
 		$ids = $this->get('id');
@@ -120,9 +123,22 @@ class RecordSelector
 		foreach($ids as $id) $ret[] = $this->model->load($id);
 		switch(count($ret)) {
 			case 0:  return false;
-			case 1:  return $ret[0];
+			case 1:  return $ret2d ? $ret : $ret[0];
 			default: return $ret;
 		}
+	}
+
+	/**
+	 * Return one or more full records.  The difference with load() is that
+	 * this method always returns an array of associative arrays, even if only
+	 * one matching record is found.  Useful for callers that always expect
+	 * a 2D array.
+	 *
+	 * @return array
+	 */
+	function load_all()
+	{
+		return $this->load(true);
 	}
 
 	/**

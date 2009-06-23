@@ -482,15 +482,17 @@ EOT;
 	 * @param string $value
 	 * @param int $rows Number of rows for the textarea element
 	 * @param int $cols Number of columns for the textarea element
-	 * $param string $mceinit Initialization JS code for the MCE control; if blank, the
-	 *                        default will be used.
+	 * @param string $mceinit Initialization JS code for the MCE control; if blank, the
+	 *                        default will be used.  If an array, then the settings
+	 *                        in the array will override those in the default.  If it
+	 *                        is a non-empty string, then that string will be used
+	 *                        instead of the default.  In this case, make sure the
+	 *                        string is a valid Javascript object.
 	 * @param array $attribs Additional HTML attributes
 	 * @return string
 	 */
 	function htmlarea($name, $value='', $rows=15, $cols=100, $mceinit='', $attribs=array())
 	{
-		$css = $this->depends->html->url('/css.php?c=htmlarea');
-		$fmurl = $this->depends->html->url("/js/tinymce/plugins/ajaxfilemanager/ajaxfilemanager.php");
 		$js_gz = <<<EOT
 tinyMCE_GZ.init({
 	plugins : "safari,pagebreak,style,layer,table,save,advhr,advimage,advlink,emotions,iespell,inlinepopups,insertdatetime,preview,media,searchreplace,print,contextmenu,paste,directionality,fullscreen,noneditable,visualchars,nonbreaking,xhtmlxtras,template",
@@ -500,38 +502,60 @@ tinyMCE_GZ.init({
 	debug : false
 });
 EOT;
-		if(empty($mceinit)) {
-			$mceinit = <<<EOT
-tinyMCE.init({
-	// General options
-	mode : "textareas",
-	theme : "advanced",
-	editor_selector : "mceEditor",
-	plugins : "safari,pagebreak,style,layer,table,save,advhr,advimage,advlink,emotions,iespell,inlinepopups,insertdatetime,preview,media,searchreplace,print,contextmenu,paste,directionality,fullscreen,noneditable,visualchars,nonbreaking,xhtmlxtras,template",
 
-	// Theme options
-	theme_advanced_buttons1 : "save,newdocument,|,bold,italic,underline,strikethrough,|,justifyleft,justifycenter,justifyright,justifyfull,|,styleselect,formatselect,fontselect,fontsizeselect",
-	theme_advanced_buttons2 : "cut,copy,paste,pastetext,pasteword,|,search,replace,|,bullist,numlist,|,outdent,indent,blockquote,|,undo,redo,|,link,unlink,anchor,image,cleanup,help,code,|,insertdate,inserttime,preview,|,forecolor,backcolor",
-	theme_advanced_buttons3 : "tablecontrols,|,hr,removeformat,visualaid,|,sub,sup,|,charmap,emotions,iespell,media,advhr,|,print,|,ltr,rtl,|,fullscreen",
-	//theme_advanced_buttons4 : "insertlayer,moveforward,movebackward,absolute,|,styleprops,|,cite,abbr,acronym,del,ins,attribs,|,visualchars,nonbreaking,template,pagebreak",
-	theme_advanced_toolbar_location : "top",
-	theme_advanced_toolbar_align : "left",
-	theme_advanced_statusbar_location : "bottom",
-	theme_advanced_resizing : true,
+		$default_cfg = array(
+			'mode'            => "textareas",
+			'theme'           => "advanced",
+			'editor_selector' => "mceEditor",
+			'plugins'         => "safari,pagebreak,style,layer,table,save,advhr,advimage,advlink,emotions,iespell,inlinepopups,insertdatetime,preview,media,searchreplace,print,contextmenu,paste,directionality,fullscreen,noneditable,visualchars,nonbreaking,xhtmlxtras,template",
 
-	// Options
-	file_browser_callback : "tinyBrowser",
-	convert_urls : false,
-	relative_urls : false,
-	paste_use_dialog : false,
-	theme_advanced_resizing : true,
-	theme_advanced_resize_horizontal : true,
-	apply_source_formatting : true,
-	force_br_newlines : true,
-	force_p_newlines : false,	
+			// Theme options
+			'theme_advanced_buttons1' => "save,newdocument,|,bold,italic,underline,strikethrough,|,justifyleft,justifycenter,justifyright,justifyfull,|,styleselect,formatselect,fontselect,fontsizeselect",
+			'theme_advanced_buttons2' => "cut,copy,paste,pastetext,pasteword,|,search,replace,|,bullist,numlist,|,outdent,indent,blockquote,|,undo,redo,|,link,unlink,anchor,image,cleanup,help,code,|,insertdate,inserttime,preview,|,forecolor,backcolor",
+			'theme_advanced_buttons3' => "tablecontrols,|,hr,removeformat,visualaid,|,sub,sup,|,charmap,emotions,iespell,media,advhr,|,print,|,ltr,rtl,|,fullscreen",
+			//'theme_advanced_buttons4' => "insertlayer,moveforward,movebackward,absolute,|,styleprops,|,cite,abbr,acronym,del,ins,attribs,|,visualchars,nonbreaking,template,pagebreak",
+			'theme_advanced_toolbar_location'   => "top",
+			'theme_advanced_toolbar_align'      => "left",
+			'theme_advanced_statusbar_location' => "bottom",
+			'theme_advanced_resizing'           => true,
 
-	content_css : "$css"
-});
+			// Options
+			'file_browser_callback'   => "tinyBrowser",
+			'convert_urls'            => false,
+			'relative_urls'           => false,
+			'paste_use_dialog'        => false,
+			'theme_advanced_resizing' => true,
+			'theme_advanced_resize_horizontal' => true,
+			'apply_source_formatting' => true,
+			'force_br_newlines'       => true,
+			'force_p_newlines'        => false,	
+
+			'content_css' => url('/css.php?c=htmlarea')
+		);
+
+		// if $mceinit['content_css'] is an array of files, then convert the
+		// local ones to go through css.php
+		if(is_array($mceinit) && is_array($mceinit['content_css'])) {
+			$css_arr = array();
+			foreach($mceinit['content_css'] as $c) {
+				$css_arr[] = (!ereg('^http[s]?://', $c) && !ereg('^/', $c)) ? url("/css.php?c=$c") : $c;
+			}
+			$mceinit['content_css'] = implode(',', $css_arr);
+		}
+
+		if(is_array($mceinit)) {
+			// add to default settings
+			$init_cfg = json_encode(array_merge($default_cfg, $mceinit));
+		} else if(!empty($mceinit)) {
+			// overwrite default settings
+			$init_cfg = $mceinit;
+		} else {
+			// use default
+			$init_cfg = json_encode($default_cfg);
+		}
+
+		$mceinit = <<<EOT
+tinyMCE.init($init_cfg);
 
 function mce_toggle(id) {
 	if(!tinyMCE.get(id)) {
@@ -541,7 +565,6 @@ function mce_toggle(id) {
 	}
 }
 EOT;
-		}
 
 		if($this->web->ajax) {
 			$js_ajax = "tinyMCE.execCommand(\"mceAddControl\", false, \"$name\");";
@@ -568,6 +591,15 @@ EOT;
 	 * AJAX, as TinyMCE has some pecularities when loading dynamically (eg, through a
 	 * .getScript() call).  To work around this, use htmlarea_preload() in the page that
 	 * will be loading an htmlarea widget via AJAX.
+	 *
+	 * @param array $css An array of CSS files that should be loaded into the editor
+	 *                   widget.
+	 * @param string $mceinit Initialization JS code for the MCE control; if blank, the
+	 *                        default will be used.  If an array, then the settings
+	 *                        in the array will override those in the default.  If it
+	 *                        is a non-empty string, then that string will be used
+	 *                        instead of the default.  In this case, make sure the
+	 *                        string is a valid Javascript object.
 	 */
 	function htmlarea_preload($mceinit='')
 	{
