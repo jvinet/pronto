@@ -428,11 +428,8 @@ if(!function_exists('mb_strlen')) {
 	function mb_substr_count($haystack, $needle) {
 		return substr_count($haystack, $needle);
 	}
-	function mb_split($pattern, $string, $limit=-1) {
-		return split($pattern, $string, $limit);
-	}
 
-	// ereg() and friends are deprecated in PHP 5.3, so they are not present here
+	// no, split(), ereg() and friends, as they are deprecated in PHP 5.3
 }
 
 ?>

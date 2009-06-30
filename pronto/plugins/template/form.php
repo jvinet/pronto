@@ -1011,7 +1011,7 @@ EOT;
 		}
 
 		if(!$options['noclose'] && !$options['nosubmit']) {
-			$c = array_shift(split(' ', $class));
+			$c = array_shift(explode(' ', $class));
 			// TODO: This is ugly, fix it.
 			$js = <<<EOT
 var elem_width = 0;

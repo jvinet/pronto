@@ -24,8 +24,8 @@ class Cache_MemCache extends Cache
 		$this->active   = false;
 
 		if(defined('CACHE_MEMCACHE_SERVERS')) {
-			foreach(split(' ', CACHE_MEMCACHE_SERVERS) as $tuple) {
-				list($h,$p) = split(':', $tuple);
+			foreach(explode(' ', CACHE_MEMCACHE_SERVERS) as $tuple) {
+				list($h,$p) = explode(':', $tuple);
 				$this->add_server($h, $p);
 			}
 		}

@@ -113,10 +113,10 @@ class I18N
 		} else if(isset($_SESSION['USER']['language'])) {
 			$lang = $_SESSION['USER']['language'];
 		} else if(isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
-			$langs = split(',', $_SERVER['HTTP_ACCEPT_LANGUAGE']);
+			$langs = explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE']);
 			foreach($langs as $l) {
-				$code = str_replace('-', '_', array_shift(split(';', $l)));
-				$basecode = array_shift(split('_', $code));
+				$code = str_replace('-', '_', array_shift(explode(';', $l)));
+				$basecode = array_shift(explode('_', $code));
 				if($this->has_language($code)) {
 					$lang = $code;
 					break;

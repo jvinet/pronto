@@ -21,7 +21,7 @@ function findfiles($path, $func)
 		if(is_dir($fn)) {
 			findfiles($fn, $func);
 		} else {
-			$ext = array_pop(split('\.', $fn));
+			$ext = array_pop(explode('.', $fn));
 			if($ext != 'php') continue;
 			$func($fn);
 		}

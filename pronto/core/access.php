@@ -72,7 +72,7 @@ class Access
 
 	function set_keys($keys)
 	{
-		if(!is_array($keys)) $keys = split(',', $keys);
+		if(!is_array($keys)) $keys = explode(',', $keys);
 		foreach($keys as $key) $this->set_key($key);
 	}
 

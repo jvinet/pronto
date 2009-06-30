@@ -116,16 +116,16 @@ $r = post('http://www.google.com/translate_t', $params);
 // parse header for charset
 $headers = array();
 $hdrtext = substr($r, 0, strpos($r, "\r\n\r\n"));
-foreach(split("\r\n", $hdrtext) as $hdr) {
+foreach(explode("\r\n", $hdrtext) as $hdr) {
 	if(strpos($hdr, ':') === false) continue;
-	$parts = split(':', $hdr);
+	$parts = explode(':', $hdr);
 	$k = array_shift($parts);
 	$headers[$k] = trim(join(':', $parts));
 }
 
 // convert to UTF-8
-$parts = split(';', $headers['Content-Type']);
-$parts2 = split('=', $parts[1]);
+$parts = explode(';', $headers['Content-Type']);
+$parts2 = explode('=', $parts[1]);
 $charset = trim($parts2[1]);
 $r = iconv($charset, 'UTF-8//TRANSLIT', $r);
 
@@ -141,7 +141,7 @@ if(empty($matches[2])) {
 $outfile = file_get_contents($MESSAGES_FILE);
 reset($MESSAGES);
 
-$words = split("<br>", $matches[2]);
+$words = explode("<br>", $matches[2]);
 foreach($words as $word) {
 	$word = trim($word);
 	$word = html_entity_decode($word, ENT_COMPAT, 'UTF-8');

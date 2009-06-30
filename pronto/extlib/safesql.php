@@ -237,8 +237,6 @@ class SafeSQL_MySQL extends SafeSQL {
 			} else {
 				return mysql_real_escape_string($var, $this->_link_id);
 			}
-		} elseif(function_exists('mysql_escape_string')) {
-			return mysql_escape_string($var);
 		} else {
 			return addslashes($var);
 		}	
