@@ -56,10 +56,33 @@ Pronto = function(web_root) {
 	 */
 	this.tz_offset = function(cookie_name) {
 		var cn = cookie_name || "tz_offset";
-		var d = new Date();
 		var tzoff = d.getTimezoneOffset() * 60 * -1;
 
+		var d = new Date();
 		d.setDate(d.getDate() + 1); // expires in 1 day
-		document.cookie = cn + "="  + escape(tzoff) + ";expires=" + d.toGMTString();
+		this.set_cookie(cn, tzoff, d);
+	}
+
+	/**
+	 * Set a cookie.
+	 *
+	 * @param name    string Cookie name
+	 * @param value   string Cookie data
+	 * @param expires mixed  Can be a Date object, a string (eg, "04/23/1999") or
+	 *                      a number (absolute time in seconds). If no expiry
+	 *                      time is passed, defaults to browser close.
+	 */
+	this.set_cookie = function(name, value, expires) {
+		var d = false;
+		if(expires) {
+			switch(typeof expires) {
+				case 'string': d = new Date(Date.parse(expires)); break;
+				case 'number': d = new Date(expires*1000); break;
+				case 'object': break;
+			}
+		}
+		var ck = name + "="  + escape(value);
+		if(d) ck += ";expires=" + d.toGMTString();
+		document.cookie = ck;
 	}
 };

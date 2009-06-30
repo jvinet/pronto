@@ -50,7 +50,7 @@ foreach($db->get_all("EXPLAIN $db_table") as $r) {
 		$has_id = true;
 		continue;
 	}
-	if(ereg('_id$', $r['Field'])) {
+	if(preg_match('|_id$|', $r['Field'])) {
 		echo "Warning: Ignoring {$r['Field']} - handle foreign keys manually\n";
 		continue;
 	}

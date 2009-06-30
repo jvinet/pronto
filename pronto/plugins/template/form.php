@@ -108,7 +108,7 @@ class tpForm extends Plugin
 		$this->depends->html->css_load('tooltip');
 
 		// escape double-quotes
-		$text = mb_ereg_replace('"', '\\"', $text);
+		$text = preg_replace('|"|', '\\"', $text);
 		return $this->depends->html->image($icon, array('class'=>'helpicon','title'=>$text));
 	}
 
@@ -538,7 +538,7 @@ EOT;
 		if(is_array($mceinit) && is_array($mceinit['content_css'])) {
 			$css_arr = array();
 			foreach($mceinit['content_css'] as $c) {
-				$css_arr[] = (!ereg('^http[s]?://', $c) && !ereg('^/', $c)) ? url("/css.php?c=$c") : $c;
+				$css_arr[] = (!preg_match('|^http[s]?://|', $c) && !preg_match('|^/|', $c)) ? url("/css.php?c=$c") : $c;
 			}
 			$mceinit['content_css'] = implode(',', $css_arr);
 		}

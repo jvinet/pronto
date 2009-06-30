@@ -175,7 +175,7 @@ class tpTable extends Plugin
 				$class = array();
 				$out .= '<th';
 				if(++$i == count($params['columns'])) $style[] = 'border-right:none';
-				if(!mb_ereg('^_OPTIONS_', $name)) {
+				if(!preg_match('|^_OPTIONS_|', $name)) {
 					if($_GET['s_f'] == $name) {
 						$class[] = 'hover';
 					} else {
@@ -185,11 +185,11 @@ class tpTable extends Plugin
 					if(!$options['nosorting'] && !$column['nosort']) {
 						$out .= ' onClick="location.href=$(this).find(\'a\').attr(\'href\');return false;"';
 					}
-					if(mb_ereg('^_MULTI_', $name)) $style[] = 'text-align:center';
+					if(preg_match('|^_MULTI_|', $name)) $style[] = 'text-align:center';
 				}
 				$out .= ' class="'.implode(' ',$class).'"';
 				$out .= ' style="'.implode(';',$style).'">';
-				if(mb_ereg('^_OPTIONS_', $name)) {
+				if(preg_match('|^_OPTIONS_|', $name)) {
 					if($name == '_OPTIONS_' && !$options['nofilters'] && !$options['nofilterbutton']) {
 						// TODO: show a different filters.html based on language selected (i18n)
 						$out .= $this->depends->html->link(__('Filter Help'), url('/static/filters.en.html'), false, true, array('class'=>'help'), true);
@@ -197,7 +197,7 @@ class tpTable extends Plugin
 						$out .= mb_substr($name, 9);
 					}
 				} else {
-					if(mb_ereg('^_MULTI_',$name)) {
+					if(preg_match('|^_MULTI_|',$name)) {
 						$label = mb_substr($name, 7);
 						$name  = '_m_'.strtolower($label);
 					} else {
@@ -242,10 +242,10 @@ class tpTable extends Plugin
 				$out .= '<th';
 				if(++$i == count($params['columns'])) $style[] = 'border-right:none';
 				if($_GET['s_f'] == $name) $class[] = 'hover';
-				if(mb_ereg('^_MULTI_', $name)) $style[] = 'text-align:center';
+				if(preg_match('|^_MULTI_|', $name)) $style[] = 'text-align:center';
 				$out .= ' class="'.implode(' ',$class).'"';
 				$out .= ' style="'.implode(';',$style).'">';
-				if(mb_ereg('^_OPTIONS_', $name)) {
+				if(preg_match('|^_OPTIONS_|', $name)) {
 					if($name == '_OPTIONS_' && !$options['nofilters'] && !$options['nofilterbutton']) {
 						$out .= $this->depends->form->submit('filter_submit',__('Filter'),array('style'=>'width:auto'))."</th>\n";
 					} else {
@@ -253,7 +253,7 @@ class tpTable extends Plugin
 					}
 					continue;
 				}
-				if(mb_ereg('^_MULTI_', $name)) {
+				if(preg_match('|^_MULTI_|', $name)) {
 					$mname = strtolower(mb_substr($name, 7));
 					if($mname) $mname .= '_';
 					$out .= $this->depends->form->checkbox("_{$mname}all",'all','',false,array('style'=>'width:auto;border:none','onClick'=>"var c=this.checked; $('#$guid input[@type=checkbox][@name^={$mname}ids]').attr('checked',c?'checked':'')"))."</th>\n";
@@ -300,7 +300,7 @@ class tpTable extends Plugin
 		// start a new form for multiselect boxes, if needed
 		$multi_form = false;
 		foreach($params['columns'] as $name=>$column) {
-			if(ereg('^_MULTI_', $name)) $multi_form = true;
+			if(preg_match('|^_MULTI_|', $name)) $multi_form = true;
 		}
 		if($multi_form) {
 			$out .= '<form name="multi" id="multi" method="get" action="'.$grid_url.'">';
@@ -338,7 +338,7 @@ class tpTable extends Plugin
 				if(isset($column['align'])) {
 					$out .= ' align="'.$column['align'].'"';
 				}
-				if(mb_ereg('^_OPTIONS_', $name)) {
+				if(preg_match('|^_OPTIONS_|', $name)) {
 					$out .= ' class="options">';
 					foreach($column as $opt) {
 						if(function_exists($opt)) {
@@ -355,7 +355,7 @@ class tpTable extends Plugin
 							$out .= $lnk;
 						}
 					}
-				} else if(mb_ereg('^_MULTI_', $name)) {
+				} else if(preg_match('|^_MULTI_|', $name)) {
 					$mname = strtolower(mb_substr($name, 7));
 					if($mname) $mname .= '_';
 					$out .= ' class="multi">';
@@ -431,13 +431,13 @@ class tpTable extends Plugin
 		if(!empty($params['data'])) {
 			$has_multi = false;
 			foreach($params['columns'] as $name=>$column) {
-				if(mb_ereg('^_MULTI_', $name)) $has_multi = true;
+				if(preg_match('|^_MULTI_|', $name)) $has_multi = true;
 			}
 			if($has_multi) {
 				$out .= '<tr class="multi">'."\n";
 				foreach($params['columns'] as $name=>$column) {
 					$out .= '<td>';
-					if(mb_ereg('^_MULTI_', $name)) {
+					if(preg_match('|^_MULTI_|', $name)) {
 						foreach($column as $action) $out .= $action."<br/>";
 					}
 					$out .= '</td>';

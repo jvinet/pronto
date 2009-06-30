@@ -27,7 +27,7 @@ class Page_Static extends Page
 	function GET($path='',$s='')
 	{
 		if(empty($path)) $path = 'index';
-		if(!ereg('^[A-z0-9+_-]+$', $path)) {
+		if(!preg_match('|^[A-z0-9+_-]+$|', $path)) {
 			$this->web->notfound();
 		}
 		if(!file_exists(DIR_FS_APP.DS.'templates'.DS.$this->template_dir.DS."$path.php")) {

@@ -75,7 +75,7 @@ class tpNavigation extends Plugin
 	function _is_active($menu)
 	{
 		foreach($menu as $label=>$item) {
-			if(isset($menu['base']) && ereg("^{$menu['base']}", url(CURRENT_URL))) return true;
+			if(isset($menu['base']) && preg_match("|^{$menu['base']}|", url(CURRENT_URL))) return true;
 			if(isset($item['menu']) && $this->_is_active($item['menu'])) return true;
 			if(isset($item['url']) && $item['url'] == url(CURRENT_URL)) return true;
 		}
@@ -106,7 +106,7 @@ class tpNavigation extends Plugin
 			if($toplevel) {
 				if(url(CURRENT_URL) == $menu['url']) {
 					$a['class'] = 'current';
-				} else if(isset($menu['base']) && ereg("^{$menu['base']}", url(CURRENT_URL))) {
+				} else if(isset($menu['base']) && preg_match("|^{$menu['base']}|", url(CURRENT_URL))) {
 					$a['class'] = 'current';
 				}
 			}

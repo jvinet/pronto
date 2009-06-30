@@ -378,7 +378,7 @@ function assert_type(&$var, $type)
 			if(!is_float($var)) $var = is_array($var) ? (float)current($var) : (float)$var;
 			break;
 		case 'date':
-			if(!ereg('^[12][0-9]{3}-[01][0-9]-[0123][0-9]$', $var)) $var = date('Y-m-d');
+			if(!preg_match('|^[12][0-9]{3}-[01][0-9]-[0123][0-9]$|', $var)) $var = date('Y-m-d');
 			break;
 	}
 	return $var;
@@ -428,21 +428,11 @@ if(!function_exists('mb_strlen')) {
 	function mb_substr_count($haystack, $needle) {
 		return substr_count($haystack, $needle);
 	}
-	function mb_ereg($pattern, $string, $regs=array()) {
-		return ereg($pattern, $string, $regs);
-	}
-	function mb_eregi($pattern, $string, $regs=array()) {
-		return eregi($pattern, $string, $regs);
-	}
-	function mb_ereg_replace($pattern, $replacement, $string, $option='') {
-		return ereg_replace($pattern, $replacement, $string);
-	}
-	function mb_eregi_replace($pattern, $replacement, $string, $option='') {
-		return eregi_replace($pattern, $replacement, $string);
-	}
 	function mb_split($pattern, $string, $limit=-1) {
 		return split($pattern, $string, $limit);
 	}
+
+	// ereg() and friends are deprecated in PHP 5.3, so they are not present here
 }
 
 ?>

@@ -119,11 +119,11 @@ class SQL_Generator
 			$sql  = array();
 
 			if($v === '') continue;
-			if(!ereg('^f_[dts]_', $k)) continue;
+			if(!preg_match('|^f_[dts]_|', $k)) continue;
 			$t = substr($k, 2, 1);
 			$k = substr($k, 4);
 			// only alphanumerics allowed
-			if(!ereg('^[A-z0-9_-]+$', $k)) continue;
+			if(!preg_match('|^[A-z0-9_-]+$|', $k)) continue;
 			switch($t) {
 				case 'd': $coltype = 'date'; break;
 				case 's': $coltype = 'select'; break;

@@ -247,7 +247,7 @@ class Web {
 		// find a HEAD-specific method
 		if($this->context->method == 'HEAD') {
 			$methods_get = $methods;
-			array_walk($methods_get, create_function('&$v,$k','$v[0] = ereg_replace("^HEAD", "GET", $v[0]);'));
+			array_walk($methods_get, create_function('&$v,$k','$v[0] = preg_replace("|^HEAD|", "GET", $v[0]);'));
 			$methods = array_merge($methods, $methods_get);
 		}
 

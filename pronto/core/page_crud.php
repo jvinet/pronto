@@ -132,7 +132,7 @@ class Page_CRUD extends Page
 
 		if(!$is_update && !in_array('create', $this->enabled_actions)) $this->web->forbidden();
 
-		if(ereg('^Model', get_parent_class($this->model))) {
+		if(preg_match('|^Model|', get_parent_class($this->model))) {
 			// Backwards Compatibility
 			$errors = $this->model->validate($data, $is_update);
 		} else {

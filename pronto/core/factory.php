@@ -220,7 +220,7 @@ class Factory
 			return $f;
 		}
 
-		if(ereg('_plugins$', $type)) {
+		if(preg_match('|_plugins$|', $type)) {
 			// use the lazy-loading proxy class
 			$obj = new LazyLoad($name, $map[$name]);
 		} else {
