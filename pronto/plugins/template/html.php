@@ -53,7 +53,7 @@ class tpHtml extends Plugin
 	function js_load($key, $path='') {
 		if($path == '') $path = $key;
 		// try to figure out what sort of path/URL we were passed
-		if(strpos($path, '://') === false && $path{0} != '/') {
+		if(strpos($path, '://') === false && substr($path, 0, 1) != '/') {
 			$path = $this->url('/js/'.$path.'.js', true);
 		}
 		$this->web->queue_js_load($key, $path);
@@ -71,7 +71,7 @@ class tpHtml extends Plugin
 	function css_load($key, $path='') {
 		if($path == '') $path = $key;
 		// try to figure out what sort of path/URL we were passed
-		if(strpos($path, '://') === false && $path{0} != '/') {
+		if(strpos($path, '://') === false && substr($path, 0, 1) != '/') {
 			$path = $this->url('/css.php?c='.$path, true);
 		}
 		$this->web->queue_css_load($key, $path);
@@ -87,7 +87,7 @@ class tpHtml extends Plugin
 	function css($path)
 	{
 		// try to figure out what sort of path/URL we were passed
-		if(strpos($path, '://') === false && $path{0} != '/') {
+		if(strpos($path, '://') === false && substr($path, 0, 1) != '/') {
 			$path = $this->url('/css.php?c='.$path, true);
 		}
 		return '<link rel="stylesheet" type="text/css" href="'.$path.'" />'."\n";
@@ -103,7 +103,7 @@ class tpHtml extends Plugin
 	function js($path)
 	{
 		// try to figure out what sort of path/URL we were passed
-		if(strpos($path, '://') === false && $path{0} != '/') {
+		if(strpos($path, '://') === false && substr($path, 0, 1) != '/') {
 			$path = $this->url('/js/'.$path.'.js', true);
 		}
 		return '<script type="text/javascript" src="'.$path.'"></script>'."\n";
@@ -119,7 +119,7 @@ class tpHtml extends Plugin
 	function favicon($path)
 	{
 		// try to figure out what sort of path/URL we were passed
-		if(strpos($path, '://') === false && $path{0} != '/') {
+		if(strpos($path, '://') === false && substr($path, 0, 1) != '/') {
 			$path = $this->url('/img/'.$path.'.ico', true);
 		}
 		return '<link rel="shortcut icon" href="'.$path.'" type="image/x-icon" />'."\n";
@@ -135,7 +135,7 @@ class tpHtml extends Plugin
 	function rss_feed($url, $title)
 	{
 		// try to figure out what sort of path/URL we were passed
-		if(strpos($path, '://') === false && $path{0} != '/') {
+		if(strpos($path, '://') === false && substr($path, 0, 1) != '/') {
 			$url = $this->full_url($url, true);
 		}
 		return '<link rel="alternate" type="application/rss+xml" title="'.$title.'" href="'.$url.'" />'."\n";
@@ -158,7 +158,7 @@ class tpHtml extends Plugin
 			$alt = '';
 		}
 		// try to figure out what sort of path/URL we were passed
-		if(strpos($path, '://') === false && $path{0} != '/') {
+		if(strpos($path, '://') === false && substr($path, 0, 1) != '/') {
 			$path = $this->url('/img/'.$path, true);
 		}
 		$ret  = '<img src="'.$path.'" alt="'.$alt.'" border="0"';

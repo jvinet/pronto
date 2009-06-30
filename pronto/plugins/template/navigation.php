@@ -86,8 +86,8 @@ class tpNavigation extends Plugin
 	{
 		$ret = '';
 		if(!empty($menu['access'])) {
-			if($menu['access']{0} == '!' && a(substr($menu['access'], 1))) return '';
-			if($menu['access']{0} != '!' && !a($menu['access'])) return '';
+			if(substr($menu['access'], 0, 1) == '!' && a(substr($menu['access'], 1))) return '';
+			if(substr($menu['access'], 0, 1) != '!' && !a($menu['access'])) return '';
 		}
 		if(isset($menu['menu'])) {
 			// see if any items in our submenu match the current URL; if

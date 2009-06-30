@@ -96,7 +96,7 @@ class SafeHTML
   foreach ($this->blackProtocols as $proto) {
    $preg = "/[\s\x01-\x1F]*";
    for ($i=0; $i<strlen($proto); $i++) {
-    $preg .= $proto{$i} . "[\s\x01-\x1F]*";
+    $preg .= substr($proto, $i, 1) . "[\s\x01-\x1F]*";
    }
    $preg .= ":/i";
    $this->_protoRegexps[] = $preg;

@@ -86,7 +86,7 @@ function process($fn)
 						$_stage = 0;
 						$str = trim($text);
 						// strip surrounding quotes
-						$quote = $str{0};
+						$quote = substr($str, 0, 1);
 						$str = substr($str, 1, strlen($str)-2);
 						// remove escaped quotes
 						if($quote == "'") {

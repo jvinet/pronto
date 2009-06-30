@@ -194,7 +194,7 @@ class Web {
 		}
 
 		// Look for a special redirect URL (eg, ">/admin/user/list")
-		if($class_name{0} == '>') {
+		if(substr($class_name, 0, 1) == '>') {
 			$redir_url = trim(substr($class_name, 1));
 			$this->redirect($redir_url);
 			return;
@@ -567,7 +567,7 @@ class Web {
 		$js .= "pronto_js_run_queue = new Object();\n";
 		$js .= "function pronto_run_queue() { var l=0; for(var x in pronto_js_load_queue) l++; if(l==0) { for(var y in pronto_js_run_queue) { eval('pronto_js_run_queue.'+y+'();'); } } }\n";
 		foreach($this->q_js_run as $k=>$v) {
-			if($k{0} == '+') $k = substr($k, 1);
+			if(substr($k, 0, 1) == '+') $k = substr($k, 1);
 			$js .= "pronto_js_run_queue.$k = function(){ $v }\n";
 		}
 		foreach($this->q_js_load as $k=>$v) {
@@ -650,7 +650,7 @@ class Web {
 			if(!empty($this->q_js_run)) {
 				$head .= '<script type="text/javascript">'."\n";
 				foreach($this->q_js_run as $k=>$v) {
-					if($k{0} == '+') {
+					if(substr($k, 0, 1) == '+') {
 						$head .= "$v\n";
 					} else {
 						$head .= '$(document).ready(function(){'.$v.'});'."\n";

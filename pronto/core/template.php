@@ -134,7 +134,7 @@ class Template
 		$GLOBALS['PLUGINS'] = $helpers_arr;
 		$GLOBALS['HELPERS'] = $helpers_arr;
 
-		if($filename{0} == DS) {
+		if(substr($filename, 0, 1) == DS) {
 			// Use the absolute path provided to us
 			$template_path = $filename;
 		} else {

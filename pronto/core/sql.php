@@ -46,7 +46,7 @@ class SQL_Generator
 		foreach($exprs as $k=>$v)  $select .= ",$v \"$k\"";
 		foreach($gexprs as $k=>$v) $select .= ",$v \"$k\"";
 		// if $params[select] was empty, then we have a leading comma...
-		if($select{0} == ',') $select = substr($select, 1);
+		if(substr($select, 0, 1) == ',') $select = substr($select, 1);
 
 		// Build WHERE/HAVING clauses from list params and
 		// criteria sent from the browser
@@ -160,7 +160,7 @@ class SQL_Generator
 			} else {
 				// single-bounded range
 				$chop = 0;
-				switch($v{0}) {
+				switch(substr($v, 0, 1)) {
 					case '=':
 						$s .= '='; $chop = 1;
 						break;
