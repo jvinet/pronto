@@ -184,7 +184,7 @@ class ppMailer_Message
 	function add_embedded_image($filepath, $filename='', $cid=null, $mime='application/octet-stream')
 	{
 		if(empty($filename)) $filename = basename($filepath);
-		$img =& new Swift_Message_Image(new Swift_File($filepath), $filename, $mime, $cid);
+		$img = new Swift_Message_Image(new Swift_File($filepath), $filename, $mime, $cid);
 		return $this->message->attach($img);
 	}
 

@@ -11,7 +11,7 @@
 class DB_ODBC extends DB_Base
 {
 	function DB_ODBC($conn, $persistent) {
-		$this->safesql =& new SafeSQL_ANSI;
+		$this->safesql = new SafeSQL_ANSI;
 		$this->type = 'odbc';
 
 		$this->conn = odbc_connect("DRIVER=FreeTDS;SERVER=".$conn['host'].";DATABASE=".$conn['name'], $conn['user'], $conn['pass']);

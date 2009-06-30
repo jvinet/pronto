@@ -11,7 +11,7 @@
 class DB_MSSQL extends DB_Base
 {
 	function DB_MSSQL($conn, $persistent) {
-		$this->safesql =& new SafeSQL_ANSI;
+		$this->safesql = new SafeSQL_ANSI;
 		$this->type = 'mssql';
 
 		$this->conn = mssql_connect($conn['host'], $conn['user'], $conn['pass']);

@@ -11,7 +11,7 @@
 class DB_SQLite extends DB_Base
 {
 	function DB_SQLite($conn, $persistent) {
-		$this->safesql =& new SafeSQL_ANSI;
+		$this->safesql = new SafeSQL_ANSI;
 		$this->type = 'sqlite';
 		
 		if($persistent) {
