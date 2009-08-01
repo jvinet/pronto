@@ -116,10 +116,9 @@ class Web {
 	 */
 	function run($urls, $path=false)
 	{
-		$basepath   = $this->context->basepath == WDS ? '' : $this->context->basepath;
-		$classes    = get_declared_classes();
-		$full_url   = (isset($_SERVER['HTTPS']) ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'] . $this->context->fullpath;
-		$url_parts  = @parse_url($full_url);
+		$basepath  = $this->context->basepath == WDS ? '' : $this->context->basepath;
+		$full_url  = (isset($_SERVER['HTTPS']) ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'] . $this->context->fullpath;
+		$url_parts = @parse_url($full_url);
 		if($path === false) {
 			$this->context->path = ltrim(substr($url_parts['path'], strlen($basepath)), WDS);
 		} else {
@@ -266,10 +265,10 @@ class Web {
 			return $this->notfound();
 		}
 
-		define('CONTROLLER',  $class_name);
-		define('ACTION',      $method_name);
+		define('CONTROLLER', $class_name);
+		define('ACTION',     $method_name);
 
-		$this->controller = &$class;
+		$this->controller =& $class;
 		$this->ajax = $this->controller->ajax;
 
 		// Run any initialization functions/methods

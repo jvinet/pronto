@@ -155,7 +155,7 @@ class RecordModel_Base
 		foreach($data as $k=>$v) {
 			if(is_array($v)) {
 				// PHP4 doesn't like self::purify()
-				$data[$k] = Model::purify($v);
+				$data[$k] = RecordModel::purify($v);
 			} else if(class_exists('safehtml')) {
 				$purifier = new safehtml();
 				$data[$k] = $purifier->parse($v);

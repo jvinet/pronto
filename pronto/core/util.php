@@ -131,7 +131,7 @@ function absolute_url($controller, $action='')
 
 /********************************************************************
  *
- * DEBUG AND ERROR HANDLING
+ * DEBUGGING, LOGGING, AND ERROR HANDLING
  *
  ********************************************************************/
 
