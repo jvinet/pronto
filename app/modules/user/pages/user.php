@@ -153,7 +153,7 @@ class pUser extends Page
 		}
 
 		$password = $this->models->user->generate_password();
-		$r->set('password', $password);
+		$this->models->user->set_password($user['id'], $password);
 		$this->tset('user', $user);
 		$this->tset('password', $password);
 
