@@ -18,6 +18,9 @@ class RecordSelector
 	var $sql_order = null;
 	var $sql_limit = null;
 
+	var $it_ptr;
+	var $id_cache;
+
 	/**
 	 * Build a new RecordSelector object that can be used to operate
 	 * on a subset of records from the model's table.  This constructor
@@ -29,6 +32,7 @@ class RecordSelector
 	 */
 	function RecordSelector($where, $args, &$model)
 	{
+		$this->_reset_state();
 		$this->model = $model;
 		if($where) {
 			$this->sql_where = "WHERE (".$this->model->db->query($where, $args).")";
@@ -45,6 +49,7 @@ class RecordSelector
 	 */
 	function where()
 	{
+		$this->_reset_state();
 		$args = func_get_args();
 		$q    = array_shift($args);
 		if(empty($q)) return $this;
@@ -65,6 +70,7 @@ class RecordSelector
 	 */
 	function order($orderby)
 	{
+		$this->_reset_state();
 		if($this->sql_order) {
 			$this->sql_order .= ",$orderby";
 		} else {
@@ -82,6 +88,7 @@ class RecordSelector
 	 */
 	function limit($num, $offset=0)
 	{
+		$this->_reset_state();
 		$this->sql_limit = "LIMIT $num OFFSET $offset";
 		return $this;
 	}
@@ -117,8 +124,7 @@ class RecordSelector
 	function load($ret2d=false)
 	{
 		// let the model do the load
-		$ids = $this->get('id');
-		assert_type($ids, 'array');
+		$ids = $this->_get_ids();
 		$ret = array();
 		foreach($ids as $id) $ret[] = $this->model->load($id);
 		switch(count($ret)) {
@@ -126,6 +132,21 @@ class RecordSelector
 			case 1:  return $ret2d ? $ret : $ret[0];
 			default: return $ret;
 		}
+	}
+
+	/**
+	 * Return one record, no matter how many are in the result set.  This
+	 * method uses an internal pointer to keep track of which record will
+	 * be returned next, so you can call this method in an iterative fashion
+	 * to process large results sets.
+	 *
+	 * @return mixed Return a data record, or false if none are left.
+	 */
+	function one()
+	{
+		$ids = $this->_get_ids();
+		if(!isset($ids[$this->it_ptr])) return false;
+		return $this->model->load($this->it_ptr++);
 	}
 
 	/**
@@ -147,8 +168,7 @@ class RecordSelector
 	function delete()
 	{
 		// let the model remove the rows
-		$ids = $this->get('id');
-		assert_type($ids, 'array');
+		$ids = $this->_get_ids();
 		foreach($ids as $id) $this->model->delete($id);
 	}
 
@@ -174,8 +194,7 @@ class RecordSelector
 		}
 		// invalidate cache entries
 		if($this->model->enable_cache && $this->model->cache) {
-			$ids = $this->get('id');
-			assert_type($ids, 'array');
+			$ids = $this->_get_ids();
 			foreach($ids as $id) $this->model->invalidate($id);
 		}
 		return $this->model->db->execute($q);
@@ -247,6 +266,23 @@ class RecordSelector
 			}
 		}
 		return $ret;
+	}
+
+	function _get_ids()
+	{
+		if(!empty($this->id_cache)) {
+			return $this->id_cache;
+		}
+	 	$ids = $this->get('id');
+		assert_type($ids, 'array');
+		$this->id_cache = $ids;
+		return $ids;
+	}
+
+	function _reset_state()
+	{
+		$this->it_ptr   = 0;
+		$this->id_cache = array();
 	}
 
 	function _build_clause()

@@ -1,7 +1,7 @@
 PRONTO WEB FRAMEWORK
 ====================
 Judd Vinet <jvinet@zeroflux.org>
-v0.5, September 2008
+v0.6, August 2009
 
 
 [[X0]]
@@ -17,13 +17,14 @@ files within.
 
 1. Untar the Pronto archive into your web root or a subdirectory thereof.
    We'll assume `/var/www/html/pronto`.
-2. Create a database for Pronto, then edit `app/config/config.php` and
-   change the `DB_*` constants near the top to match the access credentials
-   for your new Pronto database.  Then change the `DIR_*_BASE` constants
-   to match the location of your Pronto installation.
-3. Create the necessary tables from the schema files in `app/config/sql`.
+2. Edit `app/config/config.php` and change the `DIR_*_BAE` constants to
+   match the location of your Pronto installation.
+3. Create a database for Pronto, then edit `app/config/databses.php` and
+   change the settings to match the access credentials for your new Pronto
+   database.
+4. Create the necessary tables from the schema files in `app/config/sql`.
    You can use the `load_schemas.php` script for this.
-4. Point your browser to the Pronto directory, eg,
+5. Point your browser to the Pronto directory, eg,
    `http://localhost/pronto/`.
 
 That's it!  You should see a Pronto web page staring you in the face.
@@ -34,8 +35,9 @@ $ cd /var/www/html
 $ tar zxf ~/pronto.tar.gz
 $ cd pronto/app
 $ vi config/config.php
+$ vi config/databases.php
 $ mysqladmin -u root create pronto
-$ php ../pronto/bin/load_schemas.php -c
+$ php ../pronto/bin/load_schemas.php -a
 $ firefox http://localhost/pronto/
 -----------------------------------------------------
 
@@ -74,14 +76,14 @@ There are four core elements to Pronto.
 Pronto also has plugin support for some layers.
 
 .Plugins:
-- Page-level Plugins (aka "plugins")
-- Template-level Plugins (aka "helpers")
+- Controller Plugins (aka "plugins")
+- Template Plugins (aka "helpers")
 
 Underneath the four high-level components, there are additional elements
 that support the framework.
 
 .Utility Elements:
-- DB Abstraction (with protection for SQL injection)
+- Database Abstraction (with protection for SQL injection)
 - Data Sanitization (protection for XSS attacks)
 - Access Control
 - Input Validation
@@ -113,7 +115,7 @@ decides which page controller it should pass control to, based on a
 series of regular expressions that define the URL->Controller mapping.
 The URL map is set in `app/config/urls.php`.
 
-[[X3.2]]
+[[X3-2]]
 The `$web` object
 ~~~~~~~~~~~~~~~~~
 There is exactly one dispatch object at any point in the framework, and it
@@ -125,13 +127,12 @@ The dispatcher also provides many lower-level facilities to controllers
 and plugins, such as:
 
 - context (information about the web request)
-- non-standard status code messages (403, 404)
-- an error handler (typically only used in debug mode)
+- non-standard status code messages (403, 404, 500)
 - http header control
 - javascript execution queueing
 - debug messages
 
-[[X3.3]]
+[[X3-3]]
 URL Configuration
 ~~~~~~~~~~~~~~~~~
 Despite the numerous facilities the dispatcher provides, its core mission
@@ -176,14 +177,15 @@ example, if the browser issues a POST request for `/user/list` and the
 dispatcher cannot find a `pUser::POST_list()` method, then it will look
 for a `pUser::POST()` method instead.
 
-[[X3.3.a]]
+[[X3-3-a]]
 Named Subpatterns
 ^^^^^^^^^^^^^^^^^
 While most URL routes use the basic `(.*)` subpattern, it is possible to
 use more.  One such use is a *named subpattern*, which binds the
 subpattern to a name.  When a route matches, Pronto will merge the values
 of the named subpatterns into the standard request argument list
-(see <<X4.2.1,Where Input Variables Come From>>).
+(see <<X4-2-1,Where Input Variables Come From>>).  The controller can then
+access these values through the regular `Page::param()` method.
 
 .Using named subpatterns
 [php]
@@ -197,7 +199,7 @@ $URLS = array(
 source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-[[X3.4]]
+[[X3-4]]
 Generating URLs
 ~~~~~~~~~~~~~~~
 Throughout any web application, you're going to need to create links and
@@ -213,20 +215,20 @@ to reflect the change.
 Pronto's solution is contained within the globally-accessible `url()`
 function.  This function works in two contexts.
 
-[[X3.4.a]]
+[[X3-4-a]]
 URL Fragments
 ^^^^^^^^^^^^^
 In the first context, you simply pass it the relative URL fragment, and it
 will resolve it into the full relative URL, including any sub-directory in
 which your application is installed.  For example, if the application is
-accessible via `http://localhost/blog`, then calling `url(\'/user/create\')`
+accessible via `http://localhost/blog`, then calling `url('/user/create')`
 will return `/blog/user/create`.
 
 Simple enough, but this only solves the problem of a varying install
 location.  What if you decide to change the URL location of your `User`
 controller from `/user` to `/admin/user`?
 
-[[X3.4.b]]
+[[X3-4-b]]
 Controller/Action Tuples
 ^^^^^^^^^^^^^^^^^^^^^^^^
 The second context handles this.  If you pass the `url()` function two
@@ -238,7 +240,7 @@ is using your URL map _backwards_, looking through the *values* for a
 matching controller/action tuple, then returning the associated *key* when
 a match is found.
 
-Adapting our former example, we now have this: `url(\'User\',\'create\')`.
+Adapting our former example, we now have this: `url('User','create')`.
 This call would return the same code as the last one
 (`/blog/user/create`).  But, if we alter our URL routes to point the
 **User** controller to `/admin/user` instead, our new `url()` call will
@@ -276,7 +278,7 @@ named anything you like, but conventionally it shares the same name as the
 controller.  For example, the `User` page would have a class name of
 `pUser` and would be located in `app/pages/user.php`.
 
-[[X4.1]]
+[[X4-1]]
 Controller Action Handlers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 Within each page controller are a number of methods called *action
@@ -285,7 +287,7 @@ required for the request(s) they are linked to.
 
 To elucidate, let's begin with a simple example of a page controller.
 
-.A basic Page Controller
+.A basic controller
 [php]
 source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 <?php
@@ -313,13 +315,13 @@ While at first glance this may seem tedious, it actually proves to be a
 very effective way of logically separating your processes based on the
 type of request.  Take a minute and think about the typical uses for a GET
 and POST, especially when handling form data.  The GET request is
-responsible for GETting the record, populating the form, and showing it to
+responsible for loading the record, populating the form, and showing it to
 the visitor.  The POST request receives input back from the user and is in
 charge of validating and possibly updating the record.
 
 There have been many PHP projects and frameworks that will use a GET/POST
 variable such as `$op` or `$action` to denote the current mode being
-requested (eg, `if($op == \'edit\') {} else if($op == \'update\') {}`).
+requested (eg, `if($op == 'edit') {} else if($op == 'update') {}`).
 
 By splitting our logic into separate methods, we avoid the cumbersome
 `$action` variable entirely.  As a bonus, we can easily hook into other,
@@ -327,16 +329,15 @@ lesser-used HTTP verbs if need be.  For example, if you're writing an
 RSS-friendly blog, you may want to implement a HEAD request for your blog,
 as some readers will use this to retrieve the `Last-Modified` header or the
 `E-Tag` header.  Or perhaps you'd like to write a RESTful API and need to
-leverage the PUT and DELETE verbs.
+respond to the PUT and DELETE verbs.
 
-
-[[X4.2]]
+[[X4-2]]
 Parameters
 ~~~~~~~~~~
 Before we talk about retrieving input data, let's see where it comes from
 and how Pronto deals with it.
 
-[[X4.2.a]]
+[[X4-2-a]]
 Where Input Variables Come From
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Before passing control to a page controller, the dispatcher will collect
@@ -349,8 +350,7 @@ precedence.  Latter entries override previous ones.
 - POST variables
 - Parameters from the URL route (defined in `app/config/urls.php`)
 
-
-[[X4.2.b]]
+[[X4-2-b]]
 Retrieving Input Data
 ^^^^^^^^^^^^^^^^^^^^^
 There are a few ways to collect GET/POST data from within a controller.
@@ -400,15 +400,34 @@ Of course, you're free to access variables directly through the `$_GET`
 and `$_POST` superglobals, but Pronto will take care of any `magic_quotes`
 nonsense if you go through the Page class.
 
+If you'd like to access the raw, un-filtered aggregation of all incoming
+request arguments, you can also retrieve them through the Registry.
 
-[[X4.3]]
+.Retrieving all parameters through the Registry
+[php]
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<?php
+class pUser extends Page
+{
+	function GET_hello()
+	{
+		$args = Registry::get('pronto:request_args');
+		debug($args);
+	}
+}
+?>
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+[[X4-3]]
 Wildcard Handlers, Inline Variables
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Using <<X3.3.1,named subpatterns>> is one way to use URLs that contain
-variables __inline__, ie, variables occur in the URL path itselt, not in
+Using <<X3-3-1,named subpatterns>> is one way to use URLs that contain
+variables __inline__, ie, variables occur in the URL path itself, not in
 the query string.
 
-For example, `/user/edit?id=3` would become `/user/edit/3`.
+For example, `/user/edit?id=3` would become `/user/edit/3`.  Assuming
+you've named the subpattern "id" in the URL route config, you can still
+access the parameter using the `Page::param()` method.
 
 Another way to handle situations like these (and more), is through use of
 *wildcard action handlers*.  These function like a typical action handler,
@@ -439,7 +458,7 @@ will look for a wildcard handler that matches.  If it finds one,
 everything trailing after the matching portion will be treated as a
 variable, and passed into the action handler as such.  So if the browser
 calls `/user/hello/john`, the dispatcher will call
-`pUser::GET_hello__(\'john\')`.
+`pUser::GET_hello__('john')`.
 
 If a specific action cannot be found and a wildcard action cannot be
 found, then the dispatcher will default to the "catch-all" handler for
@@ -452,7 +471,7 @@ arguments in your action handler's method prototype.  If you don't, then
 a visitor could inadvertently trigger an error if they made a request that
 did not include the variable (eg, `/user/hello/`).
 
-[[X4.4]]
+[[X4-4]]
 Validating GET/POST data
 ~~~~~~~~~~~~~~~~~~~~~~~~
 It's very important to validate all data coming in from the web browser,
@@ -466,15 +485,21 @@ controller.
 The class in charge of data validation is predictably called `Validator`.
 
 .Data Validation Methods
-`--------------------------`----------------------------------------------
-`Validator::required()`    Check a number of _REQUEST parameters to ensure that all are present and non-empty
-`Validator::validate()`    Validate a _REQUEST parameter against a regular expression
-`Validator::is_valid()`    Same as `validate()` but just return a true/false, don't populate the `$errors` array if validation fails
---------------------------------------------------------------------------
+[cols="1,1*2"]
+|=========================================================================
+|`Validator::required()`   |Check a number of _REQUEST parameters to ensure that all are present and non-empty
+|`Validator::validate()`   |Validate a _REQUEST parameter against a regular expression
+|`Validator::is_valid()`   |Same as `validate()` but just return a true/false, don't populate the `$errors` array if validation fails
+|=========================================================================
 
 When using `Validator::validate()` and `Validator::is_valid()`, you can pass in any
 Perl-compatible regular expression.  You can also use one of the regular
 expressions defined at the top of `pronto/core/validator.php`.
+
+When validating data in a Page Controller, you can use the convenience
+functions in the Page class itself.  These ultimately call the same
+methods in the Validator class, but they provide some additional
+functionality as well (eg, populating an `$errors` array).
 
 .Validating Data from a Page Controller
 [php]
@@ -496,20 +521,20 @@ class pUser extends Page
 source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-[[X4.5]]
-Calling Page Elements from other Controllers
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[[X4-5]]
+Calling controller elements from other controllers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The typical flow of a Pronto web request usually only involves a single
 page controller, but there are some scenarios where it makes sense to
 call an action from another page controller.  This is possible with the
 `Page::render_element()` method.
 
 Most methods in a page controller start with an HTTP verb, such as `GET_`,
-`POST_`, or the lesser-used `PUT_`, `DELETE_`, etc.  Page controller can
+`POST_`, or the lesser-used `PUT_`, `DELETE_`, etc.  Page controllers can
 also provide *elements* which are methods intended to be called from other
 page controllers.  These methods must have a prefix of `ELEM_`.
 
-.Calling a Page Element - the first controller
+.Calling a controller element - the first controller
 [php]
 source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 <?php
@@ -517,7 +542,8 @@ class pBlog extends Page
 {
 	function ELEM_view($user_id)
 	{
-		$this->tset('blog_data', $this->models->blog->get_by('user_id', $user_id));
+		// load data from model (this will be explained later)
+		$this->tset('blog_data', $this->models->blog->find("user_id=%i", $user_id)->load());
 
 		// elements don't usually render() their content, but simply
 		// fetch() it and return it to the caller, who can then insert
@@ -528,7 +554,7 @@ class pBlog extends Page
 ?>
 source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.Calling a Page Element - the second controller
+.Calling a controller element - the second controller
 [php]
 source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 <?php
@@ -553,12 +579,12 @@ Templates serve as the presentation layer of Pronto.  When a page
 controller has finished its business, it will typically render a template
 via the `Page::render()` or `Page::ajax_render()` methods.
 
-Templates are unique to Pronto, in that they aren't classes themselves, and
-they don't have access to other areas of Pronto, such as the dispatcher,
-controllers, models, or the database (`$db`).  However, template files are
-managed by the `Template` class, which is ultimately in charge of
-setting/getting template variables, as well as the fetching/processing of
-templates themselves.
+Templates are unique within Pronto, in that they aren't classes
+themselves, and they don't have access to other areas of Pronto, such as
+the dispatcher, controllers, models, or the database (`$db`).  However,
+template files are managed by the `Template` class, which is ultimately in
+charge of setting/getting template variables, as well as the
+fetching/processing of templates themselves.
 
 Pronto's template system is rather standard.  You can use plain HTML and
 PHP as you wish.  However, the only variables accessible are those set by
@@ -566,7 +592,7 @@ the page controller via the `Template::set()` method.
 
 [NOTE]
 Technically, it possible to access outside variables through the
-*Registry*, but it's not encouraged.
+*Registry* or `$this` variable, but it's not encouraged.
 
 Templates can also use any active *template plugins*, also called
 *helpers*.  These will be covered later, though the example below makes
@@ -583,9 +609,9 @@ source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Although most helpers are loaded from the framework config or from a page
 controller, it is possible to load helpers from within templates.
 Template files do have access to the `$this`, and so they can call methods
-in the Template class.
+in the Template object itself.
 
-.Loading a Helper in a Template
+.Loading a helper in a template
 [php]
 source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 $form = $this->import_helper('form');
@@ -596,9 +622,9 @@ Templates are usually organized by page controller, since that's who
 typically renders them.  The logical structure is to have subdirectories
 within the `app/templates` directory that match the names of the page
 controllers that will be rendering them.  This is recommended but not
-necessary.
+required.
 
-[[X5.1]]
+[[X5-1]]
 Template Variables
 ~~~~~~~~~~~~~~~~~~
 As shown in the example above, templates can reference their variables in
@@ -642,17 +668,18 @@ class pUser extends Page
 source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-[[X5.2]]
+[[X5-2]]
 Rendering a Template
 ~~~~~~~~~~~~~~~~~~~~
 There are three functions that can be used to render templates.
 
 .Rendering Functions
-`---------------------`--------------------------------------------------------
-`Page::render()`      Parse a template and render it to the browser
-`Page::fetch()`       Parse a template and return the output to the caller
-`Page::ajax_render()` Render a template as an AJAX response (covered more later)
--------------------------------------------------------------------------------
+[cols="1,1*2"]
+|==============================================================================
+|`Page::render()`      |Parse a template and render it to the browser
+|`Page::fetch()`       |Parse a template and return the output to the caller
+|`Page::ajax_render()` |Render a template as an AJAX response (covered more later)
+|==============================================================================
 
 You'll probably use the `Page::render()` function the most, but
 `Page::fetch()` can be useful if you're combining templates, or rendering
@@ -676,18 +703,19 @@ class pUser extends Page
 ?>
 source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Like the template methods, the real functionality is actually in the
-`Template` class itself.  The methods in `Page` are merely convenience
-methods that call the real ones.
+Like the methods for settings template variables, the real functionality
+is actually in the `Template` class itself.  The methods in `Page` are
+merely convenience methods that call the real ones.
 
-[[X5.3]]
+[[X5-3]]
 Layouts
 ~~~~~~~
-Layouts provide a way of establishing one or more outer structures to your
-web application.  Most of the application's structure and styling will be
-relegated to the layout, leaving the core content in the templates
-themselves.  While not considered a regular template, layouts still have
-access to template variables and plugins.
+Layouts provide a way of establishing one or more outer structures to the
+presentation/look-and-feel of your web application.  Most of the
+application's structure and styling will be relegated to the layout,
+leaving the core content in the templates themselves.  While not
+considered a regular template, layouts still have access to template
+variables and plugins.
 
 .A Typical Layout
 [php]
@@ -723,7 +751,7 @@ to be inserted into the `<head>` of your document.
 
 Multiple layouts are supported.  You can bind to a specific layout with
 the `Page::render()` method, or you can set a layout in a page
-controller's `\_\_init()\_\_` method.
+controller's `__init__()` method.
 
 .Rendering a template within a different layout
 [php]
@@ -758,6 +786,20 @@ retrieve, update and delete (CRUD) operations.  If more advanced
 manipulation/processing functions are required for an entity, they will
 also be located here.
 
+The model layer actually consists of two classes, *RecordModel* and
+*RecordSelector*.  The RecordModel class is the one that your application
+will actually extend to create entity-specific data models.  The
+RecordSelector class is used to create search/query critieria through a
+fluent API.
+
+We'll cover RecordModel first.
+
+The RecordModel is the parent class for all data models in Pronto.  You
+will extend this class whenever you create a new data model, overriding
+any public/callable methods that require customization.
+
+REMOVE THIS
+-----------
 Models do not actually perform any data introspection or Object Relational
 Mapping (ORM) by default.  They simply act as a place to store functions
 that relate directly to a data entity.  You are still responsible for
@@ -765,70 +807,91 @@ writing your own SQL for the most part.  The creation and execution of
 safe SQL is reinforced by a well-designed database abstraction class that
 focuses on the DRY (Don't Repeat Yourself) principle.
 
+REMOVE THIS
+-----------
 While Pronto does not provide any full ORM capabilities, the base `Model`
 class does provide some convienience functions for the more simple queries,
 such as PK-based lookups or lookups with a single column in the WHERE
 clause. See the `DB_Base` class in the API Reference for a list of
 methods.
 
-[[X6.1]]
+[[X6-1]]
 The Core Operations
 ~~~~~~~~~~~~~~~~~~~
-The base `Model` class provides an interface for the common operations
+The base `RecordModel` class provides an interface for the common operations
 associated with a simple data entity.
 
 .Common data entity operations
-`----------------------`--------------------------------------------------
-`validate_for_insert`  Validate form data for an insert operation
-`validate_for_update`  Validate form data for an update operation
-`sanitize`             Perform any necessary data sanitization prior to operating
-`create`               Return a "default" set of data to populate a form for entity creation
-`get`                  Return a full data record, retrieved by Primary Key (PK)
-`get_record`           Do the actual retrieval of a data record (see NOTE below)
-`delete`               Delete a record by PK
-`insert`               Insert a new record
-`update`               Update an existing record
-`list_params`          Provide parameters necessary to generate a
-                       comprehensive list of records
---------------------------------------------------------------------------
+[cols="1,1*2"]
+|=========================================================================
+|`validate`            |Validate form data for an insert or update operation
+|`sanitize`            |Perform any necessary data sanitization prior to operating
+|`create`              |Return a "default" set of data to populate a form for entity creation
+|`load`                |Return a full data record, retrieved by Primary Key (PK)
+|`delete`              |Delete a record by PK
+|`save`                |Save a record to the DB (insert/update)
+|`enum_schema`         |Provide parameters necessary to enumerate (list)
+                        or search for records
+|=========================================================================
 
-[NOTE]
-You'll notice that models use both `get()` and `get_record()`.  `get()` is
-the method that should be used by controllers and other models to fetch an
-entity through this model.  But you will rarely every override the
-`get()` method in your model, only the `get_record()` method.  This is
-because the `get()` method actually uses `get_record()` to fetch the data,
-while wrapping it in some logic that employs full record caching.
+Some of the methods listed above are actually frontends to other,
+lower-order methods that do the real work.  The lower-order methods that
+you should override in your model classes.
 
-Depending on your data entity, some or all of these functions may not be
+The reason for the separation is because of the cache.  The frontend
+methods (i.e., the ones called by other components of the application) are
+responsible for transparently caching data records and expiring the
+cache entries when they are no longer valid.
+
+By only overriding the lower-order methods, you are free to write your
+model code with very little concern for the cache management.  There are
+times when you may need to consider the effect of a cache (if you enable
+it), but for the most part, this architecture buys you caching for free.
+
+Depending on your data entity, some or all of these methods may not be
 relevant.  If you are using the specialized controller `Page_CRUD`, then
 it will expect these functions to be complete.
 
-For extremely simple entities, the implementation within the base `Model`
-class will probably suffice.  For all others, you will want to override
-the functionality within your own model class.
+For extremely simple entities, the implementation within the base
+`RecordModel` class will probably suffice.  For all others, you will want
+to override the functionality within your own model class.
+
+[NOTE]
+Very simple models may benefit from the <<XX,fly-model>> facility as well.
 
 Model class names are prefixed with a lowercase `m`.
 
-[[X6.2]]
-The `$db` Object
-~~~~~~~~~~~~~~~~
-The gatekeeper to all database access is the `$db` object.  Like `$web`,
-it is available pretty much everywhere (either through `$web` or
-directly), though it is typically most used within data models.
+[[X6-2]]
+Accessing the Database
+~~~~~~~~~~~~~~~~~~~~~~
+Database connection parameters are stored in `app/config/databases.php`.
+Pronto supports multiple databases, though one database is expected to be
+the primary/default.  Unless set otherwise, data models will use the
+primary database.
 
-The DB class provides some simple convenience methods for selects,
+Like most framework objects, database objects are stored in the Registry
+under the pattern `pronto:db:<name>` where `<name>` is the name of the
+database connection as set in the configuration file.
+
+[NOTE]
+The primary/default database connection should be called `main`.
+
+The database class provides some simple convenience methods for selects,
 inserts, and updates, while using the third-party *SafeSQL* library for
 parameter substitution and protection against SQL injection attacks.
 
-An example is below, though you'll want to consult the API documentation
-for a full list of methods available.
+An example is below, though it is a bit contrived.  You would normally
+perform these functions through the model layer, not directly on the
+database.
+
+You'll want to consult the API documentation for a full list of methods
+available.
 
 .Using the `$db` object
 [php]
 source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 <?php
-class mUser extends Model
+class mUser extends RecordModel
 {
 	function do_stuff($id)
 	{
@@ -842,8 +905,7 @@ class mUser extends Model
 			$this->db->update_row('users', $data, 'id=%i', array($id));
 		}
 		// count users who logged in today...
-		$ct = $this->db->get_value("SELECT COUNT(*) FROM users WHERE last_login=CURDATE()");
-		return $ct;
+		return $this->db->get_value("SELECT COUNT(*) FROM users WHERE last_login=CURDATE()");
 	}
 }
 ?>
@@ -860,32 +922,77 @@ type of data you'll be passing in.  If the variable type does not match
 the placeholder, SafeSQL will attempt to cast it.
 
 .SafeSQL Variable Placeholders
-`----`-----------------------------------------------------
-`%s` string
-`%i` integer
-`%f` float
-`%c` comma-separated list, each element casted to integer
-`%l` comma-separated list, no quotes or casting
-`%q` comma-separated list, each element quoted (string)
-`%n` wrap the value in quotes unless it is NULL
------------------------------------------------------------
+[cols="1,1*4"]
+|==========================================================
+|`%s` |string
+|`%i` |integer
+|`%f` |float
+|`%c` |comma-separated list, each element casted to integer
+|`%l` |comma-separated list, no quotes or casting
+|`%q` |comma-separated list, each element quoted (string)
+|`%n` |wrap the value in quotes unless it is NULL
+|==========================================================
 
 In a well-organized application, almost all of your DB work will be in the
 models themselves.  But just in case, `$db` is available to the dispatch
 and page controllers.  It can be passed to plugins as well, though there
 are usually better ways of doing this.
 
-[[X6.3]]
-Defining Parameters for Record Listings
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[[X6-3]]
+Accessing a non-primary database
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+By default, Pronto will use the database connection labeled as `main`.
+This object appears in the registry as `pronto:db:main`.
+
+.Fetch your own database object
+[php]
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<?php
+class mUser extends RecordModel
+{
+	function do_stuff($id)
+	{
+		$db =& Registry::get('pronto:db:main');
+		// $db is the same as $this->db
+
+		// now fetch a different database object
+		$db2 =& Registry::get('pronto:db:myotherdb');
+		$data = $db2->get_item_by_pk('users', 'id', $id);
+	}
+}
+?>
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you have an entire data model that should be using a different database
+than `main`, you can set this in the model's `__init__()` class.
+
+.Linking a model to a different database
+[php]
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<?php
+class mUser extends RecordModel
+{
+	function __init__()
+	{
+		$this->db =& Registry::get('pronto:db:myotherdb');
+		// now all methods will use this database
+	}
+}
+?>
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+[[X6-4]]
+Defining parameters for enumeration
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Of all the operations listed in the beginning of this section, the one
-that probably stands out is the last one, `Model::list_params()`.  Within
+that probably stands out is the last one, `enum_schema()`.  Within
 the Pronto framework itself, this method is only used by one method, and
 that is `Page_CRUD::GET_list()`.  The `Page_CRUD` class will be covered
-later, but `Model::list_params()` can be used by application code that you
+later, but `enum_schema()` can be used by application code that you
 write as well, so we'll cover it here.
 
-The purpose of `Model::list_params()` is to return the information
+The purpose of `enum_schema()` is to return the information
 required to construct a SQL query that will return a useful dataset to
 populate a record listing.  It is often used in conjuction with
 `SQL_Generator::enumerate()`, which can convert list parameters into full
@@ -905,27 +1012,28 @@ All of this is a cinch to do with SQL (that's what it was designed for,
 after all), but if a plugin or controller action is in charge of deciding
 which field to sort by or which data to restrict, then it can be easier to
 start by separating your query into its logical segments.  That's what
-`Model::list_params()` does.
+`enum_schema()` does.
 
-`Model::list_params()` returns an associative array that contains eight
+`enum_schema()` returns an associative array that contains nine
 elements.
 
 [NOTE]
-Like the rest of the Model interface, you only need to implement this
+Like the rest of the RecordModel interface, you only need to implement this
 method if you're actually going to use it.
 
-.Elements of `Model::list_params()`
-`------------`------------`-----------------------------------------------------------------------------------
-`from`       __string__   The FROM clause that will be used.  This should be well-formed SQL.
-`exprs`      __array__    Zero or more SQL expressions that will be used in the SELECT clause of the query.  These are typically pieces of data that aren't regular data columns, but are passed through some SQL functions or similar.  When creating a WHERE clause to filter a result set, Pronto will check this array first.  If a match is found, it will use the SQL expression instead of the literal column name.
-`gexprs`     __array__    Like `exprs`, except Pronto will use this when building a HAVING clause for a SQL query.  Not usually needed unless you're also using `group_by`.
-`select`     __string__   The main SELECT clause of the query.  Can be as simple as `*` or you can select certain columns (eg, `u.id,u.name`).
-`where`      __mixed__    An array or string of elements that will construct your WHERE clause.  If an array, these will be AND'ed together, along with any other filter data that might be added by your controller. (eg, `array('status="active"', 'confirmed=1')`)
-`group_by`   __string__   The column(s) to group by, if any.
-`having`     __string__   The column(s) to sort by.  If not specified, your model's `default_sort` will be used.
-`order`      __string__   The column(s) to sort by.  If not specified, your model's `default_sort` will be used.
-`limit`      __string__   The amount of records to return, if you choose to limit them.  If not specified, your model's `per_page` will be used.
---------------------------------------------------------------------------------------------------------------
+.Elements of `RecordModel::enum_schema()`
+[cols="1,1,1*2"]
+|=============================================================================================================
+|`from`       |__string__   |The FROM clause that will be used.  This should be well-formed SQL.
+|`exprs`      |__array__    |Zero or more SQL expressions that will be used in the SELECT clause of the query.  These are typically pieces of data that aren't regular data columns, but are passed through some SQL functions or similar.  When creating a WHERE clause to filter a result set, Pronto will check this array first.  If a match is found, it will use the SQL expression instead of the literal column name.
+|`gexprs`     |__array__    |Like `exprs`, except Pronto will use this when building a HAVING clause for a SQL query.  Not usually needed unless you're also using `group_by`.
+|`select`     |__string__   |The main SELECT clause of the query.  Can be as simple as `*` or you can select certain columns (eg, `u.id,u.name`).
+|`where`      |__mixed__    |An array or string of elements that will construct your WHERE clause.  If an array, these will be AND'ed together, along with any other filter data that might be added by your controller. (eg, `array('status="active"', 'confirmed=1')`)
+|`group_by`   |__string__   |The column(s) to group by, if any.
+|`having`     |__string__   |The column(s) to sort by.  If not specified, your model's `default_sort` will be used.
+|`order`      |__string__   |The column(s) to sort by.  If not specified, your model's `default_sort` will be used.
+|`limit`      |__string__   |The amount of records to return, if you choose to limit them.  If not specified, your model's `per_page` will be used.
+|=============================================================================================================
 
 [NOTE]
 You can optionally pass any of the query chunks through `$this->db->query()`
@@ -933,23 +1041,24 @@ first to do proper argument substitution.  `$this->db->query()` will not
 actually execute a query, it simply performs the variable substitution that
 should occur before a query is executed.
 
-.Using `Model::list_params()`
+.Using `enum_schema()`
 [php]
 source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 <?php
-class mPost extends Model
+class mPost extends RecordModel
 {
-	function list_params()
+	function enum_schema()
 	{
-		/* Note that we've omitted the 'limit' and 'group_by' elements.
-		 * If they're not present, sensible defaults will be used.
-		 */
 		return array(
 			'from'       => 'posts p INNER JOIN blogs b ON b.id=p.blog_id',
 			'exprs'      => array('posted_at' => "CONCAT(p.post_date,' ',p.post_time)"),
+			'gexprs'     => array(),
 			'select'     => 'p.*,b.name',
 			'where'      => $this->db->query('b.user_id=%i', ACCESS_ID),
-			'order'      => 'p.post_date DESC'
+			'group_by'   => '',
+			'having'     => '',
+			'order'      => 'p.post_date DESC',
+			'limit'      => 50
 		);
 	}
 }
@@ -959,7 +1068,60 @@ source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 If you'd like to see how this data is used, take a look at the
 `SQL_Generator::enumerate()` method in `pronto/core/sql.php`.
 
-[[X6.4]]
+
+[[X6-5]]
+Finding Records
+~~~~~~~~~~~~~~~
+So we've shown how you define the behavior around a data entity.  Now how
+do we actually __find__ records?
+
+We use *RecordSelector*.
+
+RecordSelector is a simple class that provides a fluent API for building
+record queries, also known as *selectors*.  You can build a selector by
+calling the `find()` method of any model object.
+
+.Example uses of RecordSelector
+[php]
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<?php
+class mUser extends RecordModel
+{
+	function do_stuff()
+	{
+		// build a selector that finds the first 50 active users,
+		// sorted by the date they joined.
+		$s = $this->find("status='active'")->order('created_on')->limit(50);
+		// now use the selector to fetch all records, then delete them
+		$users = $s->load();
+		$s->delete();
+
+		// now find all inactive users with a certain first name
+		$s = $this->find("status='inactive' AND first_name='%s'", $name);
+		// iterate through each, flagging them as we go
+		while($user = $s->one()) {
+			// do stuff with $user
+			// ...
+
+			// now set a flag column in the database by creating a new selector
+			// that isolates this specific user.
+			$this->find("id=%i", $user['id'])->set('sent_mail', 1);
+		}
+	}
+}
+?>
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+As you may have noticed, the arguments passed to the various
+RecordSelector methods are just SQL-legal chunks that will be assembled
+together and passed to the database engine.  So you will still need to
+know SQL to be effective in Pronto.
+
+Also note that this API can only build basic queries.  If you have more
+advanced work to do at the database level, you will definitely want to
+write your SQL manually and query the database through `$db`.
+
+[[X6-6]]
 Example: A model and its use
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Let's look at a simple example of a model and how it might be used from a
@@ -969,102 +1131,83 @@ page controller.
 [php]
 source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 <?php
-class mUser extends Model
+class mUser extends RecordModel
 {
-	// these are used by the CRUD record listing facility, and
-	// can be used by any custom code you write as well.
-	var $default_sort = 'last_name ASC';
-	var $per_page     = 50;
-
-	function validate_for_insert($data)
+	function validate($data)
 	{
 		// all our errors will be returned in this array
 		$errors = array();
 		// we can use the Validator::validate() and Validator::required() functions
 		$this->validator->required($errors, array('first_name','last_name','password'), $data);
 		$this->validator->validate($errors, 'email', VALID_EMAIL, 'Valid email required', $data);
-		// make sure passwords match
-		if(!empty($data['password']) && $data['password'] != $data['password2']) {
-			$errors['password2'] = 'Passwords do not match';
-		}
-		// check for a duplicate username
-		if($this->db->get_value("SELECT id FROM users WHERE email='%s'", array($data['email']))) {
-			$errors['email'] = 'This email address is already in use.';
+
+		// only perform this part if we're inserting a new user, not updating
+		// an existing one...
+		if(!isset($data['id'])) {
+			// make sure passwords match
+			if(!empty($data['password']) && $data['password'] != $data['password2']) {
+				$errors['password2'] = 'Passwords do not match';
+			}
+			// check for a duplicate username
+			if($this->db->get_value("SELECT id FROM users WHERE email='%s'", array($data['email']))) {
+				$errors['email'] = 'This email address is already in use.';
+			}
 		}
 		return $errors;
 	}
 
-	function validate_for_update($data)
+	function load_record($id)
 	{
-		// similar to validate_for_insert, so we'll leave this out for
-		// brevity...
-	}
-
-	// If it's more convenient, you can omit the two methods above and
-	// combine them with this one...
-	function validate($data, $is_update)
-	{
-		if($is_update) {
-			// same code as validate_for_update()
-		} else {
-			// same code as validate_for_insert()
-		}
-	}
-
-	function create()
-	{
-		// this method is used by the Page_CRUD::GET_create() method to set
-		// some default values in the create form.  However, we don't really
-		// have any defaults to put in here...
-		return array();
-	}
-
-	function get_record($id)
-	{
-		$data = parent::get_record($id);
+		$data = parent::load_record($id);
 		// we don't need the password, remove it before giving
 		// data back to the caller...
 		unset($data['password']);
 		return $data;
 	}
 
-	function insert($data)
+	function save_record($data)
 	{
-		// set some metadata...
-		$data['created_on'] = date('Y-m-d');
-		$data['status']     = 'active';
-		// encrypt password
-		$data['password'] = sha1($data['password']);
-
-		// this will return the new insert ID
-		return parent::insert($data);
-	}
-
-	function update($data)
-	{
-		// don't let the user change these fields...
-		unset($data['status'], $data['created_on']);
-		// encrypt password, if it was changed
-		if(!empty($data['password'])) {
-			$data['password'] = sha1($data['password']);
+		// is this an insert?
+		if(!isset($data['id'])) {
+			// set some metadata...
+			$data['created_on'] = date('Y-m-d');
+			$data['status']     = 'active';
 		} else {
-			unset($data['password']);
+			// it's an update - don't let the user change these fields
+			unset($data['status'], $data['created_on']);
 		}
 
-		return parent::update($data);
+		if(isset($data['password'])) {
+			// encrypt password
+			$data['password'] = sha1($data['password']);
+		}
+
+		// return the ID of the record
+		return parent::save_record($data);
 	}
 
-	function delete($id)
+	function delete_record($id)
 	{
 		// we employ lazy deletion...
+
+		// you don't to use a selector here, since this is *the* authoritative
+		// place where the real deletion happens.
 		$this->db->execute("UPDATE users SET status='deleted' WHERE id=%i", array($id));
 	}
 }
 ?>
 source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Now we can create a page controller that uses these methods.  Our basic
-controller will provide a registration facility for new users.
+[NOTE]
+The `delete_record()` method looks like a good place to do something like
+this: `$this->find("id=%i", $id)->delete()`.  The problem is that the
+`delete_record` is the one place that must perform the actual record
+deletion.  The selector will actually call `delete_record` to do the work,
+so if we were to call the selector we would introduce an infinite cycle.
+
+Now that our model is ready, we can create a page controller that uses
+these methods.  Our basic controller will provide a registration facility
+for new users.
 
 .Using the model from a page controller
 [php]
@@ -1102,9 +1245,9 @@ class pUser extends Page
 			return;
 		}
 		// validation passed, do the insert
-		$user_id = $this->models->user->insert($data);
+		$id = $this->models->user->save($data);
 		// now send them to their profile page
-		$this->redirect(url("/profile?id=$user_id"));
+		$this->redirect(url("/profile?id=$id"));
 	}
 }
 ?>
@@ -1115,7 +1258,7 @@ for some well-organized, readable code, and the GET/POST split in the
 controller makes it easy to tell which stage we're at in the signup
 process.
 
-[[X6.5]]
+[[X6-7]]
 Using other models from within a model
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 It's possible for a model to depend on other models.  This occurs a lot
@@ -1127,17 +1270,21 @@ it can ask the respective model to do the work on its behalf.
 [php]
 source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 <?php
-class mUser extends Model
+class mUser extends RecordModel
 {
-	function delete($id)
+	function delete_record($id)
 	{
 		// load the Blog model as a dependency so we can delete this user's
 		// blog record as well.
 		$this->depend('blog');
 
 		$user = $this->get($id);
+
+		// note that we call the other model's higher-order frontend function
+		// delete() instead of delete_record()
 		$this->depends->blog->delete($user['blog_id']);
-		parent::delete($id);
+		// now delete ourself
+		parent::delete_record($id);
 	}
 }
 ?>
@@ -1168,7 +1315,7 @@ like.  Once authenticated, you can use Pronto's access control features to
 keep track of whether a user is logged in or not, and what areas of the
 web application they are allowed to access.
 
-[[X7.1]]
+[[X7-1]]
 Access Control
 ~~~~~~~~~~~~~~
 In Pronto, there are two pieces of data that constitute your access policy
@@ -1188,10 +1335,11 @@ access key, and as an array key.  Pay close attention to which one we're
 talking about.
 
 .Access Models
-`-----------`------------------------------------------------------------
-*roles*     Within your access key set, each array key is a role or group name, and the array value is an array of access keys (strings) that will be assigned to that role.  A user can be assigned to zero or more roles.  The role names themselves should be stored in the DB record for the user.  At login time, they will be resolved to the individual access keys and assigned.
-*discrete*  The structure of your access key set is the same as in the *roles* model. However, in this model, the actual keys themselves should be assigned to the user within the DB, so you can pick and choose which keys from which modules get assigned.  This provides a higher level of control for each user, but is slightly more complicated to conceptualize and implement.
--------------------------------------------------------------------------
+[cols="1,1*2"]
+|========================================================================
+|*roles*     |Within your access key set, each array key is a role or group name, and the array value is an array of access keys (strings) that will be assigned to that role.  A user can be assigned to zero or more roles.  The role names themselves should be stored in the DB record for the user.  At login time, they will be resolved to the individual access keys and assigned.
+|*discrete*  |The structure of your access key set is the same as in the *roles* model. However, in this model, the actual keys themselves should be assigned to the user within the DB, so you can pick and choose which keys from which modules get assigned.  This provides a higher level of control for each user, but is slightly more complicated to conceptualize and implement.
+|========================================================================
 
 If you're not sure which one to use, start with the *roles* model.
 Conceptually, it is simpler, analagous to assigning a "rank" to each user
@@ -1273,8 +1421,16 @@ source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 <?php
 class pUser extends Page
 {
+	// All three methods below are equivalent
+
 	function GET_stuff()
 	{
+		// fetch the access object from the registry
+		$access =& Registry::get('pronto:access');
+		if($this->web->has_access('USER')) {
+			echo "You are allowed";
+		}
+
 		// the Web object contains a shortcut method to Access::has_access()
 		if($this->web->has_access('USER')) {
 			echo "You are allowed";
@@ -1288,7 +1444,7 @@ class pUser extends Page
 ?>
 source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-[[X7.2]]
+[[X7-2]]
 User Authentication
 ~~~~~~~~~~~~~~~~~~~
 So now that we know how to test for proper access, how do we tell Pronto
@@ -1297,9 +1453,9 @@ that a user is authenticated?
 The `$web` object holds a reference to the `Access` class, which is the
 brains of Pronto's access control facility.  To set, get, or clear keys,
 you can go through `$web->access` or get a reference to the object by
-asking the Registry.
+asking the registry.
 
-.Getting an object from the Regsitry
+.Getting an object from the Registry
 [php]
 source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 <?php
@@ -1330,7 +1486,7 @@ class mUser extends Model
 
 		// Okay, everything checks out, so assign the user's access id and
 		// his/her keys...
-		$access =& Registry::get('access');
+		$access =& Registry::get('pronto:access');
 		$access->set_id($user['id']);
 		$access->set_keys($user['access_keys']);
 
@@ -1344,7 +1500,7 @@ class mUser extends Model
 
 	function clear_authentication()
 	{
-		$access =& Registry::get('access');
+		$access =& Registry::get('pronto:access');
 		$access->clear_authentication();
 		unset($_SESSION['USER']);
 	}
@@ -1366,7 +1522,7 @@ completely unauthenticated.
 [NOTE]
 To track access variables across page loads, Pronto uses a special session
 variable called `_ACCESS` to store them.  You can see what this looks like
-by throwing this in a page controller: `debug($_SESSION[\'_ACCESS\']);`
+by throwing this in a page controller: `debug($_SESSION['_ACCESS']);`
 
 [[X8]]
 Specialized Controllers
@@ -1378,7 +1534,7 @@ to you, you can always extend your page controller from one of them.
 
 Currently there are only two specialized controllers.
 
-[[X8.1]]
+[[X8-1]]
 The Static Controller
 ~~~~~~~~~~~~~~~~~~~~~
 The beautiful harmony of page controllers, models, and templates can be a
@@ -1453,7 +1609,7 @@ $URLS = array(
 );
 source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-[[X8.2]]
+[[X8-2]]
 The CRUD Controller
 ~~~~~~~~~~~~~~~~~~~
 Most web developers recognize the common operations around a data entity.
@@ -1463,21 +1619,22 @@ We lovingly call them CRUD, and they stand for *Create*, *Retrieve*,
 The `Page_CRUD` class provides a generic facility to fulfill these
 operations.  It will provide the following actions:
 
-`----------------------`-------------------------------------------------
-`GET_create()`         Render a create form
-`POST_create()`        Validate and insert a new record
-`GET_edit()`           Retrieve a record and populate it into a edit form (usually same template as the create one)
-`POST_edit()`          Validate and update an existing record
-`GET_delete()`         Delete a record
-`GET_list()`           List records
-`GET_file__preview()`  If a file is associated with the record, this optional method can be used to preview it.
-`GET_file__remove()`   If a file is associated with the record, this optional method can delete it.
--------------------------------------------------------------------------
+[cols="1,1*2"]
+|========================================================================
+|`GET_create()`         |Render a create form
+|`POST_create()`        |Validate and insert a new record
+|`GET_edit()`           |Retrieve a record and populate it into a edit form (usually same template as the create one)
+|`POST_edit()`          |Validate and update an existing record
+|`GET_delete()`         |Delete a record
+|`GET_list()`           |List records
+|`GET_file__preview()`  |If a file is associated with the record, this optional method can be used to preview it.
+|`GET_file__remove()`   |If a file is associated with the record, this optional method can delete it.
+|========================================================================
 
 Of course, like any page controller, you can override these actions and/or
 add your own if the basic `Page_CRUD` ones do not fulfill your needs.
 
-[[X8.2.a]]
+[[X8-2-a]]
 Setting the Entity
 ^^^^^^^^^^^^^^^^^^
 When using `Page_CRUD`, the first thing you need to do is to tell it which
@@ -1509,9 +1666,9 @@ will render templates in the `app/templates/<entity_name>` directory.
 
 Even though `Page_CRUD` will do the controller logic for you, you still
 have to create the templates yourself, as they will certainly vary from
-entity to entity.
+entity to entity.  Use the <<X8-2-d,CRUD generator>> to automate this task.
 
-[[X8.2.b]]
+[[X8-2-b]]
 Controlling Access to Actions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Most entities should be protected by some sort of access checks.  Since
@@ -1540,19 +1697,20 @@ class pBook extends Page_CRUD
 source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 If various operations will require different access, then you can use the
-`auth_\*` methods instead.  There are three.
+`auth_*` methods instead.  There are three.
 
 .Operation-specific CRUD authentication methods
-`----------------`------------------------------------------
-`auth_create()`  Called for *create* and *edit* operations
-`auth_delete()`  Called for *delete* operations
-`auth_list()`    Called for *list* operations
-------------------------------------------------------------
+[cols="1,1*2"]
+|===========================================================
+|`auth_create()`  |Called for *create* and *edit* operations
+|`auth_delete()`  |Called for *delete* operations
+|`auth_list()`    |Called for *list* operations
+|===========================================================
 
 In some circumstances, you may actually want to block access to certain
 operations of `Page_CRUD` while allowing the rest.  There are two ways to
 do this.  You can either override the specific actions with empty methods,
-or you can change the value of `Page_CRUD::$enabled_actions`.
+or you can change the value of the `$enabled_actions` instance variable.
 
 .Disabling specific operations
 [php]
@@ -1571,7 +1729,7 @@ class pBook extends Page_CRUD
 ?>
 source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-[[X8.2.c]]
+[[X8-2-c]]
 Process Hooks
 ^^^^^^^^^^^^^
 `Page_CRUD` does a good job at covering the fundamental operations of a
@@ -1590,24 +1748,25 @@ process, but it's recommended that you consult the actual code in
 called.
 
 .CRUD process hooks
-`--------------------------------`------------------------------------
-`hook__pre_edit`                 *create*/*edit*
-`hook__failed_validation`        *create*/*edit*
-`hook__pre_save`                 *create*/*edit*
-`hook__post_save`                *create*/*edit*
-`hook_create__pre_edit`          *create*
-`hook_create__failed_validation` *create*
-`hook_edit__pre_edit`            *edit*
-`hook_edit__failed_validation`   *edit*
-`hook_insert__pre_save`          *create*
-`hook_insert__post_save`         *create*
-`hook_update__pre_save`          *update*
-`hook_update__post_save`         *update*
-`hook_delete__pre_delete`        *delete*
-`hook_delete__post_delete`       *delete*
-`hook_list__params`              *list*
-`hook_list__post_select`         *list*
-----------------------------------------------------------------------
+[cols="1,1"]
+|=====================================================================
+|`hook__pre_edit`                 |*create*/*edit*
+|`hook__failed_validation`        |*create*/*edit*
+|`hook__pre_save`                 |*create*/*edit*
+|`hook__post_save`                |*create*/*edit*
+|`hook_create__pre_edit`          |*create*
+|`hook_create__failed_validation` |*create*
+|`hook_edit__pre_edit`            |*edit*
+|`hook_edit__failed_validation`   |*edit*
+|`hook_insert__pre_save`          |*create*
+|`hook_insert__post_save`         |*create*
+|`hook_update__pre_save`          |*update*
+|`hook_update__post_save`         |*update*
+|`hook_delete__pre_delete`        |*delete*
+|`hook_delete__post_delete`       |*delete*
+|`hook_list__params`              |*list*
+|`hook_list__post_select`         |*list*
+|=====================================================================
 
 .Using process hooks
 [php]
@@ -1642,7 +1801,7 @@ class pBook extends Page_CRUD
 }
 source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-[[X8.2.d]]
+[[X8-2-d]]
 Using the CRUD generator
 ^^^^^^^^^^^^^^^^^^^^^^^^
 The `Page_CRUD` class can greatly speed up development.  While it serves
@@ -1675,19 +1834,19 @@ table.  Here is our database schema for the purposes of this example:
 .Our "books" table
 [sql]
 source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-CREATE TABLE `books` (
-    `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+CREATE TABLE "books" (
+    "id" INT UNSIGNED NOT NULL AUTO_INCREMENT,
 
-    `title` VARCHAR(128) NOT NULL,
-    `category` VARCHAR(128) NOT NULL,
-    `author` VARCHAR(128) NOT NULL,
-    `excerpt` MEDIUMTEXT NOT NULL,
+    "title" VARCHAR(128) NOT NULL,
+    "category" VARCHAR(128) NOT NULL,
+    "author" VARCHAR(128) NOT NULL,
+    "excerpt" MEDIUMTEXT NOT NULL,
 
-    `created_on` DATE NOT NULL,
-    `status` ENUM('active','deleted') NOT NULL DEFAULT 'active',
+    "created_on" DATE NOT NULL,
+    "status" ENUM('active','deleted') NOT NULL DEFAULT 'active',
 
-    PRIMARY KEY(`id`),
-    KEY(`title`)
+    PRIMARY KEY("id"),
+    KEY("title")
 ) DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
 source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -1734,7 +1893,7 @@ plugins or simply *plugins*.
 You can control which plugins are active by changing the `PLUGINS`
 and `HELPERS` values in `app/config/config.php`.
 
-To access a plugin from within a page controller, simply reference
+To access a loaded plugin from within a page controller, simply reference
 its name through `$this->plugins`.
 
 .Accessing a page plugin
@@ -1763,26 +1922,27 @@ source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 <p>Here is a link: <?php echo $html->link('Go Home', url('/')) ?></p>
 source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-[[X9.1]]
+[[X9-1]]
 Template Plugins
 ~~~~~~~~~~~~~~~~
 There are currently six helpers included with Pronto.  Each class name is
 prefixed with a `tp`.
 
 .Helpers
-`--------------`-----------------------------------------------------------
-`tpHTML`       Convenience methods for basic HTML elements: URLs, Links, JS, CSS, etc.
-`tpForm`       Generate individual form elements and full, tableless forms
-`tpTable`      Generate simple data tables and full-featured grids for record listings
-`tpAJAX`       Some AJAX-y functionality such as modal dialogs
-`tpNavigation` Generate a two-tiered, tabbed navigation menu
-`tpPager`      Generate a pager control for enumerating records
----------------------------------------------------------------------------
+[cols="1,1*4"]
+|==========================================================================
+|`tpHTML`       |Convenience methods for basic HTML elements: URLs, Links, JS, CSS, etc.
+|`tpForm`       |Generate individual form elements and full, tableless forms
+|`tpTable`      |Generate simple data tables and full-featured grids for record listings
+|`tpAJAX`       |Some AJAX-y functionality such as modal dialogs
+|`tpNavigation` |Generate a two-tiered, tabbed navigation menu
+|`tpPager`      |Generate a pager control for enumerating records
+|==========================================================================
 
 We will cover each of these in brief.  For a more thorough understanding,
 it's not a bad idea to examine the API docs or the plugin code itself.
 
-[[X9.1.a]]
+[[X9-1-a]]
 The `html` Plugin
 ^^^^^^^^^^^^^^^^^
 Most of the methods in the `html` plugin are pretty self-explanatory.  The
@@ -1821,7 +1981,7 @@ source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ?>
 source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-[[X9.1.b]]
+[[X9-1-b]]
 The `form` Plugin
 ^^^^^^^^^^^^^^^^^
 The `form` plugin is used to build fully-functional forms or to generate
@@ -1899,7 +2059,7 @@ read through the code and comments in `pronto/plugins/template/form.php`
 to see them.  Also consult the example applications provided on the Pronto
 website, as they can elucidate.
 
-[[X9.1.c]]
+[[X9-1-c]]
 The `table` Plugin
 ^^^^^^^^^^^^^^^^^^
 The `table` plugin only provides two primary methods: `build_table()` and
@@ -2009,7 +2169,7 @@ Like `tpForm::build_form()`, there are many more options available, and
 it's best to consult the API documentation, examples apps, or the code
 itself to see how they work.
 
-[[X9.1.d]]
+[[X9-1-d]]
 The `ajax` Plugin
 ^^^^^^^^^^^^^^^^^^
 The `ajax` plugin provides widgets that have an AJAX/DHTML element to
@@ -2053,7 +2213,7 @@ source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The `ajax` plugin is still in a state of flux, but its modest offering has
 already proven to be very useful for building rich user interfaces.
 
-[[X9.1.e]]
+[[X9-1-e]]
 The `navigation` Plugin
 ^^^^^^^^^^^^^^^^^^^^^^^
 The `navigation` plugin provides a simple method of defining and rendering
@@ -2094,7 +2254,7 @@ source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 <?php echo $navigation->menu() ?>
 source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-[[X9.1.f]]
+[[X9-1-f]]
 The `pager` Plugin
 ^^^^^^^^^^^^^^^^^^
 Most web applications will, at some point, need to provide some sort of
@@ -2118,7 +2278,7 @@ You can adjust the styling of the pagination control by modifying the
 `pagination` classes in `css/main.css`.
 
 
-[[X9.2]]
+[[X9-2]]
 Page Plugins
 ~~~~~~~~~~~~
 Page plugins are just like template plugins except that they operate at
@@ -2189,19 +2349,16 @@ class pBook extends Page_CRUD
 }
 source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-[[X9.3]]
+[[X9-3]]
 Custom Plugins
 ~~~~~~~~~~~~~~
-It's easy (and encouraged!) to write your own plugins for Pronto.  If they
-are useful outside your specific application, you may want to submit them
-to the Pronto Project so they can be used by others as well.
+It's easy to write your own plugins for Pronto.  To create your own
+page/template plugin, simply copy one of the existing ones to get the
+class structure, then add your own functionality.  To activate it, add
+your plugin name to the `PLUGINS` or `HELPERS` constants in
+`app/config/config.php`.
 
-To create your own page/template plugin, simply copy one of the existing
-ones to get the class structure, then add your own functionality.  To
-activate it, add your plugin name to the `PLUGINS` or
-`HELPERS` in `app/config/config.php`.
-
-[[X9.3.a]]
+[[X9-3-a]]
 Depending on other plugins
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 Like models, plugins can depend on each other for cross-functionality.
@@ -2227,7 +2384,7 @@ source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 [[X10]]
 Internationalization
 --------------------
-Pronto provides its own facility for internationalization (herein referred
+Pronto provides its own facility for internationalization (hereon referred
 to as *i18n*).  Currently it only supports string translation, but in the
 future we plan to support other forms of localization, such as date/time
 formats, currency, numbers, etc.
@@ -2258,7 +2415,7 @@ It is highly recommended that you keep the default *UTF-8* character set
 in Pronto (it is set in `app/config/config.php`), as this will ensure you
 don't run into encoding issues when changing languages.
 
-[[X10.1]]
+[[X10-1]]
 Using `__()` and `_e()`
 ~~~~~~~~~~~~~~~~~~~~~~~
 These functions both act somewhat akin to the way `printf()` style functions
@@ -2290,7 +2447,7 @@ each number.
 By using printf-style placeholders, we ensure the string itself only
 appears once in the messages file.
 
-[[X10.2]]
+[[X10-2]]
 Compiling the messages file
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Okay, so now all your strings are enclosed in `__()` or `_e()`.  The next
@@ -2340,7 +2497,7 @@ $MESSAGES = array(
 ?>
 source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-[[X10.2.a]]
+[[X10-2-a]]
 Using Google Translate for Translations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Pronto provides two scripts that use Google Translate to translate
@@ -2383,7 +2540,7 @@ Translating English to Russian...
 Translating English to Spanish...
 -----------------------------------------------------
 
-[[X10.3]]
+[[X10-3]]
 The `i18n` Class
 ~~~~~~~~~~~~~~~~
 Like the `Access` class and others, the `I18N` class is a utility-level
@@ -2438,7 +2595,7 @@ Pronto distribution code includes a sample module called `dummy` that can
 be used as a template.  There is also a module generator available in the
 `pronto/bin/generators` directory.
 
-[[X11.1]]
+[[X11-1]]
 Enabling Modules
 ~~~~~~~~~~~~~~~~
 Once you have a module you want to include in your application, you must
@@ -2448,7 +2605,7 @@ Each module typically comes with its own URL routing rules, which are
 stored in `app/modules/<module_name>/config/urls.php`.  These rules will
 be automatically prepended to the master URL routing table.
 
-[[X11.2]]
+[[X11-2]]
 Using The Module Generator
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 Like the CRUD generator, the module generator can save you a few minutes
@@ -2483,7 +2640,7 @@ supports transparent caching of data entities for which this feature is
 enabled, and also provides a generic caching facility for explicit caching
 of other data.
 
-[[X12.1]]
+[[X12-1]]
 Enabling the Cache Layer
 ~~~~~~~~~~~~~~~~~~~~~~~~
 To enable caching, you must edit `app/config/cache.php`.  In it you can
@@ -2510,7 +2667,7 @@ memory-baesd caches that will probably be faster for you.  If
 you have other caches available such as Memcache or APC, it's
 recommended to use one of those instead.
 
-[[X12.2]]
+[[X12-2]]
 Caching in Data Models
 ~~~~~~~~~~~~~~~~~~~~~~
 Pronto's data models support automatic caching at the entity level, but to
@@ -2567,7 +2724,7 @@ This is why your data models should never override `Model::get()`, only
 contains the special cache-handling logic.  If you do need to override
 `Model::get()`, then make sure to call `parent::get($id)` within it.
 
-[[X12.3]]
+[[X12-3]]
 Explicit Caching
 ~~~~~~~~~~~~~~~~
 You can also use Pronto's caching facility directly if you wish to cache
@@ -2611,7 +2768,7 @@ its desireable to be able to modify some of the underlying functionality.
 You'll rarely have to do this, but Pronto does provide a few areas that
 can be easily overridden.
 
-[[X13.1]]
+[[X13-1]]
 Overriding base functionality of Models, Pages, and Plugins
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The base classes for page controllers, data models, and plugins can be
@@ -2623,7 +2780,7 @@ The _real_ base classes are actually in the `app/core` directory, and
 they're intended to be modified by you if need be.  To add any base-level
 methods or override existing ones, simply add them to these classes.
 
-[[X13.2]]
+[[X13-2]]
 Execution Profiles
 ~~~~~~~~~~~~~~~~~~
 By now, we all know that the life of a Pronto request begins at

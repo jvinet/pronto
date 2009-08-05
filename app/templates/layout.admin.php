@@ -13,7 +13,7 @@
 	<script type="text/javascript">pronto = new Pronto("<?php echo DIR_WS_BASE ?>");</script>
 	<?php echo $html->js('jq/jquery') ?>
 	<?php echo $html->js('jq/jquery.menu') ?>
-	<?php echo $html->js('flash-purr') ?>
+	<?php echo $html->js('flash-gritter') ?>
 	<!--[if lt IE 8]><script src="http://ie7-js.googlecode.com/svn/version/2.0(beta3)/IE8.js" type="text/javascript"></script><![endif]-->
 	<script type="text/javascript">$(function(){ $('ul.nav').menu({minWidth: 120, arrowSrc: '<?php echo url('/img/icons/arrow_right.gif') ?>'});});</script>
 	<?php echo $HTML_HEAD ?>

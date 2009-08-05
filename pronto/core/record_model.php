@@ -198,6 +198,19 @@ class RecordModel_Base
 		return new RecordSelector($q, $args, $this);
 	}
 
+	/**
+	 * Same as RecordSelector::find(), except this method accepts all
+	 * query arguments in a single associative array.
+	 * 
+	 * @param string "Where" sub-query (leave blank to select all)
+	 * @param array  Additional query arguments
+	 * @return object RecordSelector object.
+	 */
+	function find_arr($q, $args=array())
+	{
+		return new RecordSelector($q, $args, $this);
+	}
+
 	/*********************************************************************
 	 * PRIMITIVES
 	 *
@@ -252,9 +265,23 @@ class RecordModel_Base
 	 *
 	 * These are the methods that will be called by other components of
 	 * the application.  These methods will then call the "cache-transparent"
-	 * methods defined below, which are the ones your model class should
-	 * override.
+	 * methods defined below  The "cache-transparent" methods are the ones
+	 * you should override.
+	 *
+	 * Don't override these, unless you know what you're doing.
 	 *********************************************************************/
+
+	/**
+	 * Return a new/fresh entity.  This method is responsible for returning
+	 * a brand new, un-edited record that will be used to prepopulate form
+	 * fields in a "Create" form for this data entity.
+	 *
+	 * @return array
+	 */
+	function create()
+	{
+		return $this->create_record();
+	}
 
 	/**
 	 * Load a full record.  This includes any additional data processing, and/or
@@ -413,6 +440,8 @@ class RecordModel_Base
 	/**
 	 * Define the enumeration schema for this model.  This describes
 	 * how Pronto can enumerate and/or search for records.
+	 *
+	 * This method may be overridden.
 	 */
 	function enum_schema()
 	{

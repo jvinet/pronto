@@ -81,7 +81,7 @@ class tpAJAX extends Plugin
 		$js .= "$('#$dlg_id').removeAttr('style').removeAttr('class');";
 		$js .= "$('#$dlg_id').addClass('dialog-content');";
 		$js .= "$('#$dlg_id').attr('id', '').parent().attr('id', '$dlg_id');"; // move ID up to parent
-		$js .= "$('#$dlg_id').find('.dialog-tb').append($('#$dlg_id').find('.dialog-content').attr('title'));";
+		$js .= "$('#$dlg_id').find('.dialog-tb').append('<span>'+$('#$dlg_id').find('.dialog-content').attr('title')+'</span>');";
 		$js .= "$('#$dlg_id').find('.dialog-content').append('$btn_html');";
 		$js .= $btn_js;
 

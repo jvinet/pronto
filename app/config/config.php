@@ -10,7 +10,7 @@ define('CHARSET', 'UTF-8');
 /*
  * Mail Settings
  */
-define('SMTP_HOST', 'smtp.eastlink.ca');
+define('SMTP_HOST', '');
 define('SMTP_USER', '');
 define('SMTP_PASS', '');
 
@@ -64,7 +64,7 @@ define('DIR_FS_APP',    DIR_FS_BASE.DS.'app');
  */
 define('PLUGINS', 'mailer image file os');
 define('HELPERS', 'html form table pager navigation ajax');
-define('MODULES', 'user');
+define('MODULES', 'user cms');
 
 /*
  * Cache Settings

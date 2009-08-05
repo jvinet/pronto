@@ -55,8 +55,8 @@ open:function(s,t,p){var h=H[s],c=h.c,cc='.'+c.closeClass,z=(parseInt(h.w.css('z
  // Pronto
  if(p) {
    h.w.css({
-    'top': parseInt($(window).height()/2 - h.w.height()/2) + $(window).scrollTop(),
-    'left': parseInt($(window).width()/2 - h.w.width()/2) + $(window).scrollLeft()
+    'top': Math.max(0,parseInt($(window).height()/2 - h.w.height()/2) + $(window).scrollTop()),
+    'left': Math.max(0,parseInt($(window).width()/2 - h.w.width()/2) + $(window).scrollLeft())
    });
  }
 

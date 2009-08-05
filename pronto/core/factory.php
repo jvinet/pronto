@@ -20,7 +20,7 @@
 /**
  * The current version of Pronto.
  */
-define('PRONTO_VERSION', '0.7');
+define('PRONTO_VERSION', '0.6');
 
 class Factory
 {

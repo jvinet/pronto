@@ -36,18 +36,19 @@ div.popup div.buttons {
 .dialog-close {
 	cursor: pointer;
 	float: right;
+	padding-right: 5px;
 }
 .dialog-tb {
 	background-color: #9fdcff;
 	color: #00a;
 	width: 100%;
-	margin: 4px;
-	padding: 4px;
+	margin: 0;
+	padding: 5px 0;
 	font-size: 8pt;
 	cursor: move;
 }
-.dialog-content {
-	margin: 8px 4px 4px 4px;
+.dialog-tb span {
+	padding-left: 5px;
 }
 img.dialog-resize {
 	position: absolute;
@@ -62,3 +63,12 @@ div.dialog div.buttons {
 	right: 0;
 }
 .jqmOverlay { background-color: #000; }
+
+.dialog-content {
+	margin: 8px 4px 4px 4px;
+}
+.dialog-content input:focus,
+.dialog-content textarea:focus,
+.dialog-content select:focus {
+	background-color: #fff !important;
+}

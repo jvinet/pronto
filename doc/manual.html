@@ -3,7 +3,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="generator" content="AsciiDoc 8.2.7" />
+<meta name="generator" content="AsciiDoc 8.4.5" />
+<title>PRONTO WEB FRAMEWORK</title>
 <style type="text/css">
 /* Debug borders */
 p, li, dt, dd, div, pre, h1, h2, h3, h4, h5, h6 {
@@ -90,7 +91,7 @@ span#author {
 }
 span#email {
 }
-span#revision {
+span#revnumber, span#revdate, span#revremark {
   font-family: sans-serif;
 }
 
@@ -110,11 +111,13 @@ div#footer-badges {
   padding-bottom: 0.5em;
 }
 
-div#preamble,
+div#preamble {
+  margin-top: 1.5em;
+  margin-bottom: 1.5em;
+}
 div.tableblock, div.imageblock, div.exampleblock, div.verseblock,
 div.quoteblock, div.literalblock, div.listingblock, div.sidebarblock,
 div.admonitionblock {
-  margin-right: 10%;
   margin-top: 1.5em;
   margin-bottom: 1.5em;
 }
@@ -156,9 +159,6 @@ div.sidebarblock > div.content {
   padding: 0.5em;
 }
 
-div.listingblock {
-  margin-right: 0%;
-}
 div.listingblock > div.content {
   border: 1px solid silver;
   background: #f4f4f4;
@@ -167,6 +167,7 @@ div.listingblock > div.content {
 
 div.quoteblock {
   padding-left: 2.0em;
+  margin-right: 10%;
 }
 div.quoteblock > div.attribution {
   padding-top: 0.5em;
@@ -175,6 +176,7 @@ div.quoteblock > div.attribution {
 
 div.verseblock {
   padding-left: 2.0em;
+  margin-right: 10%;
 }
 div.verseblock > div.content {
   white-space: pre;
@@ -207,8 +209,8 @@ div.exampleblock > div.content {
 }
 
 div.imageblock div.content { padding-left: 0; }
-div.imageblock img { border: 1px solid silver; }
 span.image img { border-style: none; }
+a.image:visited { color: white; }
 
 dl {
   margin-top: 0.8em;
@@ -218,6 +220,7 @@ dt {
   margin-top: 0.5em;
   margin-bottom: 0;
   font-style: normal;
+  color: navy;
 }
 dd > *:first-child {
   margin-top: 0.1em;
@@ -226,11 +229,27 @@ dd > *:first-child {
 ul, ol {
     list-style-position: outside;
 }
-div.olist > ol {
+ol.arabic {
   list-style-type: decimal;
 }
-div.olist2 > ol {
+ol.loweralpha {
   list-style-type: lower-alpha;
+}
+ol.upperalpha {
+  list-style-type: upper-alpha;
+}
+ol.lowerroman {
+  list-style-type: lower-roman;
+}
+ol.upperroman {
+  list-style-type: upper-roman;
+}
+
+div.compact ul, div.compact ol,
+div.compact p, div.compact p,
+div.compact div, div.compact div {
+  margin-top: 0.1em;
+  margin-bottom: 0.1em;
 }
 
 div.tableblock > table {
@@ -243,21 +262,52 @@ thead {
 tfoot {
   font-weight: bold;
 }
+td > div.verse {
+  white-space: pre;
+}
+p.table {
+  margin-top: 0;
+}
+/* Because the table frame attribute is overriden by CSS in most browsers. */
+div.tableblock > table[frame="void"] {
+  border-style: none;
+}
+div.tableblock > table[frame="hsides"] {
+  border-left-style: none;
+  border-right-style: none;
+}
+div.tableblock > table[frame="vsides"] {
+  border-top-style: none;
+  border-bottom-style: none;
+}
 
-div.hlist {
+
+div.hdlist {
   margin-top: 0.8em;
   margin-bottom: 0.8em;
 }
-div.hlist td {
+div.hdlist tr {
   padding-bottom: 15px;
 }
-td.hlist1 {
+dt.hdlist1.strong, td.hdlist1.strong {
+  font-weight: bold;
+}
+td.hdlist1 {
   vertical-align: top;
   font-style: normal;
   padding-right: 0.8em;
+  color: navy;
 }
-td.hlist2 {
+td.hdlist2 {
   vertical-align: top;
+}
+div.hdlist.compact tr {
+  margin: 0;
+  padding-bottom: 0;
+}
+
+.comment {
+  background: yellow;
 }
 
 @media print {
@@ -330,128 +380,46 @@ div.exampleblock-content {
 
 /* IE6 sets dynamically generated links as visited. */
 div#toc a:visited { color: blue; }
-
-/* Because IE6 child selector is broken. */
-div.olist2 ol {
-  list-style-type: lower-alpha;
-}
-div.olist2 div.olist ol {
-  list-style-type: decimal;
-}
 </style>
-<script type="text/javascript">
-/*<![CDATA[*/
-window.onload = function(){generateToc(3)}
-/* Author: Mihai Bazon, September 2002
- * http://students.infoiasi.ro/~mishoo
- *
- * Table Of Content generator
- * Version: 0.4
- *
- * Feel free to use this script under the terms of the GNU General Public
- * License, as long as you do not remove or alter this notice.
- */
-
- /* modified by Troy D. Hanson, September 2006. License: GPL */
- /* modified by Stuart Rackham, October 2006. License: GPL */
-
-function getText(el) {
-  var text = "";
-  for (var i = el.firstChild; i != null; i = i.nextSibling) {
-    if (i.nodeType == 3 /* Node.TEXT_NODE */) // IE doesn't speak constants.
-      text += i.data;
-    else if (i.firstChild != null)
-      text += getText(i);
-  }
-  return text;
-}
-
-function TocEntry(el, text, toclevel) {
-  this.element = el;
-  this.text = text;
-  this.toclevel = toclevel;
-}
-
-function tocEntries(el, toclevels) {
-  var result = new Array;
-  var re = new RegExp('[hH]([2-'+(toclevels+1)+'])');
-  // Function that scans the DOM tree for header elements (the DOM2
-  // nodeIterator API would be a better technique but not supported by all
-  // browsers).
-  var iterate = function (el) {
-    for (var i = el.firstChild; i != null; i = i.nextSibling) {
-      if (i.nodeType == 1 /* Node.ELEMENT_NODE */) {
-        var mo = re.exec(i.tagName)
-        if (mo)
-          result[result.length] = new TocEntry(i, getText(i), mo[1]-1);
-        iterate(i);
-      }
-    }
-  }
-  iterate(el);
-  return result;
-}
-
-// This function does the work. toclevels = 1..4.
-function generateToc(toclevels) {
-  var toc = document.getElementById("toc");
-  var entries = tocEntries(document.getElementsByTagName("body")[0], toclevels);
-  for (var i = 0; i < entries.length; ++i) {
-    var entry = entries[i];
-    if (entry.element.id == "")
-      entry.element.id = "toc" + i;
-    var a = document.createElement("a");
-    a.href = "#" + entry.element.id;
-    a.appendChild(document.createTextNode(entry.text));
-    var div = document.createElement("div");
-    div.appendChild(a);
-    div.className = "toclevel" + entry.toclevel;
-    toc.appendChild(div);
-  }
-  if (entries.length == 0)
-    document.getElementById("header").removeChild(toc);
-}
-/*]]>*/
-</script>
-<title>PRONTO WEB FRAMEWORK</title>
 </head>
 <body>
 <div id="header">
 <h1>PRONTO WEB FRAMEWORK</h1>
 <span id="author">Judd Vinet</span><br />
 <span id="email"><tt>&lt;<a href="mailto:jvinet@zeroflux.org">jvinet@zeroflux.org</a>&gt;</tt></span><br />
-<span id="revision">version 0.5,</span>
-September 2008
-<div id="toc">
-  <div id="toctitle">Table of Contents</div>
-  <noscript><p><b>JavaScript must be enabled in your browser to display the table of contents.</b></p></noscript>
-</div>
+<span id="revnumber">version 0.6,</span>
+<span id="revdate">August 2009</span>
 </div>
 <div id="preamble">
 <div class="sectionbody">
 </div>
 </div>
-<h2 id="X0">1. Quick Start</h2>
+<h2 id="X0">Quick Start</h2>
 <div class="sectionbody">
-<div class="para"><p>Most of this manual will be long and boring, so for those of you who
+<div class="paragraph"><p>Most of this manual will be long and boring, so for those of you who
 already know everything about everything, here are the barebones steps
 necessary to get Pronto up and running.</p></div>
-<div class="para"><p>We'll assume you're using MySQL and Apache.  Also, make sure AllowOverrides
+<div class="paragraph"><p>We&#8217;ll assume you&#8217;re using MySQL and Apache.  Also, make sure AllowOverrides
 is enabled for your Pronto directory, so Apache will honor the .htaccess
 files within.</p></div>
-<div class="olist"><ol>
+<div class="olist arabic"><ol class="arabic">
 <li>
 <p>
 Untar the Pronto archive into your web root or a subdirectory thereof.
-   We'll assume <tt>/var/www/html/pronto</tt>.
+   We&#8217;ll assume <tt>/var/www/html/pronto</tt>.
 </p>
 </li>
 <li>
 <p>
-Create a database for Pronto, then edit <tt>app/config/config.php</tt> and
-   change the <tt>DB_*</tt> constants near the top to match the access credentials
-   for your new Pronto database.  Then change the <tt>DIR_*_BASE</tt> constants
-   to match the location of your Pronto installation.
+Edit <tt>app/config/config.php</tt> and change the <tt>DIR_*_BAE</tt> constants to
+   match the location of your Pronto installation.
+</p>
+</li>
+<li>
+<p>
+Create a database for Pronto, then edit <tt>app/config/databses.php</tt> and
+   change the settings to match the access credentials for your new Pronto
+   database.
 </p>
 </li>
 <li>
@@ -467,40 +435,41 @@ Point your browser to the Pronto directory, eg,
 </p>
 </li>
 </ol></div>
-<div class="para"><p>That's it!  You should see a Pronto web page staring you in the face.</p></div>
+<div class="paragraph"><p>That&#8217;s it!  You should see a Pronto web page staring you in the face.</p></div>
 <div class="listingblock">
-<div class="title">Example: Setting up Pronto</div>
+<div class="title">Setting up Pronto</div>
 <div class="content">
 <pre><tt>$ cd /var/www/html
 $ tar zxf ~/pronto.tar.gz
 $ cd pronto/app
 $ vi config/config.php
+$ vi config/databases.php
 $ mysqladmin -u root create pronto
-$ php ../pronto/bin/load_schemas.php -c
+$ php ../pronto/bin/load_schemas.php -a
 $ firefox http://localhost/pronto/</tt></pre>
 </div></div>
 </div>
-<h2 id="X1">2. Philosophy</h2>
+<h2 id="X1">Philosophy</h2>
 <div class="sectionbody">
-<div class="para"><p>Like most web frameworks, Pronto is designed to ease the development of
+<div class="paragraph"><p>Like most web frameworks, Pronto is designed to ease the development of
 web applications by eliminating redundant code and promoting a logical
 separation of application logic, business logic, and presentation.</p></div>
-<div class="para"><p>Pronto strives to maintain a loosely-coupled set of components that,
+<div class="paragraph"><p>Pronto strives to maintain a loosely-coupled set of components that,
 when combined, form a a powerful web development stack.  The reasoning
 behind our "loosely-coupled" mandate is that this encourages Pronto
 to <em>assist</em> the developer, not take over for her.  If a developer prefers
 to forgo some of the facilities provided by Pronto, it should be
 relatively easy for her to do so, without having to step out of the
 framework entirely.</p></div>
-<div class="para"><p>Keep this in mind as you learn the framework.  It's entirely probable
+<div class="paragraph"><p>Keep this in mind as you learn the framework.  It&#8217;s entirely probable
 that, as you delve into it, you will find aspects that you will never use.
 Just ignore them and carry on with your business.  They are present
 because they are useful to some developers.</p></div>
 </div>
-<h2 id="X2">3. Components</h2>
+<h2 id="X2">Components</h2>
 <div class="sectionbody">
-<div class="para"><p>There are four core elements to Pronto.</p></div>
-<div class="ilist"><div class="title">Core Elements:</div><ul>
+<div class="paragraph"><p>There are four core elements to Pronto.</p></div>
+<div class="ulist"><div class="title">Core Elements:</div><ul>
 <li>
 <p>
 Dispatcher
@@ -522,25 +491,25 @@ Template
 </p>
 </li>
 </ul></div>
-<div class="para"><p>Pronto also has plugin support for some layers.</p></div>
-<div class="ilist"><div class="title">Plugins:</div><ul>
+<div class="paragraph"><p>Pronto also has plugin support for some layers.</p></div>
+<div class="ulist"><div class="title">Plugins:</div><ul>
 <li>
 <p>
-Page-level Plugins (aka "plugins")
+Controller Plugins (aka "plugins")
 </p>
 </li>
 <li>
 <p>
-Template-level Plugins (aka "helpers")
+Template Plugins (aka "helpers")
 </p>
 </li>
 </ul></div>
-<div class="para"><p>Underneath the four high-level components, there are additional elements
+<div class="paragraph"><p>Underneath the four high-level components, there are additional elements
 that support the framework.</p></div>
-<div class="ilist"><div class="title">Utility Elements:</div><ul>
+<div class="ulist"><div class="title">Utility Elements:</div><ul>
 <li>
 <p>
-DB Abstraction (with protection for SQL injection)
+Database Abstraction (with protection for SQL injection)
 </p>
 </li>
 <li>
@@ -580,10 +549,10 @@ Factory for creating new objects
 </li>
 </ul></div>
 </div>
-<h2 id="X3">4. The Dispatcher</h2>
+<h2 id="X3">The Dispatcher</h2>
 <div class="sectionbody">
-<h3 id="_the_life_of_a_web_request">4.1. The Life of a Web Request</h3><div style="clear:left"></div>
-<div class="para"><p>The following diagram outlines the typical flow of execution when a web
+<h3 id="_the_life_of_a_web_request">The Life of a Web Request</h3><div style="clear:left"></div>
+<div class="paragraph"><p>The following diagram outlines the typical flow of execution when a web
 request is received:</p></div>
 <div class="literalblock">
 <div class="content">
@@ -593,18 +562,18 @@ request is received:</p></div>
        |              |                v  |              v
        +--&gt; Execution Profile       Data Model       Web Browser</tt></pre>
 </div></div>
-<div class="para"><p>The dispatcher is the traffic cop.  It examines the request URI and
+<div class="paragraph"><p>The dispatcher is the traffic cop.  It examines the request URI and
 decides which page controller it should pass control to, based on a
 series of regular expressions that define the URL&#8594;Controller mapping.
 The URL map is set in <tt>app/config/urls.php</tt>.</p></div>
-<h3 id="_the_tt_web_tt_object">4.2. The <tt>$web</tt> object</h3><div style="clear:left"></div>
-<div class="para"><p>There is exactly one dispatch object at any point in the framework, and it
+<h3 id="X3-2">The <tt>$web</tt> object</h3><div style="clear:left"></div>
+<div class="paragraph"><p>There is exactly one dispatch object at any point in the framework, and it
 is typically referred to as <tt>$web</tt>.  The dispatcher receives control from
 the <strong>web</strong> execution profile and is charged with the task of determining
 which page controller it should pass control to.</p></div>
-<div class="para"><p>The dispatcher also provides many lower-level facilities to controllers
+<div class="paragraph"><p>The dispatcher also provides many lower-level facilities to controllers
 and plugins, such as:</p></div>
-<div class="ilist"><ul>
+<div class="ulist"><ul>
 <li>
 <p>
 context (information about the web request)
@@ -612,12 +581,7 @@ context (information about the web request)
 </li>
 <li>
 <p>
-non-standard status code messages (403, 404)
-</p>
-</li>
-<li>
-<p>
-an error handler (typically only used in debug mode)
+non-standard status code messages (403, 404, 500)
 </p>
 </li>
 <li>
@@ -636,14 +600,14 @@ debug messages
 </p>
 </li>
 </ul></div>
-<h3 id="_url_configuration">4.3. URL Configuration</h3><div style="clear:left"></div>
-<div class="para"><p>Despite the numerous facilities the dispatcher provides, its core mission
+<h3 id="X3-3">URL Configuration</h3><div style="clear:left"></div>
+<div class="paragraph"><p>Despite the numerous facilities the dispatcher provides, its core mission
 is to direct control to the proper page controller.  This is configured
 using an array that maps URL patterns to their respective page
 controllers.</p></div>
 <div class="listingblock">
-<div class="title">Example: URL Routing</div>
-<div class="content"><!-- Generator: GNU source-highlight 2.9
+<div class="title">URL Routing</div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1
 by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
@@ -655,36 +619,35 @@ http://www.gnu.org/software/src-highlite -->
         <span style="color: #FF0000">'/logout/'</span>         <span style="color: #990000">=&gt;</span> <span style="font-weight: bold"><span style="color: #0000FF">array</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'User'</span><span style="color: #990000">,</span><span style="color: #FF0000">'logout'</span><span style="color: #990000">),</span>
 
         <span style="color: #FF0000">'/'</span>                <span style="color: #990000">=&gt;</span> <span style="color: #FF0000">'Home'</span>
-<span style="color: #990000">);</span>
-</tt></pre></div></div>
-<div class="para"><p>As the example suggests, each key in the <tt>$URLS</tt> associative array is a
+<span style="color: #990000">);</span></tt></pre></div></div>
+<div class="paragraph"><p>As the example suggests, each key in the <tt>$URLS</tt> associative array is a
 regular expression, and each value in the array is either the name of a
 specific controller class (string) or the name of a specific action within
 a specific controller class (array).</p></div>
-<div class="para"><p>When routing a request, the dispatcher will choose the first array element
+<div class="paragraph"><p>When routing a request, the dispatcher will choose the first array element
 that matches the current URL being requested.  If the target is an entire
-controller (such as the <tt>/user/(.*)</tt> and <tt>/book(.*)</tt> examples above) then
+controller (such as the <tt>/user/(.\*)</tt> and <tt>/book(.\*)</tt> examples above) then
 the portion of the regular expression surrounded by parentheses will be
 used to determine the action handler to be called within the page
 controller.</p></div>
-<div class="para"><p>For example, if the browser issues a GET request to <tt>/user/list</tt> then
+<div class="paragraph"><p>For example, if the browser issues a GET request to <tt>/user/list</tt> then
 the dispatcher will match the first rule in the <tt>$URLS</tt> array.  It will
 then see that the <tt>list</tt> portion of the URL is the action handler
 requested, and will dispatch a request to <tt>pUser::GET_list()</tt>.</p></div>
-<div class="para"><p>If the action handler requested does not exist in the class, then the
+<div class="paragraph"><p>If the action handler requested does not exist in the class, then the
 dispatcher will look for a "catch-all" handler for that request type.  For
 example, if the browser issues a POST request for <tt>/user/list</tt> and the
 dispatcher cannot find a <tt>pUser::POST_list()</tt> method, then it will look
 for a <tt>pUser::POST()</tt> method instead.</p></div>
-<h4 id="_named_subpatterns">4.3.1. Named Subpatterns</h4>
-<div class="para"><p>While most URL routes use the basic <tt>(.<strong>)</tt> subpattern, it is possible to
-use more.  One such use is a *named subpattern</strong>, which binds the
+<h4 id="X3-3-a">Named Subpatterns</h4>
+<div class="paragraph"><p>While most URL routes use the basic <tt>(.*)</tt> subpattern, it is possible to
+use more.  One such use is a <strong>named subpattern</strong>, which binds the
 subpattern to a name.  When a route matches, Pronto will merge the values
 of the named subpatterns into the standard request argument list
-(see <a href="#X4.2.1">Where Input Variables Come From</a>).</p></div>
+(see <a href="#X4-2-1">Where Input Variables Come From</a>).</p></div>
 <div class="listingblock">
-<div class="title">Example: Using named subpatterns</div>
-<div class="content"><!-- Generator: GNU source-highlight 2.9
+<div class="title">Using named subpatterns</div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1
 by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
@@ -693,30 +656,29 @@ http://www.gnu.org/software/src-highlite -->
         <span style="color: #FF0000">'/blog/(?&lt;name&gt;[^/]+)/(.*)'</span> <span style="color: #990000">=&gt;</span> <span style="color: #FF0000">'Blog'</span><span style="color: #990000">,</span>
 
         <span style="color: #FF0000">'/'</span> <span style="color: #990000">=&gt;</span> <span style="color: #FF0000">'Home'</span>
-<span style="color: #990000">);</span>
-</tt></pre></div></div>
-<h3 id="_generating_urls">4.4. Generating URLs</h3><div style="clear:left"></div>
-<div class="para"><p>Throughout any web application, you're going to need to create links and
+<span style="color: #990000">);</span></tt></pre></div></div>
+<h3 id="X3-4">Generating URLs</h3><div style="clear:left"></div>
+<div class="paragraph"><p>Throughout any web application, you&#8217;re going to need to create links and
 forms that send the browser to other areas of the application.  The
 simplest method is to just hardcode these URLs into your application (eg,
 <tt>&lt;a href="/pronto/user/create"&gt;Create a User&lt;/a&gt;</tt>).</p></div>
-<div class="para"><p>But what if the application gets installed to a different sub-directory
+<div class="paragraph"><p>But what if the application gets installed to a different sub-directory
 than <tt>/pronto</tt>?  Or what if you decide to move all user management to
 <tt>/admin/user</tt> instead of <tt>/user</tt>?  Then you have to update all your code
 to reflect the change.</p></div>
-<div class="para"><p>Pronto's solution is contained within the globally-accessible <tt>url()</tt>
+<div class="paragraph"><p>Pronto&#8217;s solution is contained within the globally-accessible <tt>url()</tt>
 function.  This function works in two contexts.</p></div>
-<h4 id="_url_fragments">4.4.1. URL Fragments</h4>
-<div class="para"><p>In the first context, you simply pass it the relative URL fragment, and it
+<h4 id="X3-4-a">URL Fragments</h4>
+<div class="paragraph"><p>In the first context, you simply pass it the relative URL fragment, and it
 will resolve it into the full relative URL, including any sub-directory in
 which your application is installed.  For example, if the application is
-accessible via <tt>http://localhost/blog</tt>, then calling <tt>url('/user/create')</tt>
+accessible via <tt>http://localhost/blog</tt>, then calling <tt>url(\'/user/create\')</tt>
 will return <tt>/blog/user/create</tt>.</p></div>
-<div class="para"><p>Simple enough, but this only solves the problem of a varying install
+<div class="paragraph"><p>Simple enough, but this only solves the problem of a varying install
 location.  What if you decide to change the URL location of your <tt>User</tt>
 controller from <tt>/user</tt> to <tt>/admin/user</tt>?</p></div>
-<h4 id="_controller_action_tuples">4.4.2. Controller/Action Tuples</h4>
-<div class="para"><p>The second context handles this.  If you pass the <tt>url()</tt> function two
+<h4 id="X3-4-b">Controller/Action Tuples</h4>
+<div class="paragraph"><p>The second context handles this.  If you pass the <tt>url()</tt> function two
 parameters, the controller and the action, then it will use these to
 search through your URL route configuration (set in
 <tt>app/config/urls.php</tt>).  Once it finds the correct URL route that matches
@@ -724,27 +686,27 @@ the controller/action tuple, it will return it.  Basically, the function
 is using your URL map <em>backwards</em>, looking through the <strong>values</strong> for a
 matching controller/action tuple, then returning the associated <strong>key</strong> when
 a match is found.</p></div>
-<div class="para"><p>Adapting our former example, we now have this: <tt>url('User','create')</tt>.
+<div class="paragraph"><p>Adapting our former example, we now have this: <tt>url(\'User\',\'create\')</tt>.
 This call would return the same code as the last one
 (<tt>/blog/user/create</tt>).  But, if we alter our URL routes to point the
 <strong>User</strong> controller to <tt>/admin/user</tt> instead, our new <tt>url()</tt> call will
 see this and return the new URL automatically.</p></div>
-<div class="para"><p>If you need to generate an absolute URL instead, you can use the sister
+<div class="paragraph"><p>If you need to generate an absolute URL instead, you can use the sister
 function <tt>absolute_url()</tt>.  It does the same thing, but returns a full
 URL, which can be useful when sending out links to external sources, such
 as an email recipient.</p></div>
 </div>
-<h2 id="X4">5. Page Controllers</h2>
+<h2 id="X4">Page Controllers</h2>
 <div class="sectionbody">
-<div class="para"><p>The page controller is where most of your application logic will go.  They
+<div class="paragraph"><p>The page controller is where most of your application logic will go.  They
 are typically organized by the data entities they operate on, or a common
 theme of functionality.  For example, one page controller may be
 responsible for allowing a user to register an account, login, change
 his/her password, etc.  Another page controller may be used to manipulate
 blog posts, post comments, or both.</p></div>
-<div class="para"><p>A page controller will receive control from the dispatcher and is
+<div class="paragraph"><p>A page controller will receive control from the dispatcher and is
 responsible for a few things:</p></div>
-<div class="ilist"><ul>
+<div class="ulist"><ul>
 <li>
 <p>
 processing GET/POST input variables
@@ -771,20 +733,20 @@ rendering templates or redirecting to new URLs
 </p>
 </li>
 </ul></div>
-<div class="para"><p>Page controllers are located in the <tt>app/pages</tt> directory.  Each
+<div class="paragraph"><p>Page controllers are located in the <tt>app/pages</tt> directory.  Each
 controller class name will be prefixed with a lowercase <strong>p</strong>, followed by
 the name of the controller itself.  The file itself can technically be
 named anything you like, but conventionally it shares the same name as the
 controller.  For example, the <tt>User</tt> page would have a class name of
 <tt>pUser</tt> and would be located in <tt>app/pages/user.php</tt>.</p></div>
-<h3 id="_controller_action_handlers">5.1. Controller Action Handlers</h3><div style="clear:left"></div>
-<div class="para"><p>Within each page controller are a number of methods called <strong>action
+<h3 id="X4-1">Controller Action Handlers</h3><div style="clear:left"></div>
+<div class="paragraph"><p>Within each page controller are a number of methods called <strong>action
 handlers</strong>.  These methods are responsible for performing the logic
 required for the request(s) they are linked to.</p></div>
-<div class="para"><p>To elucidate, let's begin with a simple example of a page controller.</p></div>
+<div class="paragraph"><p>To elucidate, let&#8217;s begin with a simple example of a page controller.</p></div>
 <div class="listingblock">
-<div class="title">Example: A basic Page Controller</div>
-<div class="content"><!-- Generator: GNU source-highlight 2.9
+<div class="title">A basic Page Controller</div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1
 by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
@@ -802,36 +764,35 @@ http://www.gnu.org/software/src-highlite -->
                 <span style="color: #009900">$this</span><span style="color: #990000">-&gt;</span><span style="font-weight: bold"><span style="color: #000000">render</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'user/hello.php'</span><span style="color: #990000">);</span>
         <span style="color: #FF0000">}</span>
 <span style="color: #FF0000">}</span>
-<span style="color: #990000">?&gt;</span>
-</tt></pre></div></div>
-<div class="para"><p>Notice that action handler methods are prefixed with the type of HTTP
+<span style="color: #990000">?&gt;</span></tt></pre></div></div>
+<div class="paragraph"><p>Notice that action handler methods are prefixed with the type of HTTP
 request that was issued.  This separation concept is adopted from the
 WebPY framework and its subsequent PHP clone, WebPHP.</p></div>
-<div class="para"><p>While at first glance this may seem tedious, it actually proves to be a
+<div class="paragraph"><p>While at first glance this may seem tedious, it actually proves to be a
 very effective way of logically separating your processes based on the
 type of request.  Take a minute and think about the typical uses for a GET
 and POST, especially when handling form data.  The GET request is
 responsible for GETting the record, populating the form, and showing it to
 the visitor.  The POST request receives input back from the user and is in
 charge of validating and possibly updating the record.</p></div>
-<div class="para"><p>There have been many PHP projects and frameworks that will use a GET/POST
+<div class="paragraph"><p>There have been many PHP projects and frameworks that will use a GET/POST
 variable such as <tt>$op</tt> or <tt>$action</tt> to denote the current mode being
-requested (eg, <tt>if($op == 'edit') {} else if($op == 'update') {}</tt>).</p></div>
-<div class="para"><p>By splitting our logic into separate methods, we avoid the cumbersome
+requested (eg, <tt>if($op == \'edit\') {} else if($op == \'update\') {}</tt>).</p></div>
+<div class="paragraph"><p>By splitting our logic into separate methods, we avoid the cumbersome
 <tt>$action</tt> variable entirely.  As a bonus, we can easily hook into other,
-lesser-used HTTP verbs if need be.  For example, if you're writing an
+lesser-used HTTP verbs if need be.  For example, if you&#8217;re writing an
 RSS-friendly blog, you may want to implement a HEAD request for your blog,
 as some readers will use this to retrieve the <tt>Last-Modified</tt> header or the
-<tt>E-Tag</tt> header.  Or perhaps you'd like to write a RESTful API and need to
+<tt>E-Tag</tt> header.  Or perhaps you&#8217;d like to write a RESTful API and need to
 leverage the PUT and DELETE verbs.</p></div>
-<h3 id="_parameters">5.2. Parameters</h3><div style="clear:left"></div>
-<div class="para"><p>Before we talk about retrieving input data, let's see where it comes from
+<h3 id="X4-2">Parameters</h3><div style="clear:left"></div>
+<div class="paragraph"><p>Before we talk about retrieving input data, let&#8217;s see where it comes from
 and how Pronto deals with it.</p></div>
-<h4 id="_where_input_variables_come_from">5.2.1. Where Input Variables Come From</h4>
-<div class="para"><p>Before passing control to a page controller, the dispatcher will collect
+<h4 id="X4-2-a">Where Input Variables Come From</h4>
+<div class="paragraph"><p>Before passing control to a page controller, the dispatcher will collect
 data from a few different places.  They are listed here, in order of
 precedence.  Latter entries override previous ones.</p></div>
-<div class="ilist"><div class="title">Input Data: Sources</div><ul>
+<div class="ulist"><div class="title">Input Data: Sources</div><ul>
 <li>
 <p>
 URL arguments (eg, <tt>/user/123/edit</tt>)
@@ -853,13 +814,13 @@ Parameters from the URL route (defined in <tt>app/config/urls.php</tt>)
 </p>
 </li>
 </ul></div>
-<h4 id="_retrieving_input_data">5.2.2. Retrieving Input Data</h4>
-<div class="para"><p>There are a few ways to collect GET/POST data from within a controller.
+<h4 id="X4-2-b">Retrieving Input Data</h4>
+<div class="paragraph"><p>There are a few ways to collect GET/POST data from within a controller.
 The first method is through the use of two convenience methods in the
 base <tt>Page</tt> class.</p></div>
 <div class="listingblock">
-<div class="title">Example: Retrieving and Setting parameters</div>
-<div class="content"><!-- Generator: GNU source-highlight 2.9
+<div class="title">Retrieving and Setting parameters</div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1
 by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
@@ -873,16 +834,15 @@ http://www.gnu.org/software/src-highlite -->
                 <span style="color: #009900">$this</span><span style="color: #990000">-&gt;</span><span style="font-weight: bold"><span style="color: #000000">render</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'user/hello.php'</span><span style="color: #990000">);</span>
         <span style="color: #FF0000">}</span>
 <span style="color: #FF0000">}</span>
-<span style="color: #990000">?&gt;</span>
-</tt></pre></div></div>
-<div class="para"><p><tt>Page::param()</tt> is the quickest way to grab a specific parameter from the
+<span style="color: #990000">?&gt;</span></tt></pre></div></div>
+<div class="paragraph"><p><tt>Page::param()</tt> is the quickest way to grab a specific parameter from the
 input data.  If the variable requested is blank or
 does not exist, then the second parameter will be used as a default.</p></div>
-<div class="para"><p>If you'd like to load the entire input data set into an associative
+<div class="paragraph"><p>If you&#8217;d like to load the entire input data set into an associative
 array, then you can use <tt>Page::load_input()</tt>.</p></div>
 <div class="listingblock">
-<div class="title">Example: Retrieving all parameters with <tt>Page::load_input()</tt></div>
-<div class="content"><!-- Generator: GNU source-highlight 2.9
+<div class="title">Retrieving all parameters with <tt>Page::load_input()</tt></div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1
 by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
@@ -896,24 +856,23 @@ http://www.gnu.org/software/src-highlite -->
                 <span style="color: #009900">$this</span><span style="color: #990000">-&gt;</span><span style="font-weight: bold"><span style="color: #000000">render</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'user/hello.php'</span><span style="color: #990000">);</span>
         <span style="color: #FF0000">}</span>
 <span style="color: #FF0000">}</span>
-<span style="color: #990000">?&gt;</span>
-</tt></pre></div></div>
-<div class="para"><p>Of course, you're free to access variables directly through the <tt>$_GET</tt>
+<span style="color: #990000">?&gt;</span></tt></pre></div></div>
+<div class="paragraph"><p>Of course, you&#8217;re free to access variables directly through the <tt>$_GET</tt>
 and <tt>$_POST</tt> superglobals, but Pronto will take care of any <tt>magic_quotes</tt>
 nonsense if you go through the Page class.</p></div>
-<h3 id="_wildcard_handlers_inline_variables">5.3. Wildcard Handlers, Inline Variables</h3><div style="clear:left"></div>
-<div class="para"><p>Using <a href="#X3.3.1">named subpatterns</a> is one way to use URLs that contain
+<h3 id="X4-3">Wildcard Handlers, Inline Variables</h3><div style="clear:left"></div>
+<div class="paragraph"><p>Using <a href="#X3-3-1">named subpatterns</a> is one way to use URLs that contain
 variables <em>inline</em>, ie, variables occur in the URL path itselt, not in
 the query string.</p></div>
-<div class="para"><p>For example, <tt>/user/edit?id=3</tt> would become <tt>/user/edit/3</tt>.</p></div>
-<div class="para"><p>Another way to handle situations like these (and more), is through use of
+<div class="paragraph"><p>For example, <tt>/user/edit?id=3</tt> would become <tt>/user/edit/3</tt>.</p></div>
+<div class="paragraph"><p>Another way to handle situations like these (and more), is through use of
 <strong>wildcard action handlers</strong>.  These function like a typical action handler,
 except they can be called when only the <em>beginning</em> of the URL request
 matches the regexp in the <tt>$URLS</tt> routing table.</p></div>
-<div class="para"><p>Once again, an example will elucidate.</p></div>
+<div class="paragraph"><p>Once again, an example will elucidate.</p></div>
 <div class="listingblock">
-<div class="title">Example: Inline Variables</div>
-<div class="content"><!-- Generator: GNU source-highlight 2.9
+<div class="title">Inline Variables</div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1
 by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
@@ -926,17 +885,16 @@ http://www.gnu.org/software/src-highlite -->
                 <span style="color: #009900">$this</span><span style="color: #990000">-&gt;</span><span style="font-weight: bold"><span style="color: #000000">render</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'user/hello.php'</span><span style="color: #990000">);</span>
         <span style="color: #FF0000">}</span>
 <span style="color: #FF0000">}</span>
-<span style="color: #990000">?&gt;</span>
-</tt></pre></div></div>
-<div class="para"><p>Notice the two underscores trailing the method name.  This denotes the
+<span style="color: #990000">?&gt;</span></tt></pre></div></div>
+<div class="paragraph"><p>Notice the two underscores trailing the method name.  This denotes the
 action handler as a wildcard one.  It means that, if an exact match cannot
 be found for the request (in this case, <tt>GET_hello()</tt>) then the dispatcher
 will look for a wildcard handler that matches.  If it finds one,
 everything trailing after the matching portion will be treated as a
 variable, and passed into the action handler as such.  So if the browser
 calls <tt>/user/hello/john</tt>, the dispatcher will call
-<tt>pUser::GET_hello__('john')</tt>.</p></div>
-<div class="para"><p>If a specific action cannot be found and a wildcard action cannot be
+<tt>pUser::GET_hello__(\'john\')</tt>.</p></div>
+<div class="paragraph"><p>If a specific action cannot be found and a wildcard action cannot be
 found, then the dispatcher will default to the "catch-all" handler for
 that request type.  In this case it would be <tt>GET()</tt>.  If the catch-all
 does not exist either, then a 404 is issued.</p></div>
@@ -946,60 +904,49 @@ does not exist either, then a 404 is issued.</p></div>
 <div class="title">Note</div>
 </td>
 <td class="content">It is important to provide a default value for any inline variable
-arguments in your action handler's method prototype.  If you don't, then
+arguments in your action handler&#8217;s method prototype.  If you don&#8217;t, then
 a visitor could inadvertently trigger an error if they made a request that
 did not include the variable (eg, <tt>/user/hello/</tt>).</td>
 </tr></table>
 </div>
-<h3 id="_validating_get_post_data">5.4. Validating GET/POST data</h3><div style="clear:left"></div>
-<div class="para"><p>It's very important to validate all data coming in from the web browser,
+<h3 id="X4-4">Validating GET/POST data</h3><div style="clear:left"></div>
+<div class="paragraph"><p>It&#8217;s very important to validate all data coming in from the web browser,
 both to ensure data integrity and maintain security.</p></div>
-<div class="para"><p>Most validation is delegated to the data models, but there are times when
-it's necessary to validate some data that isn't destined for a data model.
+<div class="paragraph"><p>Most validation is delegated to the data models, but there are times when
+it&#8217;s necessary to validate some data that isn&#8217;t destined for a data model.
 In these cases, you can validate the directory from within the page
 controller.</p></div>
-<div class="para"><p>The class in charge of data validation is predictably called <tt>Validator</tt>.</p></div>
+<div class="paragraph"><p>The class in charge of data validation is predictably called <tt>Validator</tt>.</p></div>
 <div class="tableblock">
-<table rules="none"
-frame="hsides"
+<table rules="all"
+width="100%"
+frame="border"
 cellspacing="0" cellpadding="4">
-<caption class="title">Table: Data Validation Methods</caption>
-<col width="308" />
-<col width="537" />
-<tbody valign="top">
-  <tr>
-    <td align="left">
-    <tt>Validator::required()</tt>
-    </td>
-    <td align="left">
-    Check a number of _REQUEST parameters to ensure that all are present and non-empty
-    </td>
-  </tr>
-  <tr>
-    <td align="left">
-    <tt>Validator::validate()</tt>
-    </td>
-    <td align="left">
-    Validate a _REQUEST parameter against a regular expression
-    </td>
-  </tr>
-  <tr>
-    <td align="left">
-    <tt>Validator::is_valid()</tt>
-    </td>
-    <td align="left">
-    Same as <tt>validate()</tt> but just return a true/false, don't populate the <tt>$errors</tt> array if validation fails
-    </td>
-  </tr>
+<caption class="title">Data Validation Methods</caption>
+<col width="33%" />
+<col width="66%" />
+<tbody>
+<tr>
+<td align="left" valign="top"><p class="table"><tt>Validator::required()</tt></p></td>
+<td align="left" valign="top"><p class="table">Check a number of _REQUEST parameters to ensure that all are present and non-empty</p></td>
+</tr>
+<tr>
+<td align="left" valign="top"><p class="table"><tt>Validator::validate()</tt></p></td>
+<td align="left" valign="top"><p class="table">Validate a _REQUEST parameter against a regular expression</p></td>
+</tr>
+<tr>
+<td align="left" valign="top"><p class="table"><tt>Validator::is_valid()</tt></p></td>
+<td align="left" valign="top"><p class="table">Same as <tt>validate()</tt> but just return a true/false, don&#8217;t populate the <tt>$errors</tt> array if validation fails</p></td>
+</tr>
 </tbody>
 </table>
 </div>
-<div class="para"><p>When using <tt>Validator::validate()</tt> and <tt>Validator::is_valid()</tt>, you can pass in any
+<div class="paragraph"><p>When using <tt>Validator::validate()</tt> and <tt>Validator::is_valid()</tt>, you can pass in any
 Perl-compatible regular expression.  You can also use one of the regular
 expressions defined at the top of <tt>pronto/core/validator.php</tt>.</p></div>
 <div class="listingblock">
-<div class="title">Example: Validating Data from a Page Controller</div>
-<div class="content"><!-- Generator: GNU source-highlight 2.9
+<div class="title">Validating Data from a Page Controller</div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1
 by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
@@ -1016,20 +963,19 @@ http://www.gnu.org/software/src-highlite -->
                 <span style="color: #009900">$this</span><span style="color: #990000">-&gt;</span><span style="font-weight: bold"><span style="color: #000000">validate</span></span><span style="color: #990000">(</span><span style="color: #009900">$errors</span><span style="color: #990000">,</span> <span style="color: #FF0000">'age'</span><span style="color: #990000">,</span> VALID_NUMBER<span style="color: #990000">,</span> <span style="color: #FF0000">'Please provide a valid integer'</span><span style="color: #990000">);</span>
         <span style="color: #FF0000">}</span>
 <span style="color: #FF0000">}</span>
-<span style="color: #990000">?&gt;</span>
-</tt></pre></div></div>
-<h3 id="_calling_page_elements_from_other_controllers">5.5. Calling Page Elements from other Controllers</h3><div style="clear:left"></div>
-<div class="para"><p>The typical flow of a Pronto web request usually only involves a single
+<span style="color: #990000">?&gt;</span></tt></pre></div></div>
+<h3 id="X4-5">Calling Page Elements from other Controllers</h3><div style="clear:left"></div>
+<div class="paragraph"><p>The typical flow of a Pronto web request usually only involves a single
 page controller, but there are some scenarios where it makes sense to
 call an action from another page controller.  This is possible with the
 <tt>Page::render_element()</tt> method.</p></div>
-<div class="para"><p>Most methods in a page controller start with an HTTP verb, such as <tt>GET_</tt>,
+<div class="paragraph"><p>Most methods in a page controller start with an HTTP verb, such as <tt>GET_</tt>,
 <tt>POST_</tt>, or the lesser-used <tt>PUT_</tt>, <tt>DELETE_</tt>, etc.  Page controller can
 also provide <strong>elements</strong> which are methods intended to be called from other
 page controllers.  These methods must have a prefix of <tt>ELEM_</tt>.</p></div>
 <div class="listingblock">
-<div class="title">Example: Calling a Page Element - the first controller</div>
-<div class="content"><!-- Generator: GNU source-highlight 2.9
+<div class="title">Calling a Page Element - the first controller</div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1
 by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
@@ -1046,11 +992,10 @@ http://www.gnu.org/software/src-highlite -->
                 <span style="font-weight: bold"><span style="color: #0000FF">return</span></span> <span style="color: #009900">$this</span><span style="color: #990000">-&gt;</span><span style="font-weight: bold"><span style="color: #000000">fetch</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'blog/elem.view.php'</span><span style="color: #990000">);</span>
         <span style="color: #FF0000">}</span>
 <span style="color: #FF0000">}</span>
-<span style="color: #990000">?&gt;</span>
-</tt></pre></div></div>
+<span style="color: #990000">?&gt;</span></tt></pre></div></div>
 <div class="listingblock">
-<div class="title">Example: Calling a Page Element - the second controller</div>
-<div class="content"><!-- Generator: GNU source-highlight 2.9
+<div class="title">Calling a Page Element - the second controller</div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1
 by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
@@ -1065,21 +1010,20 @@ http://www.gnu.org/software/src-highlite -->
                 <span style="color: #009900">$this</span><span style="color: #990000">-&gt;</span><span style="font-weight: bold"><span style="color: #000000">render</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'user/profile.php'</span><span style="color: #990000">);</span>
         <span style="color: #FF0000">}</span>
 <span style="color: #FF0000">}</span>
-<span style="color: #990000">?&gt;</span>
-</tt></pre></div></div>
+<span style="color: #990000">?&gt;</span></tt></pre></div></div>
 </div>
-<h2 id="X5">6. The Template</h2>
+<h2 id="X5">The Template</h2>
 <div class="sectionbody">
-<div class="para"><p>Templates serve as the presentation layer of Pronto.  When a page
+<div class="paragraph"><p>Templates serve as the presentation layer of Pronto.  When a page
 controller has finished its business, it will typically render a template
 via the <tt>Page::render()</tt> or <tt>Page::ajax_render()</tt> methods.</p></div>
-<div class="para"><p>Templates are unique to Pronto, in that they aren't classes themselves, and
-they don't have access to other areas of Pronto, such as the dispatcher,
+<div class="paragraph"><p>Templates are unique to Pronto, in that they aren&#8217;t classes themselves, and
+they don&#8217;t have access to other areas of Pronto, such as the dispatcher,
 controllers, models, or the database (<tt>$db</tt>).  However, template files are
 managed by the <tt>Template</tt> class, which is ultimately in charge of
 setting/getting template variables, as well as the fetching/processing of
 templates themselves.</p></div>
-<div class="para"><p>Pronto's template system is rather standard.  You can use plain HTML and
+<div class="paragraph"><p>Pronto&#8217;s template system is rather standard.  You can use plain HTML and
 PHP as you wish.  However, the only variables accessible are those set by
 the page controller via the <tt>Template::set()</tt> method.</p></div>
 <div class="admonitionblock">
@@ -1088,61 +1032,59 @@ the page controller via the <tt>Template::set()</tt> method.</p></div>
 <div class="title">Note</div>
 </td>
 <td class="content">Technically, it possible to access outside variables through the
-<strong>Registry</strong>, but it's not encouraged.</td>
+<strong>Registry</strong>, but it&#8217;s not encouraged.</td>
 </tr></table>
 </div>
-<div class="para"><p>Templates can also use any active <strong>template plugins</strong>, also called
+<div class="paragraph"><p>Templates can also use any active <strong>template plugins</strong>, also called
 <strong>helpers</strong>.  These will be covered later, though the example below makes
 use of the <tt>$html</tt> helper.</p></div>
 <div class="listingblock">
-<div class="title">Example: A Simple Template</div>
-<div class="content"><!-- Generator: GNU source-highlight 2.9
+<div class="title">A Simple Template</div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1
 by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
 <pre><tt><span style="color: #990000">&lt;</span>p<span style="color: #990000">&gt;</span>Hello<span style="color: #990000">,</span> <span style="color: #990000">&lt;?php</span> <span style="font-weight: bold"><span style="color: #0000FF">echo</span></span> <span style="color: #009900">$name</span> <span style="color: #990000">?&gt;!&lt;/</span>p<span style="color: #990000">&gt;</span>
 <span style="color: #990000">&lt;</span>p<span style="color: #990000">&gt;</span>I am a template<span style="color: #990000">.&lt;/</span>p<span style="color: #990000">&gt;</span>
-<span style="color: #990000">&lt;</span>p<span style="color: #990000">&gt;&lt;?php</span> <span style="font-weight: bold"><span style="color: #0000FF">echo</span></span> <span style="color: #009900">$html</span><span style="color: #990000">-&gt;</span><span style="font-weight: bold"><span style="color: #000000">link</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'Go home'</span><span style="color: #990000">,</span> <span style="font-weight: bold"><span style="color: #000000">url</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'/'</span><span style="color: #990000">))</span> <span style="color: #990000">?&gt;&lt;/</span>p<span style="color: #990000">&gt;</span>
-</tt></pre></div></div>
-<div class="para"><p>Although most helpers are loaded from the framework config or from a page
+<span style="color: #990000">&lt;</span>p<span style="color: #990000">&gt;&lt;?php</span> <span style="font-weight: bold"><span style="color: #0000FF">echo</span></span> <span style="color: #009900">$html</span><span style="color: #990000">-&gt;</span><span style="font-weight: bold"><span style="color: #000000">link</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'Go home'</span><span style="color: #990000">,</span> <span style="font-weight: bold"><span style="color: #000000">url</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'/'</span><span style="color: #990000">))</span> <span style="color: #990000">?&gt;&lt;/</span>p<span style="color: #990000">&gt;</span></tt></pre></div></div>
+<div class="paragraph"><p>Although most helpers are loaded from the framework config or from a page
 controller, it is possible to load helpers from within templates.
 Template files do have access to the <tt>$this</tt>, and so they can call methods
 in the Template class.</p></div>
 <div class="listingblock">
-<div class="title">Example: Loading a Helper in a Template</div>
-<div class="content"><!-- Generator: GNU source-highlight 2.9
+<div class="title">Loading a Helper in a Template</div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1
 by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
 <pre><tt><span style="color: #009900">$form</span> <span style="color: #990000">=</span> <span style="color: #009900">$this</span><span style="color: #990000">-&gt;</span><span style="font-weight: bold"><span style="color: #000000">import_helper</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'form'</span><span style="color: #990000">);</span>
-<span style="color: #990000">?</span>php <span style="font-weight: bold"><span style="color: #0000FF">echo</span></span> <span style="color: #009900">$form</span><span style="color: #990000">-&gt;</span><span style="font-weight: bold"><span style="color: #000000">text</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'name'</span><span style="color: #990000">)</span> <span style="color: #990000">?&gt;</span>
-</tt></pre></div></div>
-<div class="para"><p>Templates are usually organized by page controller, since that's who
+<span style="color: #990000">?</span>php <span style="font-weight: bold"><span style="color: #0000FF">echo</span></span> <span style="color: #009900">$form</span><span style="color: #990000">-&gt;</span><span style="font-weight: bold"><span style="color: #000000">text</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'name'</span><span style="color: #990000">)</span> <span style="color: #990000">?&gt;</span></tt></pre></div></div>
+<div class="paragraph"><p>Templates are usually organized by page controller, since that&#8217;s who
 typically renders them.  The logical structure is to have subdirectories
 within the <tt>app/templates</tt> directory that match the names of the page
 controllers that will be rendering them.  This is recommended but not
 necessary.</p></div>
-<h3 id="_template_variables">6.1. Template Variables</h3><div style="clear:left"></div>
-<div class="para"><p>As shown in the example above, templates can reference their variables in
+<h3 id="X5-1">Template Variables</h3><div style="clear:left"></div>
+<div class="paragraph"><p>As shown in the example above, templates can reference their variables in
 the global scope, but they are limited only to variables that have been
 set using <tt>Template::set()</tt>, <tt>Page::tset()</tt>, or objects that serve as
 template plugins.</p></div>
-<div class="para"><p>The <tt>Template</tt> class offers methods for setting, getting, and testing the
+<div class="paragraph"><p>The <tt>Template</tt> class offers methods for setting, getting, and testing the
 existence of template variables.</p></div>
 <div class="admonitionblock">
 <table><tr>
 <td class="icon">
 <div class="title">Note</div>
 </td>
-<td class="content">While <tt>Template::set()</tt> is the real variable setter, you're also free to
+<td class="content">While <tt>Template::set()</tt> is the real variable setter, you&#8217;re also free to
 use <tt>Page::tset()</tt> which is a shortcut method to the real one.  Likewise,
 there are shortcuts for <tt>Template::get()</tt>, <tt>Template::is_set()</tt>, and
 <tt>Template::un_set()</tt>.</td>
 </tr></table>
 </div>
 <div class="listingblock">
-<div class="title">Example: Template Variables</div>
-<div class="content"><!-- Generator: GNU source-highlight 2.9
+<div class="title">Template Variables</div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1
 by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
@@ -1166,15 +1108,14 @@ http://www.gnu.org/software/src-highlite -->
                 <span style="color: #009900">$name</span> <span style="color: #990000">=</span> <span style="color: #009900">$this</span><span style="color: #990000">-&gt;</span><span style="font-weight: bold"><span style="color: #000000">tget</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'name'</span><span style="color: #990000">);</span>
         <span style="color: #FF0000">}</span>
 <span style="color: #FF0000">}</span>
-<span style="color: #990000">?&gt;</span>
-</tt></pre></div></div>
-<h3 id="_rendering_a_template">6.2. Rendering a Template</h3><div style="clear:left"></div>
-<div class="para"><p>There are three functions that can be used to render templates.</p></div>
+<span style="color: #990000">?&gt;</span></tt></pre></div></div>
+<h3 id="X5-2">Rendering a Template</h3><div style="clear:left"></div>
+<div class="paragraph"><p>There are three functions that can be used to render templates.</p></div>
 <div class="tableblock">
 <table rules="none"
 frame="hsides"
 cellspacing="0" cellpadding="4">
-<caption class="title">Table: Rendering Functions</caption>
+<caption class="title">Rendering Functions</caption>
 <col width="251" />
 <col width="651" />
 <tbody valign="top">
@@ -1205,14 +1146,14 @@ cellspacing="0" cellpadding="4">
 </tbody>
 </table>
 </div>
-<div class="para"><p>You'll probably use the <tt>Page::render()</tt> function the most, but
-<tt>Page::fetch()</tt> can be useful if you're combining templates, or rendering
+<div class="paragraph"><p>You&#8217;ll probably use the <tt>Page::render()</tt> function the most, but
+<tt>Page::fetch()</tt> can be useful if you&#8217;re combining templates, or rendering
 them somewhere other than the browser (eg, email).  Both functions allow
 you to pass in additional template variables that are not set globally via
 <tt>Template::set()</tt> or <tt>Page::tset()</tt>.</p></div>
 <div class="listingblock">
-<div class="title">Example: Rendering a Template</div>
-<div class="content"><!-- Generator: GNU source-highlight 2.9
+<div class="title">Rendering a Template</div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1
 by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
@@ -1226,20 +1167,19 @@ http://www.gnu.org/software/src-highlite -->
                 <span style="color: #009900">$this</span><span style="color: #990000">-&gt;</span><span style="font-weight: bold"><span style="color: #000000">render</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'user/hello.php'</span><span style="color: #990000">,</span> <span style="font-weight: bold"><span style="color: #0000FF">array</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'age'</span><span style="color: #990000">=&gt;</span><span style="color: #993399">27</span><span style="color: #990000">));</span>
         <span style="color: #FF0000">}</span>
 <span style="color: #FF0000">}</span>
-<span style="color: #990000">?&gt;</span>
-</tt></pre></div></div>
-<div class="para"><p>Like the template methods, the real functionality is actually in the
+<span style="color: #990000">?&gt;</span></tt></pre></div></div>
+<div class="paragraph"><p>Like the template methods, the real functionality is actually in the
 <tt>Template</tt> class itself.  The methods in <tt>Page</tt> are merely convenience
 methods that call the real ones.</p></div>
-<h3 id="_layouts">6.3. Layouts</h3><div style="clear:left"></div>
-<div class="para"><p>Layouts provide a way of establishing one or more outer structures to your
-web application.  Most of the application's structure and styling will be
+<h3 id="X5-3">Layouts</h3><div style="clear:left"></div>
+<div class="paragraph"><p>Layouts provide a way of establishing one or more outer structures to your
+web application.  Most of the application&#8217;s structure and styling will be
 relegated to the layout, leaving the core content in the templates
 themselves.  While not considered a regular template, layouts still have
 access to template variables and plugins.</p></div>
 <div class="listingblock">
-<div class="title">Example: A Typical Layout</div>
-<div class="content"><!-- Generator: GNU source-highlight 2.9
+<div class="title">A Typical Layout</div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1
 by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
@@ -1263,19 +1203,18 @@ http://www.gnu.org/software/src-highlite -->
                 <span style="color: #990000">&lt;?php</span> <span style="font-weight: bold"><span style="color: #0000FF">echo</span></span> <span style="color: #009900">$CONTENT_FOR_LAYOUT</span> <span style="color: #990000">?&gt;</span>
         <span style="color: #990000">&lt;/</span>div<span style="color: #990000">&gt;</span>
 <span style="color: #990000">&lt;/</span>body<span style="color: #990000">&gt;</span>
-<span style="color: #990000">&lt;/</span>html<span style="color: #990000">&gt;</span>
-</tt></pre></div></div>
-<div class="para"><p>As you can see, all the "outer" stuff gets thrown in the layout.  When a
+<span style="color: #990000">&lt;/</span>html<span style="color: #990000">&gt;</span></tt></pre></div></div>
+<div class="paragraph"><p>As you can see, all the "outer" stuff gets thrown in the layout.  When a
 template is rendered within a layout, it will be substituted for the
 variable <tt>$CONTENT_FOR_LAYOUT</tt>.  The other special layout variable is
 <tt>$HTML_HEAD</tt>, a placeholder variable for any additional tags that may need
 to be inserted into the <tt>&lt;head&gt;</tt> of your document.</p></div>
-<div class="para"><p>Multiple layouts are supported.  You can bind to a specific layout with
+<div class="paragraph"><p>Multiple layouts are supported.  You can bind to a specific layout with
 the <tt>Page::render()</tt> method, or you can set a layout in a page
-controller's <tt>__init()__</tt> method.</p></div>
+controller&#8217;s <tt>\_\_init()\_\_</tt> method.</p></div>
 <div class="listingblock">
-<div class="title">Example: Rendering a template within a different layout</div>
-<div class="content"><!-- Generator: GNU source-highlight 2.9
+<div class="title">Rendering a template within a different layout</div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1
 by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
@@ -1296,35 +1235,34 @@ http://www.gnu.org/software/src-highlite -->
                 <span style="color: #009900">$this</span><span style="color: #990000">-&gt;</span><span style="font-weight: bold"><span style="color: #000000">render</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'user/hello.php'</span><span style="color: #990000">,</span> <span style="font-weight: bold"><span style="color: #0000FF">array</span></span><span style="color: #990000">(),</span> <span style="color: #FF0000">'layout.new.php'</span><span style="color: #990000">);</span>
         <span style="color: #FF0000">}</span>
 <span style="color: #FF0000">}</span>
-<span style="color: #990000">?&gt;</span>
-</tt></pre></div></div>
+<span style="color: #990000">?&gt;</span></tt></pre></div></div>
 </div>
-<h2 id="X6">7. The Model</h2>
+<h2 id="X6">The Model</h2>
 <div class="sectionbody">
-<div class="para"><p>Models are responsible for any logic that surrounds the manipulation of a
+<div class="paragraph"><p>Models are responsible for any logic that surrounds the manipulation of a
 data entity.  Its typical responsibilities are to faciliate create,
 retrieve, update and delete (CRUD) operations.  If more advanced
 manipulation/processing functions are required for an entity, they will
 also be located here.</p></div>
-<div class="para"><p>Models do not actually perform any data introspection or Object Relational
+<div class="paragraph"><p>Models do not actually perform any data introspection or Object Relational
 Mapping (ORM) by default.  They simply act as a place to store functions
 that relate directly to a data entity.  You are still responsible for
 writing your own SQL for the most part.  The creation and execution of
 safe SQL is reinforced by a well-designed database abstraction class that
-focuses on the DRY (Don't Repeat Yourself) principle.</p></div>
-<div class="para"><p>While Pronto does not provide any full ORM capabilities, the base <tt>Model</tt>
+focuses on the DRY (Don&#8217;t Repeat Yourself) principle.</p></div>
+<div class="paragraph"><p>While Pronto does not provide any full ORM capabilities, the base <tt>Model</tt>
 class does provide some convienience functions for the more simple queries,
 such as PK-based lookups or lookups with a single column in the WHERE
 clause. See the <tt>DB_Base</tt> class in the API Reference for a list of
 methods.</p></div>
-<h3 id="_the_core_operations">7.1. The Core Operations</h3><div style="clear:left"></div>
-<div class="para"><p>The base <tt>Model</tt> class provides an interface for the common operations
+<h3 id="X6-1">The Core Operations</h3><div style="clear:left"></div>
+<div class="paragraph"><p>The base <tt>Model</tt> class provides an interface for the common operations
 associated with a simple data entity.</p></div>
 <div class="tableblock">
 <table rules="none"
 frame="hsides"
 cellspacing="0" cellpadding="4">
-<caption class="title">Table: Common data entity operations</caption>
+<caption class="title">Common data entity operations</caption>
 <col width="262" />
 <col width="582" />
 <tbody valign="top">
@@ -1423,7 +1361,7 @@ cellspacing="0" cellpadding="4">
 <td class="icon">
 <div class="title">Note</div>
 </td>
-<td class="content">You'll notice that models use both <tt>get()</tt> and <tt>get_record()</tt>.  <tt>get()</tt> is
+<td class="content">You&#8217;ll notice that models use both <tt>get()</tt> and <tt>get_record()</tt>.  <tt>get()</tt> is
 the method that should be used by controllers and other models to fetch an
 entity through this model.  But you will rarely every override the
 <tt>get()</tt> method in your model, only the <tt>get_record()</tt> method.  This is
@@ -1431,25 +1369,25 @@ because the <tt>get()</tt> method actually uses <tt>get_record()</tt> to fetch t
 while wrapping it in some logic that employs full record caching.</td>
 </tr></table>
 </div>
-<div class="para"><p>Depending on your data entity, some or all of these functions may not be
+<div class="paragraph"><p>Depending on your data entity, some or all of these functions may not be
 relevant.  If you are using the specialized controller <tt>Page_CRUD</tt>, then
 it will expect these functions to be complete.</p></div>
-<div class="para"><p>For extremely simple entities, the implementation within the base <tt>Model</tt>
+<div class="paragraph"><p>For extremely simple entities, the implementation within the base <tt>Model</tt>
 class will probably suffice.  For all others, you will want to override
 the functionality within your own model class.</p></div>
-<div class="para"><p>Model class names are prefixed with a lowercase <tt>m</tt>.</p></div>
-<h3 id="_the_tt_db_tt_object">7.2. The <tt>$db</tt> Object</h3><div style="clear:left"></div>
-<div class="para"><p>The gatekeeper to all database access is the <tt>$db</tt> object.  Like <tt>$web</tt>,
+<div class="paragraph"><p>Model class names are prefixed with a lowercase <tt>m</tt>.</p></div>
+<h3 id="X6-2">The <tt>$db</tt> Object</h3><div style="clear:left"></div>
+<div class="paragraph"><p>The gatekeeper to all database access is the <tt>$db</tt> object.  Like <tt>$web</tt>,
 it is available pretty much everywhere (either through <tt>$web</tt> or
 directly), though it is typically most used within data models.</p></div>
-<div class="para"><p>The DB class provides some simple convenience methods for selects,
+<div class="paragraph"><p>The DB class provides some simple convenience methods for selects,
 inserts, and updates, while using the third-party <strong>SafeSQL</strong> library for
 parameter substitution and protection against SQL injection attacks.</p></div>
-<div class="para"><p>An example is below, though you'll want to consult the API documentation
+<div class="paragraph"><p>An example is below, though you&#8217;ll want to consult the API documentation
 for a full list of methods available.</p></div>
 <div class="listingblock">
-<div class="title">Example: Using the <tt>$db</tt> object</div>
-<div class="content"><!-- Generator: GNU source-highlight 2.9
+<div class="title">Using the <tt>$db</tt> object</div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1
 by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
@@ -1472,21 +1410,20 @@ http://www.gnu.org/software/src-highlite -->
                 <span style="font-weight: bold"><span style="color: #0000FF">return</span></span> <span style="color: #009900">$ct</span><span style="color: #990000">;</span>
         <span style="color: #FF0000">}</span>
 <span style="color: #FF0000">}</span>
-<span style="color: #990000">?&gt;</span>
-</tt></pre></div></div>
-<div class="para"><p>As you can see, you can use placeholders within your SQL queries to denote
-variables that can be substituted by SafeSQL when it's time to execute the
+<span style="color: #990000">?&gt;</span></tt></pre></div></div>
+<div class="paragraph"><p>As you can see, you can use placeholders within your SQL queries to denote
+variables that can be substituted by SafeSQL when it&#8217;s time to execute the
 query.  This is the recommended method of using variables in your queries,
 as SafeSQL can ensure that any malicious SQL (or other poorly-formed data)
 is properly escaped before being passed to the database engine.</p></div>
-<div class="para"><p>There are different types of placeholders you can use, depending on what
-type of data you'll be passing in.  If the variable type does not match
+<div class="paragraph"><p>There are different types of placeholders you can use, depending on what
+type of data you&#8217;ll be passing in.  If the variable type does not match
 the placeholder, SafeSQL will attempt to cast it.</p></div>
 <div class="tableblock">
 <table rules="none"
 frame="hsides"
 cellspacing="0" cellpadding="4">
-<caption class="title">Table: SafeSQL Variable Placeholders</caption>
+<caption class="title">SafeSQL Variable Placeholders</caption>
 <col width="57" />
 <col width="617" />
 <tbody valign="top">
@@ -1549,36 +1486,36 @@ cellspacing="0" cellpadding="4">
 </tbody>
 </table>
 </div>
-<div class="para"><p>In a well-organized application, almost all of your DB work will be in the
+<div class="paragraph"><p>In a well-organized application, almost all of your DB work will be in the
 models themselves.  But just in case, <tt>$db</tt> is available to the dispatch
 and page controllers.  It can be passed to plugins as well, though there
 are usually better ways of doing this.</p></div>
-<h3 id="_defining_parameters_for_record_listings">7.3. Defining Parameters for Record Listings</h3><div style="clear:left"></div>
-<div class="para"><p>Of all the operations listed in the beginning of this section, the one
+<h3 id="X6-3">Defining Parameters for Record Listings</h3><div style="clear:left"></div>
+<div class="paragraph"><p>Of all the operations listed in the beginning of this section, the one
 that probably stands out is the last one, <tt>Model::list_params()</tt>.  Within
 the Pronto framework itself, this method is only used by one method, and
 that is <tt>Page_CRUD::GET_list()</tt>.  The <tt>Page_CRUD</tt> class will be covered
 later, but <tt>Model::list_params()</tt> can be used by application code that you
-write as well, so we'll cover it here.</p></div>
-<div class="para"><p>The purpose of <tt>Model::list_params()</tt> is to return the information
+write as well, so we&#8217;ll cover it here.</p></div>
+<div class="paragraph"><p>The purpose of <tt>Model::list_params()</tt> is to return the information
 required to construct a SQL query that will return a useful dataset to
 populate a record listing.  It is often used in conjuction with
 <tt>SQL_Generator::enumerate()</tt>, which can convert list parameters into full
 SQL code.</p></div>
-<div class="para"><p>That's a bit of a mouthful, so perhaps a well-contrived example will serve
+<div class="paragraph"><p>That&#8217;s a bit of a mouthful, so perhaps a well-contrived example will serve
 us better.</p></div>
-<div class="para"><p>Let's say you need to show a tabled list of records for a data entity.  In
+<div class="paragraph"><p>Let&#8217;s say you need to show a tabled list of records for a data entity.  In
 a perfect world, you could just issue a <tt>"SELECT * FROM $table"</tt> and pass
 it to a template plugin that generates the table.  But what if some
 columns are not mapped directly to a column in your table?  What if you
 need to join against other tables, or restrict your data with a <tt>WHERE</tt>
 clause?</p></div>
-<div class="para"><p>All of this is a cinch to do with SQL (that's what it was designed for,
+<div class="paragraph"><p>All of this is a cinch to do with SQL (that&#8217;s what it was designed for,
 after all), but if a plugin or controller action is in charge of deciding
 which field to sort by or which data to restrict, then it can be easier to
-start by separating your query into its logical segments.  That's what
+start by separating your query into its logical segments.  That&#8217;s what
 <tt>Model::list_params()</tt> does.</p></div>
-<div class="para"><p><tt>Model::list_params()</tt> returns an associative array that contains eight
+<div class="paragraph"><p><tt>Model::list_params()</tt> returns an associative array that contains eight
 elements.</p></div>
 <div class="admonitionblock">
 <table><tr>
@@ -1586,14 +1523,14 @@ elements.</p></div>
 <div class="title">Note</div>
 </td>
 <td class="content">Like the rest of the Model interface, you only need to implement this
-method if you're actually going to use it.</td>
+method if you&#8217;re actually going to use it.</td>
 </tr></table>
 </div>
 <div class="tableblock">
 <table rules="none"
 frame="hsides"
 cellspacing="0" cellpadding="4">
-<caption class="title">Table: Elements of <tt>Model::list_params()</tt></caption>
+<caption class="title">Elements of <tt>Model::list_params()</tt></caption>
 <col width="148" />
 <col width="148" />
 <col width="960" />
@@ -1617,7 +1554,18 @@ cellspacing="0" cellpadding="4">
     <em>array</em>
     </td>
     <td align="left">
-    Zero or more SQL expressions that will be used in the SELECT clause of the query.  These are typically pieces of data that aren't regular data columns, but are passed through some SQL functions or similar.
+    Zero or more SQL expressions that will be used in the SELECT clause of the query.  These are typically pieces of data that aren&#8217;t regular data columns, but are passed through some SQL functions or similar.  When creating a WHERE clause to filter a result set, Pronto will check this array first.  If a match is found, it will use the SQL expression instead of the literal column name.
+    </td>
+  </tr>
+  <tr>
+    <td align="left">
+    <tt>gexprs</tt>
+    </td>
+    <td align="left">
+    <em>array</em>
+    </td>
+    <td align="left">
+    Like <tt>exprs</tt>, except Pronto will use this when building a HAVING clause for a SQL query.  Not usually needed unless you&#8217;re also using <tt>group_by</tt>.
     </td>
   </tr>
   <tr>
@@ -1639,18 +1587,7 @@ cellspacing="0" cellpadding="4">
     <em>mixed</em>
     </td>
     <td align="left">
-    An array or string of elements that will construct your WHERE clause.  If an array, these will be AND'ed together, along with any other filter data that might be added by your controller. (eg, <tt>array(<em>status="active"</em>, <em>confirmed=1</em>)</tt>)
-    </td>
-  </tr>
-  <tr>
-    <td align="left">
-    <tt>where_args</tt>
-    </td>
-    <td align="left">
-    <em>array</em>
-    </td>
-    <td align="left">
-    An array of arguments that will be substituted for any SafeSQL placeholders in the <tt>where</tt> array.
+    An array or string of elements that will construct your WHERE clause.  If an array, these will be AND&#8217;ed together, along with any other filter data that might be added by your controller. (eg, <tt>array('status="active"', 'confirmed=1')</tt>)
     </td>
   </tr>
   <tr>
@@ -1666,13 +1603,24 @@ cellspacing="0" cellpadding="4">
   </tr>
   <tr>
     <td align="left">
+    <tt>having</tt>
+    </td>
+    <td align="left">
+    <em>string</em>
+    </td>
+    <td align="left">
+    The column(s) to sort by.  If not specified, your model&#8217;s <tt>default_sort</tt> will be used.
+    </td>
+  </tr>
+  <tr>
+    <td align="left">
     <tt>order</tt>
     </td>
     <td align="left">
     <em>string</em>
     </td>
     <td align="left">
-    The column(s) to sort by.  If not specified, your model's <tt>default_sort</tt> will be used.
+    The column(s) to sort by.  If not specified, your model&#8217;s <tt>default_sort</tt> will be used.
     </td>
   </tr>
   <tr>
@@ -1683,15 +1631,26 @@ cellspacing="0" cellpadding="4">
     <em>string</em>
     </td>
     <td align="left">
-    The amount of records to return, if you choose to limit them.  If not specified, your model's <tt>per_page</tt> will be used.
+    The amount of records to return, if you choose to limit them.  If not specified, your model&#8217;s <tt>per_page</tt> will be used.
     </td>
   </tr>
 </tbody>
 </table>
 </div>
+<div class="admonitionblock">
+<table><tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">You can optionally pass any of the query chunks through <tt>$this-&gt;db-&gt;query()</tt>
+first to do proper argument substitution.  <tt>$this-&gt;db-&gt;query()</tt> will not
+actually execute a query, it simply performs the variable substitution that
+should occur before a query is executed.</td>
+</tr></table>
+</div>
 <div class="listingblock">
-<div class="title">Example: Using <tt>Model::list_params()</tt></div>
-<div class="content"><!-- Generator: GNU source-highlight 2.9
+<div class="title">Using <tt>Model::list_params()</tt></div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1
 by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
@@ -1707,22 +1666,20 @@ http://www.gnu.org/software/src-highlite -->
                         <span style="color: #FF0000">'from'</span>       <span style="color: #990000">=&gt;</span> <span style="color: #FF0000">'posts p INNER JOIN blogs b ON b.id=p.blog_id'</span><span style="color: #990000">,</span>
                         <span style="color: #FF0000">'exprs'</span>      <span style="color: #990000">=&gt;</span> <span style="font-weight: bold"><span style="color: #0000FF">array</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'posted_at'</span> <span style="color: #990000">=&gt;</span> <span style="color: #FF0000">"CONCAT(p.post_date,' ',p.post_time)"</span><span style="color: #990000">),</span>
                         <span style="color: #FF0000">'select'</span>     <span style="color: #990000">=&gt;</span> <span style="color: #FF0000">'p.*,b.name'</span><span style="color: #990000">,</span>
-                        <span style="color: #FF0000">'where'</span>      <span style="color: #990000">=&gt;</span> <span style="font-weight: bold"><span style="color: #0000FF">array</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'b.user_id=%i'</span><span style="color: #990000">),</span>
-                        <span style="color: #FF0000">'where_args'</span> <span style="color: #990000">=&gt;</span> <span style="font-weight: bold"><span style="color: #0000FF">array</span></span><span style="color: #990000">(</span>ACCESS_ID<span style="color: #990000">),</span>
+                        <span style="color: #FF0000">'where'</span>      <span style="color: #990000">=&gt;</span> <span style="color: #009900">$this</span><span style="color: #990000">-&gt;</span>db<span style="color: #990000">-&gt;</span><span style="font-weight: bold"><span style="color: #000000">query</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'b.user_id=%i'</span><span style="color: #990000">,</span> ACCESS_ID<span style="color: #990000">),</span>
                         <span style="color: #FF0000">'order'</span>      <span style="color: #990000">=&gt;</span> <span style="color: #FF0000">'p.post_date DESC'</span>
                 <span style="color: #990000">);</span>
         <span style="color: #FF0000">}</span>
 <span style="color: #FF0000">}</span>
-<span style="color: #990000">?&gt;</span>
-</tt></pre></div></div>
-<div class="para"><p>If you'd like to see how this data is used, take a look at the
+<span style="color: #990000">?&gt;</span></tt></pre></div></div>
+<div class="paragraph"><p>If you&#8217;d like to see how this data is used, take a look at the
 <tt>SQL_Generator::enumerate()</tt> method in <tt>pronto/core/sql.php</tt>.</p></div>
-<h3 id="_example_a_model_and_its_use">7.4. Example: A model and its use</h3><div style="clear:left"></div>
-<div class="para"><p>Let's look at a simple example of a model and how it might be used from a
+<h3 id="X6-4">Example: A model and its use</h3><div style="clear:left"></div>
+<div class="paragraph"><p>Let&#8217;s look at a simple example of a model and how it might be used from a
 page controller.</p></div>
 <div class="listingblock">
-<div class="title">Example: A simple model</div>
-<div class="content"><!-- Generator: GNU source-highlight 2.9
+<div class="title">A simple model</div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1
 by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
@@ -1818,13 +1775,12 @@ http://www.gnu.org/software/src-highlite -->
                 <span style="color: #009900">$this</span><span style="color: #990000">-&gt;</span>db<span style="color: #990000">-&gt;</span><span style="font-weight: bold"><span style="color: #000000">execute</span></span><span style="color: #990000">(</span><span style="color: #FF0000">"UPDATE users SET status='deleted' WHERE id=%i"</span><span style="color: #990000">,</span> <span style="font-weight: bold"><span style="color: #0000FF">array</span></span><span style="color: #990000">(</span><span style="color: #009900">$id</span><span style="color: #990000">));</span>
         <span style="color: #FF0000">}</span>
 <span style="color: #FF0000">}</span>
-<span style="color: #990000">?&gt;</span>
-</tt></pre></div></div>
-<div class="para"><p>Now we can create a page controller that uses these methods.  Our basic
+<span style="color: #990000">?&gt;</span></tt></pre></div></div>
+<div class="paragraph"><p>Now we can create a page controller that uses these methods.  Our basic
 controller will provide a registration facility for new users.</p></div>
 <div class="listingblock">
-<div class="title">Example: Using the model from a page controller</div>
-<div class="content"><!-- Generator: GNU source-highlight 2.9
+<div class="title">Using the model from a page controller</div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1
 by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
@@ -1866,20 +1822,19 @@ http://www.gnu.org/software/src-highlite -->
                 <span style="color: #009900">$this</span><span style="color: #990000">-&gt;</span><span style="font-weight: bold"><span style="color: #000000">redirect</span></span><span style="color: #990000">(</span><span style="font-weight: bold"><span style="color: #000000">url</span></span><span style="color: #990000">(</span><span style="color: #FF0000">"/profile?id=$user_id"</span><span style="color: #990000">));</span>
         <span style="color: #FF0000">}</span>
 <span style="color: #FF0000">}</span>
-<span style="color: #990000">?&gt;</span>
-</tt></pre></div></div>
-<div class="para"><p>As you can see, the separation of data logic and controller logic makes
+<span style="color: #990000">?&gt;</span></tt></pre></div></div>
+<div class="paragraph"><p>As you can see, the separation of data logic and controller logic makes
 for some well-organized, readable code, and the GET/POST split in the
-controller makes it easy to tell which stage we're at in the signup
+controller makes it easy to tell which stage we&#8217;re at in the signup
 process.</p></div>
-<h3 id="_using_other_models_from_within_a_model">7.5. Using other models from within a model</h3><div style="clear:left"></div>
-<div class="para"><p>It's possible for a model to depend on other models.  This occurs a lot
+<h3 id="X6-5">Using other models from within a model</h3><div style="clear:left"></div>
+<div class="paragraph"><p>It&#8217;s possible for a model to depend on other models.  This occurs a lot
 when you have entities that link to each other.  A model for managing
-users probably shouldn't directly modify another entity type, so instead
+users probably shouldn&#8217;t directly modify another entity type, so instead
 it can ask the respective model to do the work on its behalf.</p></div>
 <div class="listingblock">
-<div class="title">Example: Using other models</div>
-<div class="content"><!-- Generator: GNU source-highlight 2.9
+<div class="title">Using other models</div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1
 by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
@@ -1897,38 +1852,36 @@ http://www.gnu.org/software/src-highlite -->
                 parent<span style="color: #990000">::</span><span style="font-weight: bold"><span style="color: #000000">delete</span></span><span style="color: #990000">(</span><span style="color: #009900">$id</span><span style="color: #990000">);</span>
         <span style="color: #FF0000">}</span>
 <span style="color: #FF0000">}</span>
-<span style="color: #990000">?&gt;</span>
-</tt></pre></div></div>
+<span style="color: #990000">?&gt;</span></tt></pre></div></div>
 </div>
-<h2 id="X7">8. Sessions and Authentication</h2>
+<h2 id="X7">Sessions and Authentication</h2>
 <div class="sectionbody">
-<div class="para"><p>There is no special facility in place for storing and retrieving session
+<div class="paragraph"><p>There is no special facility in place for storing and retrieving session
 data, so you can use the standard PHP superglobal <tt>$_SESSION</tt> just as you
 would in a basic PHP script.</p></div>
 <div class="listingblock">
-<div class="title">Example: Storing session variables</div>
-<div class="content"><!-- Generator: GNU source-highlight 2.9
+<div class="title">Storing session variables</div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1
 by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
 <pre><tt><span style="color: #990000">&lt;?php</span>
         <span style="color: #009900">$_SESSION</span><span style="color: #990000">[</span><span style="color: #FF0000">'rocket_science'</span><span style="color: #990000">]</span> <span style="color: #990000">=</span> false<span style="color: #990000">;</span>
         <span style="color: #009900">$_SESSION</span><span style="color: #990000">[</span><span style="color: #FF0000">'other_stuff'</span><span style="color: #990000">]</span>    <span style="color: #990000">=</span> <span style="color: #FF0000">'Pretty basic...'</span><span style="color: #990000">;</span>
-<span style="color: #990000">?&gt;</span>
-</tt></pre></div></div>
-<div class="para"><p>Likewise, there is no policy on authentication either, though Pronto does
+<span style="color: #990000">?&gt;</span></tt></pre></div></div>
+<div class="paragraph"><p>Likewise, there is no policy on authentication either, though Pronto does
 provide a facility for access control lists (ACLs) and access checks.</p></div>
-<div class="para"><p>What this means is that you're free to authenticate your users however you
-like.  Once authenticated, you can use Pronto's access control features to
+<div class="paragraph"><p>What this means is that you&#8217;re free to authenticate your users however you
+like.  Once authenticated, you can use Pronto&#8217;s access control features to
 keep track of whether a user is logged in or not, and what areas of the
 web application they are allowed to access.</p></div>
-<h3 id="_access_control">8.1. Access Control</h3><div style="clear:left"></div>
-<div class="para"><p>In Pronto, there are two pieces of data that constitute your access policy
+<h3 id="X7-1">Access Control</h3><div style="clear:left"></div>
+<div class="paragraph"><p>In Pronto, there are two pieces of data that constitute your access policy
 framework: The <strong>access model</strong> and the <strong>access keys</strong>.</p></div>
-<div class="para"><p>An access key, when assigned to a user, gives that user access to parts
+<div class="paragraph"><p>An access key, when assigned to a user, gives that user access to parts
 of the site that require it.  The access model determines how the access
 key structure will be interpreted and used.</p></div>
-<div class="para"><p>There are two primary <strong>access models</strong> in Pronto: <strong>roles</strong> and <strong>discrete</strong>.
+<div class="paragraph"><p>There are two primary <strong>access models</strong> in Pronto: <strong>roles</strong> and <strong>discrete</strong>.
 In both models, your <strong>access keys</strong> will be an associative array of
 <em>keys</em> and <em>values</em>.</p></div>
 <div class="admonitionblock">
@@ -1937,7 +1890,7 @@ In both models, your <strong>access keys</strong> will be an associative array o
 <div class="title">Note</div>
 </td>
 <td class="content">Unfortunately, the term <em>key</em> is used for two meanings here: as an
-access key, and as an array key.  Pay close attention to which one we're
+access key, and as an array key.  Pay close attention to which one we&#8217;re
 talking about.</td>
 </tr></table>
 </div>
@@ -1945,7 +1898,7 @@ talking about.</td>
 <table rules="none"
 frame="hsides"
 cellspacing="0" cellpadding="4">
-<caption class="title">Table: Access Models</caption>
+<caption class="title">Access Models</caption>
 <col width="137" />
 <col width="697" />
 <tbody valign="top">
@@ -1968,14 +1921,14 @@ cellspacing="0" cellpadding="4">
 </tbody>
 </table>
 </div>
-<div class="para"><p>If you're not sure which one to use, start with the <strong>roles</strong> model.
+<div class="paragraph"><p>If you&#8217;re not sure which one to use, start with the <strong>roles</strong> model.
 Conceptually, it is simpler, analagous to assigning a "rank" to each user
 in the system.</p></div>
-<div class="para"><p>Both the <strong>access model</strong> and the <strong>access_keys</strong> are configured in
+<div class="paragraph"><p>Both the <strong>access model</strong> and the <strong>access_keys</strong> are configured in
 <tt>app/config/access.php</tt>.</p></div>
 <div class="listingblock">
-<div class="title">Example: A default access policy</div>
-<div class="content"><!-- Generator: GNU source-highlight 2.9
+<div class="title">A default access policy</div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1
 by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
@@ -1994,19 +1947,18 @@ http://www.gnu.org/software/src-highlite -->
         <span style="color: #FF0000">'Administrator'</span> <span style="color: #990000">=&gt;</span> <span style="font-weight: bold"><span style="color: #0000FF">array</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'USER'</span><span style="color: #990000">,</span><span style="color: #FF0000">'ADMIN'</span><span style="color: #990000">)</span>
 <span style="color: #990000">);</span>
 
-<span style="color: #990000">?&gt;</span>
-</tt></pre></div></div>
-<div class="para"><p>Once a user is logged in, Pronto's access layer will set the
+<span style="color: #990000">?&gt;</span></tt></pre></div></div>
+<div class="paragraph"><p>Once a user is logged in, Pronto&#8217;s access layer will set the
 constant <tt>ACCESS_ID</tt> to the unique ID of that user.  You can use this
 constant throughout the web application to check if a user is logged in
 (regardless of access keys assigned) and to link entities to the logged-in
 user.</p></div>
-<div class="para"><p>To protect your controllers (or actions within) against unauthorized
+<div class="paragraph"><p>To protect your controllers (or actions within) against unauthorized
 access, you can use the <tt>Web::check_access()</tt> and <tt>Access::has_access()</tt>
 methods.</p></div>
 <div class="listingblock">
-<div class="title">Example: Checking for valid access</div>
-<div class="content"><!-- Generator: GNU source-highlight 2.9
+<div class="title">Checking for valid access</div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1
 by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
@@ -2035,15 +1987,14 @@ http://www.gnu.org/software/src-highlite -->
                 <span style="color: #009900">$this</span><span style="color: #990000">-&gt;</span><span style="font-weight: bold"><span style="color: #000000">render</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'user/edit_profile.php'</span><span style="color: #990000">);</span>
         <span style="color: #FF0000">}</span>
 <span style="color: #FF0000">}</span>
-<span style="color: #990000">?&gt;</span>
-</tt></pre></div></div>
-<div class="para"><p>You can also use <tt>Access::has_access()</tt> if you merely want to see if the user
+<span style="color: #990000">?&gt;</span></tt></pre></div></div>
+<div class="paragraph"><p>You can also use <tt>Access::has_access()</tt> if you merely want to see if the user
 has valid access, but not act on the result.  There is also a global
 shortcut function to <tt>Access::has_access()</tt> called <tt>a()</tt>, which can be used
 anywhere in Pronto.</p></div>
 <div class="listingblock">
-<div class="title">Example: Using Access::has_access()</div>
-<div class="content"><!-- Generator: GNU source-highlight 2.9
+<div class="title">Using Access::has_access()</div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1
 by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
@@ -2062,30 +2013,28 @@ http://www.gnu.org/software/src-highlite -->
                         <span style="font-weight: bold"><span style="color: #0000FF">echo</span></span> <span style="color: #FF0000">"You are allowed"</span><span style="color: #990000">;</span>
                 <span style="color: #FF0000">}</span>
 <span style="color: #FF0000">}</span>
-<span style="color: #990000">?&gt;</span>
-</tt></pre></div></div>
-<h3 id="_user_authentication">8.2. User Authentication</h3><div style="clear:left"></div>
-<div class="para"><p>So now that we know how to test for proper access, how do we tell Pronto
+<span style="color: #990000">?&gt;</span></tt></pre></div></div>
+<h3 id="X7-2">User Authentication</h3><div style="clear:left"></div>
+<div class="paragraph"><p>So now that we know how to test for proper access, how do we tell Pronto
 that a user is authenticated?</p></div>
-<div class="para"><p>The <tt>$web</tt> object holds a reference to the <tt>Access</tt> class, which is the
-brains of Pronto's access control facility.  To set, get, or clear keys,
-you can go through <tt>$web&#8594;access</tt> or get a reference to the object by
+<div class="paragraph"><p>The <tt>$web</tt> object holds a reference to the <tt>Access</tt> class, which is the
+brains of Pronto&#8217;s access control facility.  To set, get, or clear keys,
+you can go through <tt>$web-&gt;access</tt> or get a reference to the object by
 asking the Registry.</p></div>
 <div class="listingblock">
-<div class="title">Example: Getting an object from the Regsitry</div>
-<div class="content"><!-- Generator: GNU source-highlight 2.9
+<div class="title">Getting an object from the Regsitry</div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1
 by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
 <pre><tt><span style="color: #990000">&lt;?php</span>
         <span style="color: #009900">$access</span> <span style="color: #990000">=&amp;</span> Registry<span style="color: #990000">::</span><span style="font-weight: bold"><span style="color: #000000">get</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'pronto:access'</span><span style="color: #990000">);</span>
-<span style="color: #990000">?&gt;</span>
-</tt></pre></div></div>
-<div class="para"><p>Let's add a couple methods to our <tt>mUser</tt> model class that can handle
+<span style="color: #990000">?&gt;</span></tt></pre></div></div>
+<div class="paragraph"><p>Let&#8217;s add a couple methods to our <tt>mUser</tt> model class that can handle
 authentication.</p></div>
 <div class="listingblock">
-<div class="title">Example: Authenticating a user</div>
-<div class="content"><!-- Generator: GNU source-highlight 2.9
+<div class="title">Authenticating a user</div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1
 by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
@@ -2125,16 +2074,15 @@ http://www.gnu.org/software/src-highlite -->
                 <span style="font-weight: bold"><span style="color: #0000FF">unset</span></span><span style="color: #990000">(</span><span style="color: #009900">$_SESSION</span><span style="color: #990000">[</span><span style="color: #FF0000">'USER'</span><span style="color: #990000">]);</span>
         <span style="color: #FF0000">}</span>
 <span style="color: #FF0000">}</span>
-<span style="color: #990000">?&gt;</span>
-</tt></pre></div></div>
-<div class="para"><p>As you can see, we've stored the user's access in a database column called
-<tt>access_keys</tt>.  It's just a <tt>VARCHAR</tt> field, so it could be a
+<span style="color: #990000">?&gt;</span></tt></pre></div></div>
+<div class="paragraph"><p>As you can see, we&#8217;ve stored the user&#8217;s access in a database column called
+<tt>access_keys</tt>.  It&#8217;s just a <tt>VARCHAR</tt> field, so it could be a
 comma-delimited list of keys if we chose to use the <strong>discrete</strong> access
 model instead.  Our <tt>authenticate</tt> method above will work for both models,
-but we'll stick with <strong>roles</strong> for now.</p></div>
-<div class="para"><p>When a user logs out, we call the model's <tt>clear_authentication</tt> method,
+but we&#8217;ll stick with <strong>roles</strong> for now.</p></div>
+<div class="paragraph"><p>When a user logs out, we call the model&#8217;s <tt>clear_authentication</tt> method,
 which in turn calls the one in <tt>$access</tt>, which will clear out the
-user's access id and access keys, returning them to a "visitor" state,
+user&#8217;s access id and access keys, returning them to a "visitor" state,
 completely unauthenticated.</p></div>
 <div class="admonitionblock">
 <table><tr>
@@ -2143,24 +2091,24 @@ completely unauthenticated.</p></div>
 </td>
 <td class="content">To track access variables across page loads, Pronto uses a special session
 variable called <tt>_ACCESS</tt> to store them.  You can see what this looks like
-by throwing this in a page controller: <tt>debug($_SESSION['_ACCESS']);</tt></td>
+by throwing this in a page controller: <tt>debug($_SESSION[\'_ACCESS\']);</tt></td>
 </tr></table>
 </div>
 </div>
-<h2 id="X8">9. Specialized Controllers</h2>
+<h2 id="X8">Specialized Controllers</h2>
 <div class="sectionbody">
-<div class="para"><p>The <tt>Page</tt> class is the one that you will extend most of your page
+<div class="paragraph"><p>The <tt>Page</tt> class is the one that you will extend most of your page
 controllers from, but Pronto does provide a couple other page controller
 classes that serve a more specialized purpose.  If their features appeal
 to you, you can always extend your page controller from one of them.</p></div>
-<div class="para"><p>Currently there are only two specialized controllers.</p></div>
-<h3 id="_the_static_controller">9.1. The Static Controller</h3><div style="clear:left"></div>
-<div class="para"><p>The beautiful harmony of page controllers, models, and templates can be a
+<div class="paragraph"><p>Currently there are only two specialized controllers.</p></div>
+<h3 id="X8-1">The Static Controller</h3><div style="clear:left"></div>
+<div class="paragraph"><p>The beautiful harmony of page controllers, models, and templates can be a
 wonderful thing, but if all you want to do is render a simple template,
 then it feels a little overkill to have to do something like this:</p></div>
 <div class="listingblock">
-<div class="title">Example: The lame way of rendering static content</div>
-<div class="content"><!-- Generator: GNU source-highlight 2.9
+<div class="title">The lame way of rendering static content</div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1
 by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
@@ -2181,15 +2129,14 @@ http://www.gnu.org/software/src-highlite -->
         <span style="color: #FF0000">{</span>
                 <span style="color: #009900">$this</span><span style="color: #990000">-&gt;</span><span style="font-weight: bold"><span style="color: #000000">render</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'home/features.php'</span><span style="color: #990000">);</span>
         <span style="color: #FF0000">}</span>
-<span style="color: #FF0000">}</span>
-</tt></pre></div></div>
-<div class="para"><p>This method works fine and still looks clean, but do we really need to
+<span style="color: #FF0000">}</span></tt></pre></div></div>
+<div class="paragraph"><p>This method works fine and still looks clean, but do we really need to
 explicitly list each action when all we need to do is render the
 correponsding template?</p></div>
-<div class="para"><p>No.  We can use the <tt>Page_Static</tt> class.</p></div>
+<div class="paragraph"><p>No.  We can use the <tt>Page_Static</tt> class.</p></div>
 <div class="listingblock">
-<div class="title">Example: The better way of rendering static content</div>
-<div class="content"><!-- Generator: GNU source-highlight 2.9
+<div class="title">The better way of rendering static content</div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1
 by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
@@ -2202,18 +2149,17 @@ http://www.gnu.org/software/src-highlite -->
                 <span style="font-style: italic"><span style="color: #9A1900">// Once again, this is relative to the app/templates directory.</span></span>
                 <span style="color: #009900">$this</span><span style="color: #990000">-&gt;</span><span style="font-weight: bold"><span style="color: #000000">set_dir</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'home'</span><span style="color: #990000">);</span>
         <span style="color: #FF0000">}</span>
-<span style="color: #FF0000">}</span>
-</tt></pre></div></div>
-<div class="para"><p>Done.  Now, whenever a URL is routed to this page controller, it will
+<span style="color: #FF0000">}</span></tt></pre></div></div>
+<div class="paragraph"><p>Done.  Now, whenever a URL is routed to this page controller, it will
 examine the URL and look for a corresponding template.  So if you surf to
 <tt>/about</tt> in your application, the <tt>Page_Static</tt> class will look for a
 <tt>about.php</tt> template in the directory set by the <tt>Page_Static::set_dir()</tt>
-method.  If the template isn't found, a 404 will be issued.</p></div>
-<div class="para"><p>To route URLs to your page server, you can simply put a "catch-all" at the
+method.  If the template isn&#8217;t found, a 404 will be issued.</p></div>
+<div class="paragraph"><p>To route URLs to your page server, you can simply put a "catch-all" at the
 bottom of your routing table.</p></div>
 <div class="listingblock">
-<div class="title">Example: Routing to the page server (<tt>app/config/urls.php</tt>)</div>
-<div class="content"><!-- Generator: GNU source-highlight 2.9
+<div class="title">Routing to the page server (<tt>app/config/urls.php</tt>)</div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1
 by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
@@ -2226,13 +2172,12 @@ http://www.gnu.org/software/src-highlite -->
         <span style="font-style: italic"><span style="color: #9A1900">// send the rest to our Home controller</span></span>
 
         <span style="color: #FF0000">'/(.*)'</span>            <span style="color: #990000">=&gt;</span> <span style="color: #FF0000">'Home'</span>
-<span style="color: #990000">);</span>
-</tt></pre></div></div>
-<h3 id="_the_crud_controller">9.2. The CRUD Controller</h3><div style="clear:left"></div>
-<div class="para"><p>Most web developers recognize the common operations around a data entity.
+<span style="color: #990000">);</span></tt></pre></div></div>
+<h3 id="X8-2">The CRUD Controller</h3><div style="clear:left"></div>
+<div class="paragraph"><p>Most web developers recognize the common operations around a data entity.
 We lovingly call them CRUD, and they stand for <strong>Create</strong>, <strong>Retrieve</strong>,
 <strong>Update</strong>, and <strong>Delete</strong>.</p></div>
-<div class="para"><p>The <tt>Page_CRUD</tt> class provides a generic facility to fulfill these
+<div class="paragraph"><p>The <tt>Page_CRUD</tt> class provides a generic facility to fulfill these
 operations.  It will provide the following actions:</p></div>
 <div class="tableblock">
 <table rules="none"
@@ -2308,15 +2253,15 @@ cellspacing="0" cellpadding="4">
 </tbody>
 </table>
 </div>
-<div class="para"><p>Of course, like any page controller, you can override these actions and/or
+<div class="paragraph"><p>Of course, like any page controller, you can override these actions and/or
 add your own if the basic <tt>Page_CRUD</tt> ones do not fulfill your needs.</p></div>
-<h4 id="_setting_the_entity">9.2.1. Setting the Entity</h4>
-<div class="para"><p>When using <tt>Page_CRUD</tt>, the first thing you need to do is to tell it which
+<h4 id="X8-2-a">Setting the Entity</h4>
+<div class="paragraph"><p>When using <tt>Page_CRUD</tt>, the first thing you need to do is to tell it which
 entity it should be managing.  This is done with the
 <tt>Page_CRUD::set_entity()</tt> method.</p></div>
 <div class="listingblock">
-<div class="title">Example: Setting up Page_CRUD</div>
-<div class="content"><!-- Generator: GNU source-highlight 2.9
+<div class="title">Setting up Page_CRUD</div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1
 by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
@@ -2333,22 +2278,21 @@ http://www.gnu.org/software/src-highlite -->
                 <span style="color: #009900">$this</span><span style="color: #990000">-&gt;</span><span style="font-weight: bold"><span style="color: #000000">set_entity</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'book'</span><span style="color: #990000">,</span> <span style="color: #FF0000">'Book'</span><span style="color: #990000">);</span>
         <span style="color: #FF0000">}</span>
 <span style="color: #FF0000">}</span>
-<span style="color: #990000">?&gt;</span>
-</tt></pre></div></div>
-<div class="para"><p>Technically, this is all that's required at the controller level.
+<span style="color: #990000">?&gt;</span></tt></pre></div></div>
+<div class="paragraph"><p>Technically, this is all that&#8217;s required at the controller level.
 <tt>Page_CRUD</tt> will implement the actions described in the table above and it
 will render templates in the <tt>app/templates/&lt;entity_name&gt;</tt> directory.</p></div>
-<div class="para"><p>Even though <tt>Page_CRUD</tt> will do the controller logic for you, you still
+<div class="paragraph"><p>Even though <tt>Page_CRUD</tt> will do the controller logic for you, you still
 have to create the templates yourself, as they will certainly vary from
 entity to entity.</p></div>
-<h4 id="_controlling_access_to_actions">9.2.2. Controlling Access to Actions</h4>
-<div class="para"><p>Most entities should be protected by some sort of access checks.  Since
-<tt>Page_CRUD</tt> handles most of the actions for us, we can't insert a call to
-<tt>$this&#8594;web&#8594;check_access()</tt> in each one.  Instead, simply override the
+<h4 id="X8-2-b">Controlling Access to Actions</h4>
+<div class="paragraph"><p>Most entities should be protected by some sort of access checks.  Since
+<tt>Page_CRUD</tt> handles most of the actions for us, we can&#8217;t insert a call to
+<tt>$this-&gt;web-&gt;check_access()</tt> in each one.  Instead, simply override the
 <tt>Page_CRUD::authenticate()</tt> method.</p></div>
 <div class="listingblock">
-<div class="title">Example: Protecting CRUD operations</div>
-<div class="content"><!-- Generator: GNU source-highlight 2.9
+<div class="title">Protecting CRUD operations</div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1
 by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
@@ -2366,15 +2310,14 @@ http://www.gnu.org/software/src-highlite -->
                 <span style="color: #009900">$this</span><span style="color: #990000">-&gt;</span>web<span style="color: #990000">-&gt;</span><span style="font-weight: bold"><span style="color: #000000">check_access</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'ADMIN'</span><span style="color: #990000">);</span>
         <span style="color: #FF0000">}</span>
 <span style="color: #FF0000">}</span>
-<span style="color: #990000">?&gt;</span>
-</tt></pre></div></div>
-<div class="para"><p>If various operations will require different access, then you can use the
-<tt>auth_*</tt> methods instead.  There are three.</p></div>
+<span style="color: #990000">?&gt;</span></tt></pre></div></div>
+<div class="paragraph"><p>If various operations will require different access, then you can use the
+<tt>auth_\*</tt> methods instead.  There are three.</p></div>
 <div class="tableblock">
 <table rules="none"
 frame="hsides"
 cellspacing="0" cellpadding="4">
-<caption class="title">Table: Operation-specific CRUD authentication methods</caption>
+<caption class="title">Operation-specific CRUD authentication methods</caption>
 <col width="194" />
 <col width="491" />
 <tbody valign="top">
@@ -2405,13 +2348,13 @@ cellspacing="0" cellpadding="4">
 </tbody>
 </table>
 </div>
-<div class="para"><p>In some circumstances, you may actually want to block access to certain
+<div class="paragraph"><p>In some circumstances, you may actually want to block access to certain
 operations of <tt>Page_CRUD</tt> while allowing the rest.  There are two ways to
 do this.  You can either override the specific actions with empty methods,
 or you can change the value of <tt>Page_CRUD::$enabled_actions</tt>.</p></div>
 <div class="listingblock">
-<div class="title">Example: Disabling specific operations</div>
-<div class="content"><!-- Generator: GNU source-highlight 2.9
+<div class="title">Disabling specific operations</div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1
 by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
@@ -2426,26 +2369,25 @@ http://www.gnu.org/software/src-highlite -->
                 <span style="color: #009900">$this</span><span style="color: #990000">-&gt;</span>enabled_actions <span style="color: #990000">=</span> <span style="font-weight: bold"><span style="color: #0000FF">array</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'create'</span><span style="color: #990000">,</span><span style="color: #FF0000">'list'</span><span style="color: #990000">);</span>
         <span style="color: #FF0000">}</span>
 <span style="color: #FF0000">}</span>
-<span style="color: #990000">?&gt;</span>
-</tt></pre></div></div>
-<h4 id="_process_hooks">9.2.3. Process Hooks</h4>
-<div class="para"><p><tt>Page_CRUD</tt> does a good job at covering the fundamental operations of a
+<span style="color: #990000">?&gt;</span></tt></pre></div></div>
+<h4 id="X8-2-c">Process Hooks</h4>
+<div class="paragraph"><p><tt>Page_CRUD</tt> does a good job at covering the fundamental operations of a
 data entity.  However, every entity is different, and there are often
 times when you need to add a little code at certain points in the process.</p></div>
-<div class="para"><p>In Pronto parlance, this points are called <strong>process hooks</strong>.  There are a
+<div class="paragraph"><p>In Pronto parlance, this points are called <strong>process hooks</strong>.  There are a
 number process hooks that <tt>Page_CRUD</tt> uses.  To access one of them, you
 simply need to implement that particular method name in your controller
 class.</p></div>
-<div class="para"><p>Listed below are all the process hooks available to the <tt>Page_CRUD</tt> class.
+<div class="paragraph"><p>Listed below are all the process hooks available to the <tt>Page_CRUD</tt> class.
 Their names are rough indication of when they are called within each
-process, but it's recommended that you consult the actual code in
+process, but it&#8217;s recommended that you consult the actual code in
 <tt>pronto/core/page_crud.php</tt> to see the exact points at which each hook is
 called.</p></div>
 <div class="tableblock">
 <table rules="none"
 frame="hsides"
 cellspacing="0" cellpadding="4">
-<caption class="title">Table: CRUD process hooks</caption>
+<caption class="title">CRUD process hooks</caption>
 <col width="377" />
 <col width="422" />
 <tbody valign="top">
@@ -2581,8 +2523,8 @@ cellspacing="0" cellpadding="4">
 </table>
 </div>
 <div class="listingblock">
-<div class="title">Example: Using process hooks</div>
-<div class="content"><!-- Generator: GNU source-highlight 2.9
+<div class="title">Using process hooks</div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1
 by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
@@ -2613,33 +2555,32 @@ http://www.gnu.org/software/src-highlite -->
                 <span style="font-style: italic"><span style="color: #9A1900">// example's sake.</span></span>
                 <span style="color: #009900">$data</span><span style="color: #990000">[</span><span style="color: #FF0000">'last_edited_by'</span><span style="color: #990000">]</span> <span style="color: #990000">=</span> ACCESS_ID<span style="color: #990000">;</span>
         <span style="color: #FF0000">}</span>
-<span style="color: #FF0000">}</span>
-</tt></pre></div></div>
-<h4 id="_using_the_crud_generator">9.2.4. Using the CRUD generator</h4>
-<div class="para"><p>The <tt>Page_CRUD</tt> class can greatly speed up development.  While it serves
-as a great scaffolding method in early stages of development, it's also
+<span style="color: #FF0000">}</span></tt></pre></div></div>
+<h4 id="X8-2-d">Using the CRUD generator</h4>
+<div class="paragraph"><p>The <tt>Page_CRUD</tt> class can greatly speed up development.  While it serves
+as a great scaffolding method in early stages of development, it&#8217;s also
 featureful enough to work with entities in later development and
 production.</p></div>
-<div class="para"><p>But for each entity, you still have to manually create your page
+<div class="paragraph"><p>But for each entity, you still have to manually create your page
 controller, your model, and your two template files (one for
 creating/editing and one for listing).</p></div>
-<div class="para"><p>Fear not, lazy coder.  The CRUD generator can do the mundane part for you.
+<div class="paragraph"><p>Fear not, lazy coder.  The CRUD generator can do the mundane part for you.
 It will create these four files for you from a template, so all you need
-to do is modify them to suit the entity you're CRUD'ing.</p></div>
-<div class="para"><p>The CRUD generator is a PHP script intended to be run from the
+to do is modify them to suit the entity you&#8217;re CRUD&#8217;ing.</p></div>
+<div class="paragraph"><p>The CRUD generator is a PHP script intended to be run from the
 commandline.  It takes at least two arguments, <tt>entity</tt> and <tt>db_table</tt>.
 <tt>entity</tt> tells it the name of the entity it is generating files for, and
 <tt>db_table</tt> tells it which database table it should use for basic
 introspection.</p></div>
-<div class="para"><p>The generator will then look at all the columns in the database table and
-use this data to build form and grid widgets for you.  They won't be very
-useful right out of the box, but it's much quicker to tweak an existing
+<div class="paragraph"><p>The generator will then look at all the columns in the database table and
+use this data to build form and grid widgets for you.  They won&#8217;t be very
+useful right out of the box, but it&#8217;s much quicker to tweak an existing
 template than it is to create one from scratch.</p></div>
-<div class="para"><p>Let's look at an example. The first thing we do is create the database
+<div class="paragraph"><p>Let&#8217;s look at an example. The first thing we do is create the database
 table.  Here is our database schema for the purposes of this example:</p></div>
 <div class="listingblock">
-<div class="title">Example: Our "books" table</div>
-<div class="content"><!-- Generator: GNU source-highlight 2.9
+<div class="title">Our "books" table</div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1
 by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
@@ -2656,11 +2597,10 @@ http://www.gnu.org/software/src-highlite -->
 
     <span style="font-weight: bold"><span style="color: #0000FF">PRIMARY</span></span> <span style="font-weight: bold"><span style="color: #0000FF">KEY</span></span><span style="color: #990000">(</span><span style="color: #FF0000">`id`</span><span style="color: #990000">),</span>
     <span style="font-weight: bold"><span style="color: #0000FF">KEY</span></span><span style="color: #990000">(</span><span style="color: #FF0000">`title`</span><span style="color: #990000">)</span>
-<span style="color: #990000">)</span> <span style="font-weight: bold"><span style="color: #0000FF">DEFAULT</span></span> CHARACTER <span style="font-weight: bold"><span style="color: #0000FF">SET</span></span> utf8 COLLATE utf8_general_ci<span style="color: #990000">;</span>
-</tt></pre></div></div>
-<div class="para"><p>Now let's use the CRUD generator to bootstrap this entity.</p></div>
+<span style="color: #990000">)</span> <span style="font-weight: bold"><span style="color: #0000FF">DEFAULT</span></span> CHARACTER <span style="font-weight: bold"><span style="color: #0000FF">SET</span></span> utf8 COLLATE utf8_general_ci<span style="color: #990000">;</span></tt></pre></div></div>
+<div class="paragraph"><p>Now let&#8217;s use the CRUD generator to bootstrap this entity.</p></div>
 <div class="listingblock">
-<div class="title">Example: Using the CRUD generator</div>
+<div class="title">Using the CRUD generator</div>
 <div class="content">
 <pre><tt>$ php pronto/bin/generators/crud/generate.php book books
 Entity:   book
@@ -2673,33 +2613,33 @@ New Page Controller: pages/book.php
 New Template:        templates/book/list.php
 New Template:        templates/book/create.php</tt></pre>
 </div></div>
-<div class="para"><p>Voila.  Take a look at the files the generator outputs and you'll see you
+<div class="paragraph"><p>Voila.  Take a look at the files the generator outputs and you&#8217;ll see you
 have the basic functionality for this entity already done for you.  It
 uses the <tt>tpTable</tt> and <tt>tpForm</tt> template plugins to build forms and grids
 for you.</p></div>
-<div class="para"><p>The generator can't be smart enough to style your forms/grids and to know
+<div class="paragraph"><p>The generator can&#8217;t be smart enough to style your forms/grids and to know
 which fields should be which data types, etc.  This is where your tweaking
 skills come in.  Modify the files to complete the functionality and
 carry on the to the next entity.  Both the <tt>tpTable</tt> and <tt>tpForm</tt> plugins
-support a number of customizations and control, but if they don't suit
+support a number of customizations and control, but if they don&#8217;t suit
 your needs, you can always do things the old-fashioned way.</p></div>
 </div>
-<h2 id="X9">10. Plugins</h2>
+<h2 id="X9">Plugins</h2>
 <div class="sectionbody">
-<div class="para"><p>Pronto makes avid use of plugins both at the <strong>controller</strong> and the
+<div class="paragraph"><p>Pronto makes avid use of plugins both at the <strong>controller</strong> and the
 <strong>template</strong> layers.  The interface between controllers/templates and their
-plugins is very light, so you're free to use them in pretty much any way
+plugins is very light, so you&#8217;re free to use them in pretty much any way
 you want.</p></div>
-<div class="para"><p>In Pronto parlance, plugins at the template layer are called template
+<div class="paragraph"><p>In Pronto parlance, plugins at the template layer are called template
 plugins or <strong>helpers</strong>.  Plugins at the controller layer are called page
 plugins or simply <strong>plugins</strong>.</p></div>
-<div class="para"><p>You can control which plugins are active by changing the <tt>PLUGINS</tt>
+<div class="paragraph"><p>You can control which plugins are active by changing the <tt>PLUGINS</tt>
 and <tt>HELPERS</tt> values in <tt>app/config/config.php</tt>.</p></div>
-<div class="para"><p>To access a plugin from within a page controller, simply reference
-its name through <tt>$this&#8594;plugins</tt>.</p></div>
+<div class="paragraph"><p>To access a plugin from within a page controller, simply reference
+its name through <tt>$this-&gt;plugins</tt>.</p></div>
 <div class="listingblock">
-<div class="title">Example: Accessing a page plugin</div>
-<div class="content"><!-- Generator: GNU source-highlight 2.9
+<div class="title">Accessing a page plugin</div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1
 by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
@@ -2713,27 +2653,25 @@ http://www.gnu.org/software/src-highlite -->
                 <span style="color: #009900">$this</span><span style="color: #990000">-&gt;</span>plugins<span style="color: #990000">-&gt;</span>mailer<span style="color: #990000">-&gt;</span><span style="font-weight: bold"><span style="color: #000000">send</span></span><span style="color: #990000">(</span><span style="color: #009900">$email</span><span style="color: #990000">,</span> <span style="color: #FF0000">'Hello World'</span><span style="color: #990000">,</span> <span style="color: #FF0000">'Hello from Pronto!'</span><span style="color: #990000">);</span>
         <span style="color: #FF0000">}</span>
 <span style="color: #FF0000">}</span>
-<span style="color: #990000">?&gt;</span>
-</tt></pre></div></div>
-<div class="para"><p>To access a helper from within a template, simply reference it as
+<span style="color: #990000">?&gt;</span></tt></pre></div></div>
+<div class="paragraph"><p>To access a helper from within a template, simply reference it as
 if it were a regular template variable (though it will be an object).</p></div>
 <div class="listingblock">
-<div class="title">Example: Accessing a template plugin</div>
-<div class="content"><!-- Generator: GNU source-highlight 2.9
+<div class="title">Accessing a template plugin</div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1
 by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
 <pre><tt><span style="font-weight: bold"><span style="color: #0000FF">&lt;p&gt;</span></span>We're in a template<span style="font-weight: bold"><span style="color: #0000FF">&lt;/p&gt;</span></span>
-<span style="font-weight: bold"><span style="color: #0000FF">&lt;p&gt;</span></span>Here is a link: &lt;?php echo $html-&gt;link('Go Home', url('/')) ?&gt;<span style="font-weight: bold"><span style="color: #0000FF">&lt;/p&gt;</span></span>
-</tt></pre></div></div>
-<h3 id="_template_plugins">10.1. Template Plugins</h3><div style="clear:left"></div>
-<div class="para"><p>There are currently six helpers included with Pronto.  Each class name is
+<span style="font-weight: bold"><span style="color: #0000FF">&lt;p&gt;</span></span>Here is a link: &lt;?php echo $html-&gt;link('Go Home', url('/')) ?&gt;<span style="font-weight: bold"><span style="color: #0000FF">&lt;/p&gt;</span></span></tt></pre></div></div>
+<h3 id="X9-1">Template Plugins</h3><div style="clear:left"></div>
+<div class="paragraph"><p>There are currently six helpers included with Pronto.  Each class name is
 prefixed with a <tt>tp</tt>.</p></div>
 <div class="tableblock">
 <table rules="none"
 frame="hsides"
 cellspacing="0" cellpadding="4">
-<caption class="title">Table: Helpers</caption>
+<caption class="title">Helpers</caption>
 <col width="171" />
 <col width="685" />
 <tbody valign="top">
@@ -2788,24 +2726,24 @@ cellspacing="0" cellpadding="4">
 </tbody>
 </table>
 </div>
-<div class="para"><p>We will cover each of these in brief.  For a more thorough understanding,
-it's not a bad idea to examine the API docs or the plugin code itself.</p></div>
-<h4 id="_the_tt_html_tt_plugin">10.1.1. The <tt>html</tt> Plugin</h4>
-<div class="para"><p>Most of the methods in the <tt>html</tt> plugin are pretty self-explanatory.  The
+<div class="paragraph"><p>We will cover each of these in brief.  For a more thorough understanding,
+it&#8217;s not a bad idea to examine the API docs or the plugin code itself.</p></div>
+<h4 id="X9-1-a">The <tt>html</tt> Plugin</h4>
+<div class="paragraph"><p>Most of the methods in the <tt>html</tt> plugin are pretty self-explanatory.  The
 API Reference will probably serve you best.</p></div>
-<div class="para"><p>The more interesting methods in this plugin are probably the Javascript
+<div class="paragraph"><p>The more interesting methods in this plugin are probably the Javascript
 and CSS queuing methods.  These methods can insert Javascript files/code
 or CSS files into a document, without having to resort to setting more
 variables in your template layout.</p></div>
-<div class="para"><p>The best part is that these queueing mechanisms will work with regular
+<div class="paragraph"><p>The best part is that these queueing mechanisms will work with regular
 <em>and</em> AJAX reponses, so you can code your templates in an agnostic
-fashion, without having to worry how they'll be rendered.  Bonus!</p></div>
-<div class="para"><p>All code chunks use a basic key/value hash method, which ensures that
+fashion, without having to worry how they&#8217;ll be rendered.  Bonus!</p></div>
+<div class="paragraph"><p>All code chunks use a basic key/value hash method, which ensures that
 files are not loaded more than once per page, as long as you are
 consistent with your key names.</p></div>
 <div class="listingblock">
-<div class="title">Example: Using the queueing methods</div>
-<div class="content"><!-- Generator: GNU source-highlight 2.9
+<div class="title">Using the queueing methods</div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1
 by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
@@ -2823,32 +2761,30 @@ http://www.gnu.org/software/src-highlite -->
         <span style="font-style: italic"><span style="color: #9A1900">// execute a little chunk of JS (the blank key means Pronto will</span></span>
         <span style="font-style: italic"><span style="color: #9A1900">// autogenerate one)</span></span>
         <span style="color: #009900">$html</span><span style="color: #990000">-&gt;</span><span style="font-weight: bold"><span style="color: #000000">js_run</span></span><span style="color: #990000">(</span><span style="color: #FF0000">''</span><span style="color: #990000">,</span> <span style="color: #FF0000">"alert('Hello World!');"</span><span style="color: #990000">);</span>
-<span style="color: #990000">?&gt;</span>
-</tt></pre></div></div>
-<h4 id="_the_tt_form_tt_plugin">10.1.2. The <tt>form</tt> Plugin</h4>
-<div class="para"><p>The <tt>form</tt> plugin is used to build fully-functional forms or to generate
-individual form elements.  It's pretty smart and robust, but don't expect
+<span style="color: #990000">?&gt;</span></tt></pre></div></div>
+<h4 id="X9-1-b">The <tt>form</tt> Plugin</h4>
+<div class="paragraph"><p>The <tt>form</tt> plugin is used to build fully-functional forms or to generate
+individual form elements.  It&#8217;s pretty smart and robust, but don&#8217;t expect
 it to be smart enough to generate every fancy form you can think of.</p></div>
 <div class="listingblock">
-<div class="title">Example: Generating an individual form element</div>
-<div class="content"><!-- Generator: GNU source-highlight 2.9
+<div class="title">Generating an individual form element</div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1
 by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
 <pre><tt>Username<span style="color: #990000">:</span> <span style="color: #990000">&lt;?php</span> <span style="font-weight: bold"><span style="color: #0000FF">echo</span></span> <span style="color: #009900">$form</span><span style="color: #990000">-&gt;</span><span style="font-weight: bold"><span style="color: #000000">text</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'username'</span><span style="color: #990000">)</span> <span style="color: #990000">?&gt;&lt;</span>br <span style="color: #990000">/&gt;</span>
-Password<span style="color: #990000">:</span> <span style="color: #990000">&lt;?php</span> <span style="font-weight: bold"><span style="color: #0000FF">echo</span></span> <span style="color: #009900">$form</span><span style="color: #990000">-&gt;</span><span style="font-weight: bold"><span style="color: #000000">password</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'password'</span><span style="color: #990000">)</span> <span style="color: #990000">?&gt;</span>
-</tt></pre></div></div>
-<div class="para"><p>What's the advantage of this over typing out the raw HTML?  It may save
+Password<span style="color: #990000">:</span> <span style="color: #990000">&lt;?php</span> <span style="font-weight: bold"><span style="color: #0000FF">echo</span></span> <span style="color: #009900">$form</span><span style="color: #990000">-&gt;</span><span style="font-weight: bold"><span style="color: #000000">password</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'password'</span><span style="color: #990000">)</span> <span style="color: #990000">?&gt;</span></tt></pre></div></div>
+<div class="paragraph"><p>What&#8217;s the advantage of this over typing out the raw HTML?  It may save
 you a few seconds, but it can also do a few other things to save you time.
 If you open a new form (with <tt>tpForm::open_form()</tt>) you can preload your
 form with any relevant error messages, and they will be displayed
 beside/below their respective form elements.</p></div>
-<div class="para"><p>Also, using a structured interface like this allows us to build full forms
+<div class="paragraph"><p>Also, using a structured interface like this allows us to build full forms
 without carving out the HTML ourselves.  <tt>tpForm::build_form()</tt> will
 generate tableless HTML.</p></div>
 <div class="listingblock">
-<div class="title">Example: A basic single-column form</div>
-<div class="content"><!-- Generator: GNU source-highlight 2.9
+<div class="title">A basic single-column form</div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1
 by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
@@ -2889,32 +2825,31 @@ http://www.gnu.org/software/src-highlite -->
 <span style="font-style: italic"><span style="color: #9A1900">// any relevant errors, so it can prefill data and position errors</span></span>
 <span style="font-style: italic"><span style="color: #9A1900">// accordingly.</span></span>
 <span style="font-weight: bold"><span style="color: #0000FF">echo</span></span> <span style="color: #009900">$form</span><span style="color: #990000">-&gt;</span><span style="font-weight: bold"><span style="color: #000000">build_form</span></span><span style="color: #990000">(</span><span style="color: #009900">$f</span><span style="color: #990000">,</span> <span style="color: #009900">$data</span><span style="color: #990000">,</span> <span style="color: #009900">$errors</span><span style="color: #990000">);</span>
-<span style="color: #990000">?&gt;</span>
-</tt></pre></div></div>
-<div class="para"><p><tt>tpForm::build_form()</tt> is the plugin's main method.  It will construct the
+<span style="color: #990000">?&gt;</span></tt></pre></div></div>
+<div class="paragraph"><p><tt>tpForm::build_form()</tt> is the plugin&#8217;s main method.  It will construct the
 various <tt>&lt;form&gt;</tt> and <tt>&lt;div&gt;</tt> tags for the form, then call the individual
 form element generators for each element, depending on the value of the
 <tt>type</tt> field within each element of the <tt>elements</tt> sub-array.</p></div>
-<div class="para"><p>There are many more options that can be provided to the <tt>build_form()</tt>
+<div class="paragraph"><p>There are many more options that can be provided to the <tt>build_form()</tt>
 method, both at the form level and at the element level.  We suggest you
 read through the code and comments in <tt>pronto/plugins/template/form.php</tt>
 to see them.  Also consult the example applications provided on the Pronto
 website, as they can elucidate.</p></div>
-<h4 id="_the_tt_table_tt_plugin">10.1.3. The <tt>table</tt> Plugin</h4>
-<div class="para"><p>The <tt>table</tt> plugin only provides two primary methods: <tt>build_table()</tt> and
+<h4 id="X9-1-c">The <tt>table</tt> Plugin</h4>
+<div class="paragraph"><p>The <tt>table</tt> plugin only provides two primary methods: <tt>build_table()</tt> and
 <tt>build_grid()</tt>.</p></div>
-<div class="para"><p><tt>tpTable::build_table()</tt> is just a dumb table generator, but can be useful
+<div class="paragraph"><p><tt>tpTable::build_table()</tt> is just a dumb table generator, but can be useful
 for assembling simple tables.  It will handle zebra-coloured rows and a
 highlighting hover effect.</p></div>
-<div class="para"><p><tt>tpTable::build_grid()</tt> is another table generator, but it generates what
+<div class="paragraph"><p><tt>tpTable::build_grid()</tt> is another table generator, but it generates what
 we call a <strong>grid</strong>.  A <strong>grid</strong> is a smarter table, one that provides sorting,
 filtering, pagination, and totals.</p></div>
-<div class="para"><p>Grid definitions somewhat resemble the form definitions we saw in the
-<tt>tpForm::build_form()</tt> example.  We'll pass one giant array to
+<div class="paragraph"><p>Grid definitions somewhat resemble the form definitions we saw in the
+<tt>tpForm::build_form()</tt> example.  We&#8217;ll pass one giant array to
 <tt>tpTable::build_grid()</tt> and it will figure out what goes where.</p></div>
 <div class="listingblock">
-<div class="title">Example: A grid for record listings</div>
-<div class="content"><!-- Generator: GNU source-highlight 2.9
+<div class="title">A grid for record listings</div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1
 by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
@@ -2953,62 +2888,59 @@ http://www.gnu.org/software/src-highlite -->
 <span style="color: #990000">));</span>
 
 <span style="font-weight: bold"><span style="color: #0000FF">echo</span></span> <span style="color: #009900">$table</span><span style="color: #990000">-&gt;</span><span style="font-weight: bold"><span style="color: #000000">build_grid</span></span><span style="color: #990000">(</span><span style="color: #009900">$t</span><span style="color: #990000">);</span>
-<span style="color: #990000">?&gt;</span>
-</tt></pre></div></div>
-<div class="para"><p>Most of this is hopefully self-explanatory, but there are a couple
-interesting points.  Firstly, you can see we've enable "AJAX mode" for
+<span style="color: #990000">?&gt;</span></tt></pre></div></div>
+<div class="paragraph"><p>Most of this is hopefully self-explanatory, but there are a couple
+interesting points.  Firstly, you can see we&#8217;ve enable "AJAX mode" for
 this grid.  This means that any links that hava class of <tt>ajax_action</tt>
 will be treated as an AJAX request instead of a regular one.  When
 clicked, the data will be fetched through an AJAX channel and populated
 <em>within</em> the grid itself, incurring no page loads.</p></div>
-<div class="para"><p>Also, notice how we're generating our relative URLs for the "edit" and
+<div class="paragraph"><p>Also, notice how we&#8217;re generating our relative URLs for the "edit" and
 "delete" actions:</p></div>
 <div class="listingblock">
-<div class="title">Example: Dynamic URL Generation</div>
-<div class="content"><!-- Generator: GNU source-highlight 2.9
+<div class="title">Dynamic URL Generation</div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1
 by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
 <pre><tt>        <span style="color: #FF0000">'edit'</span>   <span style="color: #990000">=&gt;</span> <span style="color: #009900">$html</span><span style="color: #990000">-&gt;</span><span style="font-weight: bold"><span style="color: #000000">link</span></span><span style="color: #990000">(</span><span style="color: #009900">$html</span><span style="color: #990000">-&gt;</span><span style="font-weight: bold"><span style="color: #000000">image</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'icons/edit.gif'</span><span style="color: #990000">,</span> <span style="font-weight: bold"><span style="color: #0000FF">array</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'title'</span><span style="color: #990000">=&gt;</span><span style="color: #FF0000">'Edit User'</span><span style="color: #990000">,</span><span style="color: #FF0000">'class'</span><span style="color: #990000">=&gt;</span><span style="color: #FF0000">'ajax_action'</span><span style="color: #990000">)),</span> <span style="font-weight: bold"><span style="color: #000000">url</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'User'</span><span style="color: #990000">,</span><span style="color: #FF0000">'edit'</span><span style="color: #990000">).</span><span style="color: #FF0000">'?id=&lt;id&gt;'</span><span style="color: #990000">),</span>
-        <span style="color: #FF0000">'delete'</span> <span style="color: #990000">=&gt;</span> <span style="color: #009900">$html</span><span style="color: #990000">-&gt;</span><span style="font-weight: bold"><span style="color: #000000">link</span></span><span style="color: #990000">(</span><span style="color: #009900">$html</span><span style="color: #990000">-&gt;</span><span style="font-weight: bold"><span style="color: #000000">image</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'icons/delete.gif'</span><span style="color: #990000">,</span> <span style="font-weight: bold"><span style="color: #0000FF">array</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'title'</span><span style="color: #990000">=&gt;</span><span style="color: #FF0000">'Delete User'</span><span style="color: #990000">)),</span> <span style="font-weight: bold"><span style="color: #000000">url</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'User'</span><span style="color: #990000">,</span><span style="color: #FF0000">'delete'</span><span style="color: #990000">).</span><span style="color: #FF0000">'?id=&lt;id&gt;'</span><span style="color: #990000">,</span> <span style="color: #FF0000">'Are you sure?'</span><span style="color: #990000">)),</span>
-</tt></pre></div></div>
-<div class="para"><p>We're using the globally-available <tt>url()</tt> function in its second context,
+        <span style="color: #FF0000">'delete'</span> <span style="color: #990000">=&gt;</span> <span style="color: #009900">$html</span><span style="color: #990000">-&gt;</span><span style="font-weight: bold"><span style="color: #000000">link</span></span><span style="color: #990000">(</span><span style="color: #009900">$html</span><span style="color: #990000">-&gt;</span><span style="font-weight: bold"><span style="color: #000000">image</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'icons/delete.gif'</span><span style="color: #990000">,</span> <span style="font-weight: bold"><span style="color: #0000FF">array</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'title'</span><span style="color: #990000">=&gt;</span><span style="color: #FF0000">'Delete User'</span><span style="color: #990000">)),</span> <span style="font-weight: bold"><span style="color: #000000">url</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'User'</span><span style="color: #990000">,</span><span style="color: #FF0000">'delete'</span><span style="color: #990000">).</span><span style="color: #FF0000">'?id=&lt;id&gt;'</span><span style="color: #990000">,</span> <span style="color: #FF0000">'Are you sure?'</span><span style="color: #990000">)),</span></tt></pre></div></div>
+<div class="paragraph"><p>We&#8217;re using the globally-available <tt>url()</tt> function in its second context,
 which can take a controller/action pair and generate a valid URL for it.
 Then we append the variable portion of the URL, such as <tt>?id=&lt;id&gt;</tt>.  The
 <tt>&lt;id&gt;</tt> token will be replaced with the <tt>id</tt> element of the record that
-is displayed on this line of the grid.  You're free to use other elements
+is displayed on this line of the grid.  You&#8217;re free to use other elements
 as well.</p></div>
-<div class="para"><p>For example, if you want to use SEO-friendly URLs for your blog, you may
+<div class="paragraph"><p>For example, if you want to use SEO-friendly URLs for your blog, you may
 want to use a "slug" in the article URL instead of a numeric ID.  Assuming you
 have a column in your table called "slug" that stores this, you could generate
 an URL like so:</p></div>
 <div class="listingblock">
-<div class="title">Example: A new URL pattern</div>
-<div class="content"><!-- Generator: GNU source-highlight 2.9
+<div class="title">A new URL pattern</div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1
 by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
-<pre><tt>        <span style="font-weight: bold"><span style="color: #0000FF">echo</span></span> <span style="color: #009900">$html</span><span style="color: #990000">-&gt;</span><span style="font-weight: bold"><span style="color: #000000">link</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'Read Article'</span><span style="color: #990000">,</span> <span style="font-weight: bold"><span style="color: #000000">url</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'Article'</span><span style="color: #990000">,</span><span style="color: #FF0000">'view'</span><span style="color: #990000">).</span><span style="color: #FF0000">'/&lt;slug&gt;'</span><span style="color: #990000">);</span>
-</tt></pre></div></div>
-<div class="para"><p>Depending on your URL route configuration (set in <tt>app/config/urls.php</tt>),
+<pre><tt>        <span style="font-weight: bold"><span style="color: #0000FF">echo</span></span> <span style="color: #009900">$html</span><span style="color: #990000">-&gt;</span><span style="font-weight: bold"><span style="color: #000000">link</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'Read Article'</span><span style="color: #990000">,</span> <span style="font-weight: bold"><span style="color: #000000">url</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'Article'</span><span style="color: #990000">,</span><span style="color: #FF0000">'view'</span><span style="color: #990000">).</span><span style="color: #FF0000">'/&lt;slug&gt;'</span><span style="color: #990000">);</span></tt></pre></div></div>
+<div class="paragraph"><p>Depending on your URL route configuration (set in <tt>app/config/urls.php</tt>),
 the generated URL would look something like this:
 <tt>/article/view/My_Article_Slug</tt>.</p></div>
-<div class="para"><p>The final interesting activity in this grid is the use of the
+<div class="paragraph"><p>The final interesting activity in this grid is the use of the
 <tt>display_map</tt> directive in the <tt>last_login</tt> column.  Using this, we can
 override the default display behavior of that column for specific values.
-We pass in an array of key/values.  If the record's value is found within
+We pass in an array of key/values.  If the record&#8217;s value is found within
 the array keys, then the corresponding array value will be displayed
 instead.  We use this to display "Never" instead of "0000-00-00" if that
 user has never logged in.</p></div>
-<div class="para"><p>Like <tt>tpForm::build_form()</tt>, there are many more options available, and
-it's best to consult the API documentation, examples apps, or the code
+<div class="paragraph"><p>Like <tt>tpForm::build_form()</tt>, there are many more options available, and
+it&#8217;s best to consult the API documentation, examples apps, or the code
 itself to see how they work.</p></div>
-<h4 id="_the_tt_ajax_tt_plugin">10.1.4. The <tt>ajax</tt> Plugin</h4>
-<div class="para"><p>The <tt>ajax</tt> plugin provides widgets that have an AJAX/DHTML element to
+<h4 id="X9-1-d">The <tt>ajax</tt> Plugin</h4>
+<div class="paragraph"><p>The <tt>ajax</tt> plugin provides widgets that have an AJAX/DHTML element to
 them, such as a find-as-you-type autocomplete widget or a modal dialog
 window.</p></div>
-<div class="para"><p>See the API Reference for a list of all methods in this plugin.  As an
-example, here's a way of displaying a little popup next to the item that
+<div class="paragraph"><p>See the API Reference for a list of all methods in this plugin.  As an
+example, here&#8217;s a way of displaying a little popup next to the item that
 triggered it, then loading new content into the popup based on the button
 clicked.</p></div>
 <div class="admonitionblock">
@@ -3016,13 +2948,13 @@ clicked.</p></div>
 <td class="icon">
 <div class="title">Note</div>
 </td>
-<td class="content">We'll skip the controller logic for now and just show you the templates,
-since that's the focus of this section.</td>
+<td class="content">We&#8217;ll skip the controller logic for now and just show you the templates,
+since that&#8217;s the focus of this section.</td>
 </tr></table>
 </div>
 <div class="listingblock">
-<div class="title">Example: Hot popup action: the main template</div>
-<div class="content"><!-- Generator: GNU source-highlight 2.9
+<div class="title">Hot popup action: the main template</div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1
 by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
@@ -3038,30 +2970,28 @@ http://www.gnu.org/software/src-highlite -->
                         <span style="color: #FF0000">'Cancel'</span> <span style="color: #990000">=&gt;</span> <span style="font-weight: bold"><span style="color: #0000FF">array</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'action'</span><span style="color: #990000">=&gt;</span><span style="color: #FF0000">'close'</span><span style="color: #990000">)</span>
                 <span style="color: #990000">));</span>
         <span style="color: #990000">?&gt;</span>
-<span style="color: #990000">&lt;/</span>div<span style="color: #990000">&gt;</span>
-</tt></pre></div></div>
+<span style="color: #990000">&lt;/</span>div<span style="color: #990000">&gt;</span></tt></pre></div></div>
 <div class="listingblock">
-<div class="title">Example: Hot popup action: the template rendered if "OK" is clicked</div>
-<div class="content"><!-- Generator: GNU source-highlight 2.9
+<div class="title">Hot popup action: the template rendered if "OK" is clicked</div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1
 by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
 <pre><tt>You proceeded<span style="color: #990000">!</span>  What a brave soul<span style="color: #990000">.</span>
-<span style="color: #990000">&lt;?php</span> <span style="font-weight: bold"><span style="color: #0000FF">echo</span></span> <span style="color: #009900">$ajax</span><span style="color: #990000">-&gt;</span><span style="font-weight: bold"><span style="color: #000000">popup_buttons</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'Close'</span> <span style="color: #990000">=&gt;</span> <span style="font-weight: bold"><span style="color: #0000FF">array</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'action'</span><span style="color: #990000">=&gt;</span><span style="color: #FF0000">'close'</span><span style="color: #990000">))</span> <span style="color: #990000">?&gt;</span>
-</tt></pre></div></div>
-<div class="para"><p>The <tt>ajax</tt> plugin is still in a state of flux, but its modest offering has
+<span style="color: #990000">&lt;?php</span> <span style="font-weight: bold"><span style="color: #0000FF">echo</span></span> <span style="color: #009900">$ajax</span><span style="color: #990000">-&gt;</span><span style="font-weight: bold"><span style="color: #000000">popup_buttons</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'Close'</span> <span style="color: #990000">=&gt;</span> <span style="font-weight: bold"><span style="color: #0000FF">array</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'action'</span><span style="color: #990000">=&gt;</span><span style="color: #FF0000">'close'</span><span style="color: #990000">))</span> <span style="color: #990000">?&gt;</span></tt></pre></div></div>
+<div class="paragraph"><p>The <tt>ajax</tt> plugin is still in a state of flux, but its modest offering has
 already proven to be very useful for building rich user interfaces.</p></div>
-<h4 id="_the_tt_navigation_tt_plugin">10.1.5. The <tt>navigation</tt> Plugin</h4>
-<div class="para"><p>The <tt>navigation</tt> plugin provides a simple method of defining and rendering
-a two-level nagivation menu.  It's understood that most applications will
+<h4 id="X9-1-e">The <tt>navigation</tt> Plugin</h4>
+<div class="paragraph"><p>The <tt>navigation</tt> plugin provides a simple method of defining and rendering
+a two-level nagivation menu.  It&#8217;s understood that most applications will
 have a customized public-facing layout, but many applications may want to
 use the default Pronto layout for the private backend/administration
 section.  The <tt>navigation</tt> plugin works nicely for administration menus.</p></div>
-<div class="para"><p>You can configure the navigation menu by editing
+<div class="paragraph"><p>You can configure the navigation menu by editing
 <tt>app/config/navigation.php</tt>.</p></div>
 <div class="listingblock">
-<div class="title">Example: A basic navigation menu</div>
-<div class="content"><!-- Generator: GNU source-highlight 2.9
+<div class="title">A basic navigation menu</div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1
 by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
@@ -3073,31 +3003,29 @@ http://www.gnu.org/software/src-highlite -->
                 <span style="color: #FF0000">'List'</span>  <span style="color: #990000">=&gt;</span> <span style="font-weight: bold"><span style="color: #0000FF">array</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'url'</span><span style="color: #990000">=&gt;</span><span style="font-weight: bold"><span style="color: #000000">url</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'/user/list'</span><span style="color: #990000">)))),</span>
         <span style="color: #FF0000">'Books'</span> <span style="color: #990000">=&gt;</span> <span style="font-weight: bold"><span style="color: #0000FF">array</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'access'</span><span style="color: #990000">=&gt;</span><span style="color: #FF0000">'ADMIN'</span><span style="color: #990000">,</span> <span style="color: #FF0000">'url'</span><span style="color: #990000">=&gt;</span><span style="font-weight: bold"><span style="color: #000000">url</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'/book/list'</span><span style="color: #990000">),</span> <span style="color: #FF0000">'base'</span><span style="color: #990000">=&gt;</span><span style="font-weight: bold"><span style="color: #000000">url</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'/book/'</span><span style="color: #990000">))</span>
 <span style="color: #990000">);</span>
-<span style="color: #990000">?&gt;</span>
-</tt></pre></div></div>
-<div class="para"><p>As you can see, the array keys are the labels for each menu item, while
+<span style="color: #990000">?&gt;</span></tt></pre></div></div>
+<div class="paragraph"><p>As you can see, the array keys are the labels for each menu item, while
 the value arrays define the destination URL, access requirements, and an
 optional submenu.  Submenus can have infinite depth. You can also set the
 <tt>base</tt> field which tells the plugin when to highlight a tab as the active
 one.</p></div>
-<div class="para"><p>To render a navigation element, you simply call the <tt>menu()</tt> method from
+<div class="paragraph"><p>To render a navigation element, you simply call the <tt>menu()</tt> method from
 within your template or layout.</p></div>
 <div class="listingblock">
-<div class="title">Example: Rendering the navigation element</div>
-<div class="content"><!-- Generator: GNU source-highlight 2.9
+<div class="title">Rendering the navigation element</div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1
 by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
-<pre><tt><span style="color: #990000">&lt;?php</span> <span style="font-weight: bold"><span style="color: #0000FF">echo</span></span> <span style="color: #009900">$navigation</span><span style="color: #990000">-&gt;</span><span style="font-weight: bold"><span style="color: #000000">menu</span></span><span style="color: #990000">()</span> <span style="color: #990000">?&gt;</span>
-</tt></pre></div></div>
-<h4 id="_the_tt_pager_tt_plugin">10.1.6. The <tt>pager</tt> Plugin</h4>
-<div class="para"><p>Most web applications will, at some point, need to provide some sort of
+<pre><tt><span style="color: #990000">&lt;?php</span> <span style="font-weight: bold"><span style="color: #0000FF">echo</span></span> <span style="color: #009900">$navigation</span><span style="color: #990000">-&gt;</span><span style="font-weight: bold"><span style="color: #000000">menu</span></span><span style="color: #990000">()</span> <span style="color: #990000">?&gt;</span></tt></pre></div></div>
+<h4 id="X9-1-f">The <tt>pager</tt> Plugin</h4>
+<div class="paragraph"><p>Most web applications will, at some point, need to provide some sort of
 record listing.  If there are many records to list, then it makes sense to
 break these up into sections.  The <tt>pager</tt> plugin will render a pagination
 control that creates links to other pages.</p></div>
 <div class="listingblock">
-<div class="title">Example: Using the <tt>pager</tt> plugin</div>
-<div class="content"><!-- Generator: GNU source-highlight 2.9
+<div class="title">Using the <tt>pager</tt> plugin</div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1
 by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
@@ -3107,16 +3035,15 @@ http://www.gnu.org/software/src-highlite -->
         <span style="font-weight: bold"><span style="color: #0000FF">echo</span></span> <span style="color: #FF0000">"{$row['name']}&lt;br /&gt;\n"</span><span style="color: #990000">;</span>
 <span style="color: #FF0000">}</span>
 <span style="font-weight: bold"><span style="color: #0000FF">echo</span></span> <span style="color: #009900">$pager</span><span style="color: #990000">-&gt;</span><span style="font-weight: bold"><span style="color: #000000">generate</span></span><span style="color: #990000">(</span>CURRENT_URL<span style="color: #990000">,</span> <span style="color: #993399">10</span><span style="color: #990000">,</span> <span style="color: #009900">$curpage</span><span style="color: #990000">,</span> <span style="color: #009900">$totalrow</span><span style="color: #990000">);</span>
-<span style="color: #990000">?&gt;</span>
-</tt></pre></div></div>
-<div class="para"><p>You can adjust the styling of the pagination control by modifying the
+<span style="color: #990000">?&gt;</span></tt></pre></div></div>
+<div class="paragraph"><p>You can adjust the styling of the pagination control by modifying the
 <tt>pagination</tt> classes in <tt>css/main.css</tt>.</p></div>
-<h3 id="_page_plugins">10.2. Page Plugins</h3><div style="clear:left"></div>
-<div class="para"><p>Page plugins are just like template plugins except that they operate at
+<h3 id="X9-2">Page Plugins</h3><div style="clear:left"></div>
+<div class="paragraph"><p>Page plugins are just like template plugins except that they operate at
 the page controller level.  As such, they have a little more leeway in
 what they can do.  For example, if you really wanted, you could pass in
 the <tt>$db</tt> object or some models and let them do some work with them, or
-you might just use them to do some common tasks that you don't want to
+you might just use them to do some common tasks that you don&#8217;t want to
 keep implementing in specific page controllers.</p></div>
 <div class="admonitionblock">
 <table><tr>
@@ -3130,13 +3057,13 @@ commandline scripts.  All plugins are stored in a <tt>stdClass</tt> object under
 the registry key <tt>plugins</tt>.</td>
 </tr></table>
 </div>
-<div class="para"><p>There are currently six page plugins included with Pronto.  Each
+<div class="paragraph"><p>There are currently six page plugins included with Pronto.  Each
 page plugin class name is prefixed with a <tt>pp</tt>.</p></div>
 <div class="tableblock">
 <table rules="none"
 frame="hsides"
 cellspacing="0" cellpadding="4">
-<caption class="title">Table: Plugins</caption>
+<caption class="title">Plugins</caption>
 <col width="160" />
 <col width="708" />
 <tbody valign="top">
@@ -3191,12 +3118,12 @@ cellspacing="0" cellpadding="4">
 </tbody>
 </table>
 </div>
-<div class="para"><p>The usage of these plugins is a little easier to understand than some of
-the helpers, so we won't spend too much time on them.</p></div>
-<div class="para"><p>Here are a couple examples to get you started, though.</p></div>
+<div class="paragraph"><p>The usage of these plugins is a little easier to understand than some of
+the helpers, so we won&#8217;t spend too much time on them.</p></div>
+<div class="paragraph"><p>Here are a couple examples to get you started, though.</p></div>
 <div class="listingblock">
-<div class="title">Example: Using ppFile and ppMailer</div>
-<div class="content"><!-- Generator: GNU source-highlight 2.9
+<div class="title">Using ppFile and ppMailer</div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1
 by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
@@ -3230,22 +3157,21 @@ http://www.gnu.org/software/src-highlite -->
                 <span style="color: #009900">$mail</span><span style="color: #990000">-&gt;</span><span style="font-weight: bold"><span style="color: #000000">send</span></span><span style="color: #990000">();</span>
         <span style="color: #FF0000">}</span>
 
-<span style="color: #FF0000">}</span>
-</tt></pre></div></div>
-<h3 id="_custom_plugins">10.3. Custom Plugins</h3><div style="clear:left"></div>
-<div class="para"><p>It's easy (and encouraged!) to write your own plugins for Pronto.  If they
+<span style="color: #FF0000">}</span></tt></pre></div></div>
+<h3 id="X9-3">Custom Plugins</h3><div style="clear:left"></div>
+<div class="paragraph"><p>It&#8217;s easy (and encouraged!) to write your own plugins for Pronto.  If they
 are useful outside your specific application, you may want to submit them
 to the Pronto Project so they can be used by others as well.</p></div>
-<div class="para"><p>To create your own page/template plugin, simply copy one of the existing
+<div class="paragraph"><p>To create your own page/template plugin, simply copy one of the existing
 ones to get the class structure, then add your own functionality.  To
 activate it, add your plugin name to the <tt>PLUGINS</tt> or
 <tt>HELPERS</tt> in <tt>app/config/config.php</tt>.</p></div>
-<h4 id="_depending_on_other_plugins">10.3.1. Depending on other plugins</h4>
-<div class="para"><p>Like models, plugins can depend on each other for cross-functionality.
+<h4 id="X9-3-a">Depending on other plugins</h4>
+<div class="paragraph"><p>Like models, plugins can depend on each other for cross-functionality.
 The format is the same as with models.</p></div>
 <div class="listingblock">
-<div class="title">Example: Depending on other plugins</div>
-<div class="content"><!-- Generator: GNU source-highlight 2.9
+<div class="title">Depending on other plugins</div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1
 by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
@@ -3259,19 +3185,18 @@ http://www.gnu.org/software/src-highlite -->
                 <span style="color: #009900">$stuff</span> <span style="color: #990000">=</span> <span style="color: #009900">$this</span><span style="color: #990000">-&gt;</span>depends<span style="color: #990000">-&gt;</span>bar<span style="color: #990000">-&gt;</span><span style="font-weight: bold"><span style="color: #000000">do_stuff</span></span><span style="color: #990000">();</span>
         <span style="color: #FF0000">}</span>
 <span style="color: #FF0000">}</span>
-<span style="color: #990000">?&gt;</span>
-</tt></pre></div></div>
+<span style="color: #990000">?&gt;</span></tt></pre></div></div>
 </div>
-<h2 id="X10">11. Internationalization</h2>
+<h2 id="X10">Internationalization</h2>
 <div class="sectionbody">
-<div class="para"><p>Pronto provides its own facility for internationalization (herein referred
+<div class="paragraph"><p>Pronto provides its own facility for internationalization (herein referred
 to as <strong>i18n</strong>).  Currently it only supports string translation, but in the
 future we plan to support other forms of localization, such as date/time
 formats, currency, numbers, etc.</p></div>
-<div class="para"><p>I18n can be a real pain to do, but if you start your application with it
+<div class="paragraph"><p>I18n can be a real pain to do, but if you start your application with it
 in mind, it can smooth the process significantly.</p></div>
-<div class="para"><p>The process goes something like this:</p></div>
-<div class="olist"><ol>
+<div class="paragraph"><p>The process goes something like this:</p></div>
+<div class="olist arabic"><ol class="arabic">
 <li>
 <p>
 Make sure all your strings are passed through <tt>__()</tt> or <tt>_e()</tt>
@@ -3295,14 +3220,14 @@ Reap the benefits of using a multilingual web application.
 </p>
 </li>
 </ol></div>
-<div class="para"><p>The first trick with i18n is to run <em>all</em> your static strings through one
-of the i18n string functions, <tt>__()</tt> or <tt>_e()</tt>.  These functions will take
+<div class="paragraph"><p>The first trick with i18n is to run <em>all</em> your static strings through one
+of the i18n string functions, <tt>\_\_()</tt> or <tt>\_e()</tt>.  These functions will take
 in a string, look at the current language in use, and translate the string
 to that language, if such a translation exists.  The only functional
-difference between these two functions is that <tt>__()</tt> will return the
-translated string, while <tt>_e()</tt> will <tt>echo</tt> it to the output buffer.
-<tt>_e()</tt> can be useful in templates so you don't have to write <tt>echo
-__("foo")</tt> all the time.</p></div>
+difference between these two functions is that <tt>\_\_()</tt> will return the
+translated string, while <tt>\_e()</tt> will <tt>echo</tt> it to the output buffer.
+<tt>\_e()</tt> can be useful in templates so you don&#8217;t have to write <tt>echo
+\_\_("foo")</tt> all the time.</p></div>
 <div class="admonitionblock">
 <table><tr>
 <td class="icon">
@@ -3310,59 +3235,58 @@ __("foo")</tt> all the time.</p></div>
 </td>
 <td class="content">It is highly recommended that you keep the default <strong>UTF-8</strong> character set
 in Pronto (it is set in <tt>app/config/config.php</tt>), as this will ensure you
-don't run into encoding issues when changing languages.</td>
+don&#8217;t run into encoding issues when changing languages.</td>
 </tr></table>
 </div>
-<h3 id="_using_tt_tt_and_tt_e_tt">11.1. Using <tt>__()</tt> and <tt>_e()</tt></h3><div style="clear:left"></div>
-<div class="para"><p>These functions both act somewhat akin to the way <tt>printf()</tt> style functions
+<h3 id="X10-1">Using <tt>__()</tt> and <tt>_e()</tt></h3><div style="clear:left"></div>
+<div class="paragraph"><p>These functions both act somewhat akin to the way <tt>printf()</tt> style functions
 do.  They accept a regular string, and optionally, can take a number of
 arguments that will be substituted into the string, just as <tt>printf()</tt>
 would.</p></div>
-<div class="para"><p>These functions are global, so they can be accessed at any layer of the
+<div class="paragraph"><p>These functions are global, so they can be accessed at any layer of the
 framework.</p></div>
 <div class="listingblock">
-<div class="title">Example: Using <tt>__()</tt></div>
-<div class="content"><!-- Generator: GNU source-highlight 2.9
+<div class="title">Using <tt>__()</tt></div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1
 by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
 <pre><tt><span style="color: #990000">&lt;?php</span>
         <span style="font-weight: bold"><span style="color: #0000FF">echo</span></span> <span style="font-weight: bold"><span style="color: #000000">__</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'You have %d bottles of beer on the wall'</span><span style="color: #990000">,</span> <span style="color: #009900">$num</span><span style="color: #990000">);</span>
-<span style="color: #990000">?&gt;</span>
-</tt></pre></div></div>
-<div class="para"><p>Why not just write the number in the string itself?  If you think about
+<span style="color: #990000">?&gt;</span></tt></pre></div></div>
+<div class="paragraph"><p>Why not just write the number in the string itself?  If you think about
 it, the reason will be obvious.</p></div>
-<div class="para"><p>When you compile your messages file, each string needs to be represented.
+<div class="paragraph"><p>When you compile your messages file, each string needs to be represented.
 If you introduce a variable into your string, then the string itself will
 be different for every possible value of the variable within.  In the
-interest of saving your translators some headache, you probably don't want
+interest of saving your translators some headache, you probably don&#8217;t want
 them to have to translate the "bottles of beer" string 99 times, once for
 each number.</p></div>
-<div class="para"><p>By using printf-style placeholders, we ensure the string itself only
+<div class="paragraph"><p>By using printf-style placeholders, we ensure the string itself only
 appears once in the messages file.</p></div>
-<h3 id="_compiling_the_messages_file">11.2. Compiling the messages file</h3><div style="clear:left"></div>
-<div class="para"><p>Okay, so now all your strings are enclosed in <tt>__()</tt> or <tt>_e()</tt>.  The next
+<h3 id="X10-2">Compiling the messages file</h3><div style="clear:left"></div>
+<div class="paragraph"><p>Okay, so now all your strings are enclosed in <tt>__()</tt> or <tt>_e()</tt>.  The next
 step is to generate the messages file.</p></div>
-<div class="para"><p>I18n messages files are stored in <tt>app/config/i18n</tt>.  Each file resides in
+<div class="paragraph"><p>I18n messages files are stored in <tt>app/config/i18n</tt>.  Each file resides in
 a subdirectory named after the ISO language code.  So the messages file
 for the English language will be found at
 <tt>app/config/i18n/en/messages.php</tt>.</p></div>
-<div class="para"><p>So with all your strings nicely i18n'ed, you can now generate the messages
+<div class="paragraph"><p>So with all your strings nicely i18n&#8217;ed, you can now generate the messages
 file using the <tt>i18n_scan.php</tt> script.</p></div>
 <div class="listingblock">
-<div class="title">Example: Using the I18N Scanner</div>
+<div class="title">Using the I18N Scanner</div>
 <div class="content">
 <pre><tt>$ php ../pronto/bin/i18n_scan.php en English</tt></pre>
 </div></div>
-<div class="para"><p>If <tt>i18n_scan.php</tt> finishes without error, you should have a nice big array
+<div class="paragraph"><p>If <tt>i18n_scan.php</tt> finishes without error, you should have a nice big array
 of strings in <tt>app/config/i18n/en/messages.php</tt> now.  This file can then
 be passed to translaters, who will translate the array <em>values</em> into the
 new language.  The array <em>keys</em> must stay as they are, so the i18n system
 can use them for string lookups.</p></div>
-<div class="para"><p>Here's an excerpt of a messages file for French.</p></div>
+<div class="paragraph"><p>Here&#8217;s an excerpt of a messages file for French.</p></div>
 <div class="listingblock">
-<div class="title">Example: <tt>app/config/i18n/fr/messages.php</tt></div>
-<div class="content"><!-- Generator: GNU source-highlight 2.9
+<div class="title"><tt>app/config/i18n/fr/messages.php</tt></div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1
 by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
@@ -3383,16 +3307,15 @@ http://www.gnu.org/software/src-highlite -->
         <span style="color: #FF0000">"Are you sure you want to remove this file?"</span> <span style="color: #990000">=&gt;</span> <span style="color: #FF0000">"Etes-vous sûr de vouloir supprimer ce fichier?"</span><span style="color: #990000">,</span>
         <span style="color: #FF0000">"Are you sure?"</span> <span style="color: #990000">=&gt;</span> <span style="color: #FF0000">"Etes-vous sûr?"</span><span style="color: #990000">,</span>
 <span style="color: #990000">);</span>
-<span style="color: #990000">?&gt;</span>
-</tt></pre></div></div>
-<h4 id="_using_google_translate_for_translations">11.2.1. Using Google Translate for Translations</h4>
-<div class="para"><p>Pronto provides two scripts that use Google Translate to translate
+<span style="color: #990000">?&gt;</span></tt></pre></div></div>
+<h4 id="X10-2-a">Using Google Translate for Translations</h4>
+<div class="paragraph"><p>Pronto provides two scripts that use Google Translate to translate
 messages files into new language.</p></div>
 <div class="tableblock">
 <table rules="none"
 frame="hsides"
 cellspacing="0" cellpadding="4">
-<caption class="title">Table: Translation scripts</caption>
+<caption class="title">Translation scripts</caption>
 <col width="262" />
 <col width="571" />
 <tbody valign="top">
@@ -3426,7 +3349,7 @@ useful in earlier stages of development.</td>
 </tr></table>
 </div>
 <div class="listingblock">
-<div class="title">Example: Using <tt>google_translate.php</tt></div>
+<div class="title">Using <tt>google_translate.php</tt></div>
 <div class="content">
 <pre><tt>$ mkdir config/i18n/fr
 $ cp config/i18n/en/messages.php config/i18n/fr/
@@ -3434,7 +3357,7 @@ $ cp config/i18n/en/messages.php config/i18n/fr/
 $ php ../pronto/bin/google_translate.php config/i18n/fr/messages.php</tt></pre>
 </div></div>
 <div class="listingblock">
-<div class="title">Example: Using <tt>translate_all.php</tt></div>
+<div class="title">Using <tt>translate_all.php</tt></div>
 <div class="content">
 <pre><tt>$ php ../pronto/bin/translate_all.php
 Translating English to Arabic...
@@ -3451,11 +3374,11 @@ Translating English to Portuguese...
 Translating English to Russian...
 Translating English to Spanish...</tt></pre>
 </div></div>
-<h3 id="_the_tt_i18n_tt_class">11.3. The <tt>i18n</tt> Class</h3><div style="clear:left"></div>
-<div class="para"><p>Like the <tt>Access</tt> class and others, the <tt>I18N</tt> class is a utility-level
+<h3 id="X10-3">The <tt>i18n</tt> Class</h3><div style="clear:left"></div>
+<div class="paragraph"><p>Like the <tt>Access</tt> class and others, the <tt>I18N</tt> class is a utility-level
 class that is instantiated only once per Pronto invocation.  The object is
 held by the <tt>$web</tt> object, so it can be referenced through that.</p></div>
-<div class="para"><p>You typically won't have to use the <tt>$web&#8594;i18n</tt> object.  When Pronto
+<div class="paragraph"><p>You typically won&#8217;t have to use the <tt>$web-&gt;i18n</tt> object.  When Pronto
 starts processing a web request, it will try to autoset the language of
 choice, based on a few values available.  Here are the values it will look
 for, in this order:</p></div>
@@ -3463,13 +3386,13 @@ for, in this order:</p></div>
 <table rules="none"
 frame="hsides"
 cellspacing="0" cellpadding="4">
-<caption class="title">Table: Values used for setting a language</caption>
+<caption class="title">Values used for setting a language</caption>
 <col width="422" />
 <col width="411" />
 <tbody valign="top">
   <tr>
     <td align="left">
-    <tt>$_SESSION['LANGUAGE']</tt>
+    <tt>$_SESSION[\'LANGUAGE\']</tt>
     </td>
     <td align="left">
     The application is responsible for setting this.  It is intended to be used by site visitors who likely have no user/preferences record in the DB.  Perhaps your application has a "Language" select dropdown that the visitor can choose from.
@@ -3477,30 +3400,30 @@ cellspacing="0" cellpadding="4">
   </tr>
   <tr>
     <td align="left">
-    <tt>$_SESSION['USER']['language']</tt>
+    <tt>$_SESSION[\'USER\'][\'language\']</tt>
     </td>
     <td align="left">
-    When a user logs in, typically their record is stored in <tt>$_SESSION['USER']</tt>.  If a <tt>language</tt> field is present, it would be found here.
+    When a user logs in, typically their record is stored in <tt>$_SESSION[\'USER\']</tt>.  If a <tt>language</tt> field is present, it would be found here.
     </td>
   </tr>
   <tr>
     <td align="left">
-    <tt>$_SERVER['HTTP_ACCEPT_LANGUAGE']</tt>
+    <tt>$_SERVER[\'HTTP_ACCEPT_LANGUAGE\']</tt>
     </td>
     <td align="left">
-    If the visitor's browser provides an <tt>Accept-Language</tt> HTTP header, Pronto will look through it for languages that your application supports, and choose the first it finds.
+    If the visitor&#8217;s browser provides an <tt>Accept-Language</tt> HTTP header, Pronto will look through it for languages that your application supports, and choose the first it finds.
     </td>
   </tr>
 </tbody>
 </table>
 </div>
-<div class="para"><p>The one function you'll probably need the <tt>$i18n</tt> object for is
+<div class="paragraph"><p>The one function you&#8217;ll probably need the <tt>$i18n</tt> object for is
 retrieving a list of languages that your application supports.  You can
 use the results to populate a dropdown widget or equivalent, so the user
 can choose his/her preferred language.</p></div>
 <div class="listingblock">
-<div class="title">Example: Retrieving a list of all languages</div>
-<div class="content"><!-- Generator: GNU source-highlight 2.9
+<div class="title">Retrieving a list of all languages</div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1
 by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
@@ -3514,33 +3437,32 @@ http://www.gnu.org/software/src-highlite -->
                 <span style="color: #009900">$this</span><span style="color: #990000">-&gt;</span><span style="font-weight: bold"><span style="color: #000000">tset</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'languages'</span><span style="color: #990000">,</span> <span style="color: #009900">$i18n</span><span style="color: #990000">-&gt;</span><span style="font-weight: bold"><span style="color: #000000">get_languages</span></span><span style="color: #990000">());</span>
         <span style="color: #FF0000">}</span>
 <span style="color: #FF0000">}</span>
-<span style="color: #990000">?&gt;</span>
-</tt></pre></div></div>
+<span style="color: #990000">?&gt;</span></tt></pre></div></div>
 </div>
-<h2 id="X11">12. Modules</h2>
+<h2 id="X11">Modules</h2>
 <div class="sectionbody">
-<div class="para"><p>Most of your page controllers, models, and templates will sit in their
-respective subdirectories under the <tt>app</tt> directory.  But it's also
+<div class="paragraph"><p>Most of your page controllers, models, and templates will sit in their
+respective subdirectories under the <tt>app</tt> directory.  But it&#8217;s also
 possible to localize related controllers/models/templates into a more
 modular layout, so they can be easily packaged and used in different
 Pronto applications.</p></div>
-<div class="para"><p>Modules are basically just that &#8212; collections of page controllers,
+<div class="paragraph"><p>Modules are basically just that&#8201;&#8212;&#8201;collections of page controllers,
 models, and templates, located in a subdirectory of <tt>app/modules</tt>.  The
 Pronto distribution code includes a sample module called <tt>dummy</tt> that can
 be used as a template.  There is also a module generator available in the
 <tt>pronto/bin/generators</tt> directory.</p></div>
-<h3 id="_enabling_modules">12.1. Enabling Modules</h3><div style="clear:left"></div>
-<div class="para"><p>Once you have a module you want to include in your application, you must
+<h3 id="X11-1">Enabling Modules</h3><div style="clear:left"></div>
+<div class="paragraph"><p>Once you have a module you want to include in your application, you must
 enable it by adding it to the <tt>MODULES</tt> constant in <tt>app/config.php</tt>.</p></div>
-<div class="para"><p>Each module typically comes with its own URL routing rules, which are
+<div class="paragraph"><p>Each module typically comes with its own URL routing rules, which are
 stored in <tt>app/modules/&lt;module_name&gt;/config/urls.php</tt>.  These rules will
 be automatically prepended to the master URL routing table.</p></div>
-<h3 id="_using_the_module_generator">12.2. Using The Module Generator</h3><div style="clear:left"></div>
-<div class="para"><p>Like the CRUD generator, the module generator can save you a few minutes
+<h3 id="X11-2">Using The Module Generator</h3><div style="clear:left"></div>
+<div class="paragraph"><p>Like the CRUD generator, the module generator can save you a few minutes
 of copy/paste time by setting up the basic file structure for a new
 Pronto module.</p></div>
 <div class="listingblock">
-<div class="title">Example: Using the Module generator</div>
+<div class="title">Using the Module generator</div>
 <div class="content">
 <pre><tt>$ php pronto/bin/generators/module/generate.php my_module
 Module:  my_module
@@ -3553,25 +3475,25 @@ New Page Controller: app/modules/my_module/pages/page.php
 To enable this module, add it to the MODULES constant in app/config/config.php</tt></pre>
 </div></div>
 </div>
-<h2 id="X12">13. Caching</h2>
+<h2 id="X12">Caching</h2>
 <div class="sectionbody">
-<div class="para"><p>Caching is a very effective way of getting more performance out of your
+<div class="paragraph"><p>Caching is a very effective way of getting more performance out of your
 application.  In a stateless environment such as the web, it becomes
 necessary to make many queries to the database to retrieve all the data
 required to fulfill a page request, and each time the page is requested,
 this data needs to be fetched again.</p></div>
-<div class="para"><p>By caching the data entities after the first request, additional trips to
+<div class="paragraph"><p>By caching the data entities after the first request, additional trips to
 the database can be avoided by using the cached version instead.  Pronto
 supports transparent caching of data entities for which this feature is
 enabled, and also provides a generic caching facility for explicit caching
 of other data.</p></div>
-<h3 id="_enabling_the_cache_layer">13.1. Enabling the Cache Layer</h3><div style="clear:left"></div>
-<div class="para"><p>To enable caching, you must edit <tt>app/config/cache.php</tt>.  In it you can
+<h3 id="X12-1">Enabling the Cache Layer</h3><div style="clear:left"></div>
+<div class="paragraph"><p>To enable caching, you must edit <tt>app/config/cache.php</tt>.  In it you can
 enable caching and define the cache driver you wish to use as well as any
 additional driver-specific configuration options.</p></div>
 <div class="listingblock">
-<div class="title">Example: Enabling the <tt>files</tt> cache driver</div>
-<div class="content"><!-- Generator: GNU source-highlight 2.9
+<div class="title">Enabling the <tt>files</tt> cache driver</div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1
 by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
@@ -3579,9 +3501,8 @@ http://www.gnu.org/software/src-highlite -->
 <span style="font-weight: bold"><span style="color: #000000">define</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'USE_CACHE'</span><span style="color: #990000">,</span>        true<span style="color: #990000">);</span>
 <span style="font-weight: bold"><span style="color: #000000">define</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'CACHE_DRIVER'</span><span style="color: #990000">,</span>    <span style="color: #FF0000">'files'</span><span style="color: #990000">);</span>
 <span style="font-weight: bold"><span style="color: #000000">define</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'CACHE_FILES_DIR'</span>  DIR_FS_CACHE<span style="color: #990000">.</span>DS<span style="color: #990000">.</span><span style="color: #FF0000">'cache'</span><span style="color: #990000">);</span>
-<span style="color: #990000">?&gt;</span>
-</tt></pre></div></div>
-<div class="para"><p>Make sure you create the <tt>cache</tt> directory in the appropriate location.
+<span style="color: #990000">?&gt;</span></tt></pre></div></div>
+<div class="paragraph"><p>Make sure you create the <tt>cache</tt> directory in the appropriate location.
 Also make sure that your web server has write permission to this
 directory, or you will see an error.</p></div>
 <div class="admonitionblock">
@@ -3591,16 +3512,16 @@ directory, or you will see an error.</p></div>
 </td>
 <td class="content">The <tt>files</tt> cache driver is functional, but there are other
 memory-baesd caches that will probably be faster for you.  If
-you have other caches available such as Memcache or APC, it's
+you have other caches available such as Memcache or APC, it&#8217;s
 recommended to use one of those instead.</td>
 </tr></table>
 </div>
-<h3 id="_caching_in_data_models">13.2. Caching in Data Models</h3><div style="clear:left"></div>
-<div class="para"><p>Pronto's data models support automatic caching at the entity level, but to
+<h3 id="X12-2">Caching in Data Models</h3><div style="clear:left"></div>
+<div class="paragraph"><p>Pronto&#8217;s data models support automatic caching at the entity level, but to
 use it, you must enable this feature for each data model.</p></div>
 <div class="listingblock">
-<div class="title">Example: Enabling Caching for a Data Model</div>
-<div class="content"><!-- Generator: GNU source-highlight 2.9
+<div class="title">Enabling Caching for a Data Model</div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1
 by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
@@ -3611,16 +3532,15 @@ http://www.gnu.org/software/src-highlite -->
         <span style="font-style: italic"><span style="color: #9A1900">// model class.</span></span>
         <span style="font-weight: bold"><span style="color: #0000FF">var</span></span> <span style="color: #009900">$enable_cache</span> <span style="color: #990000">=</span> true<span style="color: #990000">;</span>
 <span style="color: #FF0000">}</span>
-<span style="color: #990000">?&gt;</span>
-</tt></pre></div></div>
-<div class="para"><p>While this is all it takes to enable the caching for a data model, you
+<span style="color: #990000">?&gt;</span></tt></pre></div></div>
+<div class="paragraph"><p>While this is all it takes to enable the caching for a data model, you
 must also program your data models with caching in mind.</p></div>
-<div class="para"><p>What does this mean?  Well, you have to be diligent about <em>invalidating</em>
+<div class="paragraph"><p>What does this mean?  Well, you have to be diligent about <em>invalidating</em>
 a cached data record whenever you modify it, or else Pronto will not know
 when to use the cached version or the "live" version from the database.</p></div>
 <div class="listingblock">
-<div class="title">Example: Invalidating a cached record</div>
-<div class="content"><!-- Generator: GNU source-highlight 2.9
+<div class="title">Invalidating a cached record</div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1
 by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
@@ -3635,13 +3555,12 @@ http://www.gnu.org/software/src-highlite -->
                 <span style="color: #009900">$this</span><span style="color: #990000">-&gt;</span><span style="font-weight: bold"><span style="color: #000000">invalidate</span></span><span style="color: #990000">(</span><span style="color: #009900">$user_id</span><span style="color: #990000">);</span> <span style="font-style: italic"><span style="color: #9A1900">// invalidate/expire this cache entry</span></span>
         <span style="color: #FF0000">}</span>
 <span style="color: #FF0000">}</span>
-<span style="color: #990000">?&gt;</span>
-</tt></pre></div></div>
-<div class="para"><p>Also, whenever you want to fetch an entity (either from controllers, other
-data models, or the model for which we're caching entries), you should go
-through the model's <tt>get()</tt> method.  This is because <tt>Model::get()</tt> will
+<span style="color: #990000">?&gt;</span></tt></pre></div></div>
+<div class="paragraph"><p>Also, whenever you want to fetch an entity (either from controllers, other
+data models, or the model for which we&#8217;re caching entries), you should go
+through the model&#8217;s <tt>get()</tt> method.  This is because <tt>Model::get()</tt> will
 automatically check the cache.  If a cached record exists, it will be
-returned.  If it doesn't exist, then <tt>get_record()</tt> will be called to
+returned.  If it doesn&#8217;t exist, then <tt>get_record()</tt> will be called to
 fetch the entity from the database.  It will then be stored in the cache
 and returned.</p></div>
 <div class="admonitionblock">
@@ -3655,14 +3574,14 @@ contains the special cache-handling logic.  If you do need to override
 <tt>Model::get()</tt>, then make sure to call <tt>parent::get($id)</tt> within it.</td>
 </tr></table>
 </div>
-<h3 id="_explicit_caching">13.3. Explicit Caching</h3><div style="clear:left"></div>
-<div class="para"><p>You can also use Pronto's caching facility directly if you wish to cache
+<h3 id="X12-3">Explicit Caching</h3><div style="clear:left"></div>
+<div class="paragraph"><p>You can also use Pronto&#8217;s caching facility directly if you wish to cache
 other types of data.  The cache object can be acquired through
 the global <tt>Registry</tt> class.  It is a simple key/value system with the
 normal access methods you would find in such a class.</p></div>
 <div class="listingblock">
-<div class="title">Example: Using the <tt>cache</tt> object</div>
-<div class="content"><!-- Generator: GNU source-highlight 2.9
+<div class="title">Using the <tt>cache</tt> object</div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1
 by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
@@ -3686,35 +3605,34 @@ http://www.gnu.org/software/src-highlite -->
                 <span style="color: #FF0000">}</span>
         <span style="color: #FF0000">}</span>
 <span style="color: #FF0000">}</span>
-<span style="color: #990000">?&gt;</span>
-</tt></pre></div></div>
+<span style="color: #990000">?&gt;</span></tt></pre></div></div>
 </div>
-<h2 id="X13">14. Extending Pronto</h2>
+<h2 id="X13">Extending Pronto</h2>
 <div class="sectionbody">
-<div class="para"><p>Pronto attempts to provide a good base on which to develop, but sometimes
+<div class="paragraph"><p>Pronto attempts to provide a good base on which to develop, but sometimes
 its desireable to be able to modify some of the underlying functionality.</p></div>
-<div class="para"><p>You'll rarely have to do this, but Pronto does provide a few areas that
+<div class="paragraph"><p>You&#8217;ll rarely have to do this, but Pronto does provide a few areas that
 can be easily overridden.</p></div>
-<h3 id="_overriding_base_functionality_of_models_pages_and_plugins">14.1. Overriding base functionality of Models, Pages, and Plugins</h3><div style="clear:left"></div>
-<div class="para"><p>The base classes for page controllers, data models, and plugins can be
-found in the <tt>pronto/core</tt> directory.  However, you'll notice that these
+<h3 id="X13-1">Overriding base functionality of Models, Pages, and Plugins</h3><div style="clear:left"></div>
+<div class="paragraph"><p>The base classes for page controllers, data models, and plugins can be
+found in the <tt>pronto/core</tt> directory.  However, you&#8217;ll notice that these
 classes are actually named <tt>Page_Base</tt>, <tt>Model_Base</tt>, and <tt>Plugin_Base</tt>,
 respectively.</p></div>
-<div class="para"><p>The <em>real</em> base classes are actually in the <tt>app/core</tt> directory, and
-they're intended to be modified by you if need be.  To add any base-level
+<div class="paragraph"><p>The <em>real</em> base classes are actually in the <tt>app/core</tt> directory, and
+they&#8217;re intended to be modified by you if need be.  To add any base-level
 methods or override existing ones, simply add them to these classes.</p></div>
-<h3 id="_execution_profiles">14.2. Execution Profiles</h3><div style="clear:left"></div>
-<div class="para"><p>By now, we all know that the life of a Pronto request begins at
-<tt>index.php</tt>.  But this script's primary job is to pass control to an
+<h3 id="X13-2">Execution Profiles</h3><div style="clear:left"></div>
+<div class="paragraph"><p>By now, we all know that the life of a Pronto request begins at
+<tt>index.php</tt>.  But this script&#8217;s primary job is to pass control to an
 <strong>execution profile</strong>, which is in charge of setting up the runtime
 environment before passing control to the next phase (which is usually the
 dispatcher for a web request).</p></div>
-<div class="para"><p>There are two execution profiles included with Pronto: <tt>web</tt> and
+<div class="paragraph"><p>There are two execution profiles included with Pronto: <tt>web</tt> and
 <tt>cmdline</tt>.  You can probably guess what each profile is for, but in case
-you can't &#8212; <tt>web</tt> is called from <tt>index.php</tt> and handles web requests,
+you can&#8217;t&#8201;&#8212;&#8201;<tt>web</tt> is called from <tt>index.php</tt> and handles web requests,
 while the <tt>cmdline</tt> profile is used for commandline scripts, typically
 stored in <tt>app/bin</tt> or <tt>pronto/bin</tt>.</p></div>
-<div class="para"><p>The standard execution profiles are stored in <tt>pronto/profiles</tt>, but you
+<div class="paragraph"><p>The standard execution profiles are stored in <tt>pronto/profiles</tt>, but you
 can extend them by modifying their counterpart files in <tt>app/profiles</tt>.
 Again, this is intended so you can safely modify Pronto code without
 actually modifying any files in the <tt>pronto</tt> directory, which eases the
@@ -3722,8 +3640,8 @@ pain of upgrading the framework code at a later time.</p></div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 0.5<br />
-Last updated 2008-10-22 10:42:54 ADT
+Version 0.6<br />
+Last updated 2009-08-02 18:34:32 ADT
 </div>
 </div>
 </body>
