@@ -53,7 +53,9 @@
 
 $URLS = array(
 	//'/(.*)' => 'Home',                    // everything goes to the page server
-	'/(.*)' => array('CMS_Page','view'),  // or send everything to the CMS
+
+	'/'     => 'Home',
+	'/(.*)' => array('CMS_Page','view'),  // everything else goes to the CMS
 );
 
 ?>

@@ -4,9 +4,7 @@
  */
 
 $NAV_MENU = array(
-	__('Users') => array('access'=>'ADMIN', 'menu'=>array(
-		__('New')   => array('url'=>url('User_Admin','create')),
-		__('List')  => array('url'=>url('User_Admin','list')))),
+	__('Users') => array('access'=>'ADMIN', 'url'=>url('User_Admin','list')),
 );
 
 ?>

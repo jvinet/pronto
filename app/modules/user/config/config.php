@@ -4,7 +4,10 @@
  *
  */
 
+// Enable user registrations
+define('USER_ENABLE_REGISTRATION', false);
+
 // Enable use of Open ID for logins
-define('USE_OPENID', true);
+define('USER_USE_OPENID', true);
 
 ?>

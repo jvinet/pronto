@@ -42,8 +42,8 @@ if(isset($error)) {
 ?>
 
 <div class="login-opts">
-	<?php echo $html->link(__('Forgot Password?'), url('User','resetpass'), '', false, array('id'=>'resetpass-btn')) ?> |
-	<?php echo $html->link(__('New Account'), url('User','signup')) ?>
+	<?php echo $html->link(__('Forgot Password?'), url('User','resetpass'), '', false, array('id'=>'resetpass-btn')) ?>
+	<?php if(USER_ENABLE_REGISTRATION) echo ' | '.$html->link(__('New Account'), url('User','signup')) ?>
 </div>
 
 <div id="resetpass-dlg" title="<?php _e('Reset Password') ?>" style="width:420px;height:200px">

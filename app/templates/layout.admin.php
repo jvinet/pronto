@@ -10,6 +10,7 @@
 	<?php echo $html->css('form') ?>
 	<?php echo $html->css('nav') ?>
 	<?php echo $html->js('core') ?>
+	<?php echo $html->js('ui') ?>
 	<script type="text/javascript">pronto = new Pronto("<?php echo DIR_WS_BASE ?>");</script>
 	<?php echo $html->js('jq/jquery') ?>
 	<?php echo $html->js('jq/jquery.menu') ?>

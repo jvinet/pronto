@@ -49,7 +49,7 @@ class pUser_Auth extends Page
 	 **********************************************************************/
 	function GET_login__openid()
 	{
-		if(USE_OPENID !== true) {
+		if(USER_USE_OPENID !== true) {
 			$this->redirect(url('User','login'));
 			return;
 		}
@@ -69,7 +69,7 @@ class pUser_Auth extends Page
 	}
 	function POST_login__openid()
 	{
-		if(USE_OPENID !== true) {
+		if(USER_USE_OPENID !== true) {
 			$this->redirect(url('User','login'));
 			return;
 		}

@@ -24,6 +24,8 @@ class pUser extends Page
 	}
 	function GET_signup()
 	{
+		if(!USER_ENABLE_REGISTRATION) $this->web->forbidden();
+
 		if(isset($_SESSION['openid_user_data'])) {
 			$s = $_SESSION['openid_user_data'];
 			$fn = '';
@@ -52,6 +54,7 @@ class pUser extends Page
 			$is_update = true;
 			$data['id'] = ACCESS_ID;
 		}
+		if(!$is_update && !USER_ENABLE_REGISTRATION) $this->web->forbidden();
 
 		$errors = $this->models->user->validate($data);
 		if(!$is_update) {
