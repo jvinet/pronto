@@ -329,10 +329,32 @@ function array_extract($arr, $key)
 }
 
 /**
- * Alias for array_sub()
+ * Alias for array_extract()
  */
-function array_sub($arr, $key) {
+function array_sub($arr, $key)
+{
 	return array_extract($arr, $key);
+}
+
+/**
+ * Take a numerically-indexed array and return a new
+ * 2-dimensional array, with outer arrays containing
+ * arrays of $size elements.
+ */
+function array_divide($arr, $size)
+{
+	$ret = $a = array();
+	$row = $col = 0;
+	for($i = 0; $i < count($arr); $i++) {
+		if($col % $size == 0) {
+			if($a) $ret[$row++] = $a;
+			$col = 0;
+			$a = array();
+		}
+		$a[$col++] = $arr[$i];
+	}
+	$ret[$row] = $a;
+	return $ret;
 }
 
 /**
