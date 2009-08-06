@@ -112,6 +112,17 @@ class RecordSelector
 	}
 
 	/**
+	 * Return the number of records that match the criteria.
+	 *
+	 * @return int
+	 */
+	function count()
+	{
+		$q = "SELECT COUNT (*) FROM {$this->model->table}".$this->_build_clause();
+		return $this->model->db->get_value($q);
+	}
+
+	/**
 	 * Return one or more full records.  Each record will be an associative array.
 	 * If multiple records are round, it will return an array of associative
 	 * arrays.
