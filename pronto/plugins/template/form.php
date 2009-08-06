@@ -533,6 +533,9 @@ EOT;
 			'content_css' => url('/css.php?c=htmlarea')
 		);
 
+		// if no $mceinit specified, fall back to a default one set by htmlarea_preload()
+		if($mceinit === '' && isset($this->_mce_init)) $mceinit = $this->_mce_init;
+
 		// if $mceinit['content_css'] is an array of files, then convert the
 		// local ones to go through css.php
 		if(is_array($mceinit) && is_array($mceinit['content_css'])) {
@@ -603,6 +606,7 @@ EOT;
 	 */
 	function htmlarea_preload($mceinit='')
 	{
+		$this->_mce_init = $mceinit;
 		return $this->htmlarea('_htmlarea_preload', '', 15, 100, $mceinit, array('style'=>'display:none'));
 	}
 
@@ -815,6 +819,8 @@ EOT;
 	 *   - data_id ()     :: PK of data element being edited
 	 *   - submit         :: label on submit button; can be a 2-element array: ('create','update')
 	 *   - submit_msg     :: change button message to this when clicked 
+	 *   - submit_pos     :: "left" or "right" (default is "right")
+	 *   - submit_html    :: if set, use this for the submit button code instead of generating it
 	 *   - options array
 	 *     - noopen           :: don't include opening div/form tags
 	 *     - noclose          :: don't include closing div/form tags or a Submit button
@@ -1012,8 +1018,10 @@ EOT;
 
 		if(!$options['noclose'] && !$options['nosubmit']) {
 			$c = array_shift(explode(' ', $class));
-			// TODO: This is ugly, fix it.
-			$js = <<<EOT
+
+			if(empty($params['submit_pos']) || $params['submit_pos'] == 'right') {
+				// TODO: This is ugly, fix it.
+				$js = <<<EOT
 var elem_width = 0;
 try { var parent = $('#$form_id div.$c').position(); } catch(err) { return; }
 $('#{$form_id} div.dynsize').find('div.form_element').each(function(){
@@ -1022,7 +1030,8 @@ $('#{$form_id} div.dynsize').find('div.form_element').each(function(){
 });
 $('#{$form_id} div.form_submit').css('width', elem_width+'px');
 EOT;
-			$this->depends->html->js_run('', $js);
+				$this->depends->html->js_run('', $js);
+			}
 
 			$out .= '<div class="form_submit">';
 
