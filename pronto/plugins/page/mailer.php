@@ -104,6 +104,7 @@ class ppMailer_Message
 	var $callback;
 
 	var $from;
+	var $reply_to;
 	var $charset;
 
 	/**
@@ -163,6 +164,18 @@ class ppMailer_Message
 			$this->from = new Swift_Address($email, $name);
 		} else if($email) {
 			$this->from = new Swift_Address($email);
+		}
+	}
+
+	/**
+	 * Set "Reply-To:" address
+	 */
+	function set_reply_to($email, $name='')
+	{
+		if($name) {
+			$this->reply_to = new Swift_Address($email, $name);
+		} else if($email) {
+			$this->reply_to = new Swift_Address($email);
 		}
 	}
 
@@ -227,6 +240,7 @@ class ppMailer_Message
 			$view->cb_func = $this->callback;
 			$this->swift->attachPlugin(new Swift_Plugin_VerboseSending($view), 'verbose');
 		}
+		if($this->reply_to) $this->message->setReplyTo($this->reply_to);
 		return !!$this->swift->send($this->message, $this->recipients, $this->from);
 	}
 
@@ -252,6 +266,7 @@ class ppMailer_Message
 		require_once(DIR_FS_PRONTO.DS.'extlib'.DS.'swift'.DS.'Swift'.DS.'Plugin'.DS.'AntiFlood.php');
 		$this->swift->attachPlugin(new Swift_Plugin_AntiFlood(200, 10), 'anti-flood');
 
+		if($this->reply_to) $this->message->setReplyTo($this->reply_to);
 		return !!$this->swift->batchSend($this->message, $this->recipients, $this->from);
 	}
 
