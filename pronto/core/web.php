@@ -56,14 +56,14 @@ class Web {
 
 		$this->debug_messages = array();
 
-		$this->context->protocol    = isset($_SERVER['HTTPS']) ? 'https' : 'http';
-		$this->context->host        = $_SERVER['SERVER_NAME'];
-		$this->context->port        = $_SERVER['SERVER_PORT'];
-		$this->context->basedir     = dirname($start_point);
-		$this->context->home        = $this->context->basedir;
-		$this->context->method      = $_SERVER['REQUEST_METHOD'];
-		$this->context->fullpath    = $_SERVER['REQUEST_URI'];
-		$this->context->ip          = $_SERVER['REMOTE_ADDR'];
+		$this->context->protocol = isset($_SERVER['HTTPS']) ? 'https' : 'http';
+		$this->context->host     = $_SERVER['SERVER_NAME'];
+		$this->context->port     = $_SERVER['SERVER_PORT'];
+		$this->context->basedir  = dirname($start_point);
+		$this->context->home     = $this->context->basedir;
+		$this->context->method   = $_SERVER['REQUEST_METHOD'];
+		$this->context->fullpath = $_SERVER['REQUEST_URI'];
+		$this->context->ip       = $_SERVER['REMOTE_ADDR'];
 
 		if(defined('DIR_WS_BASE')) {
 			$path = WDS.DIR_WS_BASE.WDS;
@@ -74,13 +74,18 @@ class Web {
 			$path = WDS.trim(substr($path, $len), WDS).WDS;        
 		}
 		$this->context->basepath = preg_replace("/(\/+)/", "/", $path);
-		if ($this->context->basepath == '') {
+		if($this->context->basepath == '') {
 			$this->context->basepath = '/';
 		}
-		$this->context->path = null;
 
 		if(!defined('BASE_URL')) define('BASE_URL', $this->context->basepath);
 		if(!defined('BASE_DIR')) define('BASE_DIR', $this->context->basedir);
+
+		$basepath  = $this->context->basepath == WDS ? '' : $this->context->basepath;
+		$full_url  = (isset($_SERVER['HTTPS']) ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'] . $this->context->fullpath;
+		$url_parts = @parse_url($full_url);
+		$this->context->path = ltrim(substr($url_parts['path'], strlen($basepath)), WDS);
+		$this->context->querystring = $url_parts['query'];
 	}
 
 	/********************************************************************
@@ -116,17 +121,12 @@ class Web {
 	 */
 	function run($urls, $path=false)
 	{
-		$basepath  = $this->context->basepath == WDS ? '' : $this->context->basepath;
-		$full_url  = (isset($_SERVER['HTTPS']) ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'] . $this->context->fullpath;
-		$url_parts = @parse_url($full_url);
-		if($path === false) {
-			$this->context->path = ltrim(substr($url_parts['path'], strlen($basepath)), WDS);
-		} else {
+		if($path !== false) {
 			$this->context->path = ltrim($path, WDS);
 		}
-		$this->context->querystring = $url_parts['query'];
-		$uri_parts                  = explode(WDS, trim($this->context->path, WDS));
-		$strip_array                = create_function('&$array', 'foreach ($array as $key => $item) if ($item === "") unset($array[$key]);');
+
+		$uri_parts   = explode(WDS, trim($this->context->path, WDS));
+		$strip_array = create_function('&$array', 'foreach ($array as $key => $item) if ($item === "") unset($array[$key]);');
 
 		$possible_classes = array();
 		foreach($urls as $class_name) {

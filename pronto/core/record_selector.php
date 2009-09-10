@@ -146,6 +146,19 @@ class RecordSelector
 	}
 
 	/**
+	 * Return one or more full records.  The difference with load() is that
+	 * this method always returns an array of associative arrays, even if only
+	 * one matching record is found.  Useful for callers that always expect
+	 * a 2D array.
+	 *
+	 * @return array
+	 */
+	function load_all()
+	{
+		return $this->load(true);
+	}
+
+	/**
 	 * Return one record, no matter how many are in the result set.  This
 	 * method uses an internal pointer to keep track of which record will
 	 * be returned next, so you can call this method in an iterative fashion
@@ -158,19 +171,6 @@ class RecordSelector
 		$ids = $this->_get_ids();
 		if(!isset($ids[$this->it_ptr])) return false;
 		return $this->model->load($this->it_ptr++);
-	}
-
-	/**
-	 * Return one or more full records.  The difference with load() is that
-	 * this method always returns an array of associative arrays, even if only
-	 * one matching record is found.  Useful for callers that always expect
-	 * a 2D array.
-	 *
-	 * @return array
-	 */
-	function load_all()
-	{
-		return $this->load(true);
 	}
 
 	/**
