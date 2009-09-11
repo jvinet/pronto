@@ -38,17 +38,24 @@ class ppMailer extends Plugin
 
 		if(defined('SMTP_HOST') && SMTP_HOST != '') {
 			require_once(DIR_FS_PRONTO.DS.'extlib'.DS.'swift'.DS.'Swift'.DS.'Connection'.DS.'SMTP.php');
-			$conn = new Swift_Connection_SMTP(SMTP_HOST);
+			$port = defined('SMTP_PORT') ? SMTP_PORT : 25;
+			$mode = SWIFT_SMTP_ENC_OFF;
+			if(defined('SMTP_ENC')) switch(SMTP_ENC) {
+				case 'TLS': $mode = SWIFT_SMTP_ENC_TLS; break;
+				case 'SSL': $mode = SWIFT_SMTP_ENC_SSL; break;
+			}
+			$conn = new Swift_Connection_SMTP(SMTP_HOST, $port, $mode);
 		} else {
 			require_once(DIR_FS_PRONTO.DS.'extlib'.DS.'swift'.DS.'Swift'.DS.'Connection'.DS.'NativeMail.php');
 			$conn = new Swift_Connection_NativeMail();
 		}
-		$swift->swift = new Swift($conn);
 
 		if(defined('SMTP_USER') && SMTP_USER != '') {
 			$conn->setUsername(SMTP_USER);
 			$conn->setPassword(SMTP_PASS);
 		}
+
+		$swift->swift = new Swift($conn);
 
 		$swift->message = new Swift_Message($subject);
 		$swift->message->setCharset(defined('CHARSET') ? CHARSET : 'UTF-8');

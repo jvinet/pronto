@@ -13,6 +13,8 @@ define('CHARSET', 'UTF-8');
 define('SMTP_HOST', '');
 define('SMTP_USER', '');
 define('SMTP_PASS', '');
+define('SMTP_PORT', '25');
+define('SMTP_ENC',  'OFF');  // "TLS" or "SSL" or "OFF"
 
 /*
  * Session Settings
