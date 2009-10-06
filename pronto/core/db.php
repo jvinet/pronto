@@ -36,8 +36,7 @@ class DB_Base
 	 * @param string $msg
 	 */
 	function error($msg) {
-		trigger_error(__FILE__ .':'.__LINE__.' '.$msg."\n");
-		die;
+		throw new Exception($msg);
 	}
 
 	/**

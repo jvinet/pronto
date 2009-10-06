@@ -172,15 +172,24 @@ function error($message)
 }
 
 /**
- * Default error handler for Production mode.
+ * Default exception handler.  This function just proxies the error through
+ * to pronto_error().
  */
-function pronto_error($errno, $message, $file, $line)
+function pronto_exception($e)
+{
+	pronto_error($e->getCode(), $e->getMessage(), $e->getFile(), $e->getLine(), $e->getTrace());
+}
+
+/**
+ * Default error handler.
+ */
+function pronto_error($errno, $message, $file, $line, $backtrace=null)
 {
 	// Don't report any errors if error_reporting == 0
 	if(error_reporting() == 0) return;
 
-	// Ignore E_STRICT or E_NOTICE
-	if(in_array($errno, array(2048,8))) {
+	// Ignore E_STRICT, E_NOTICE, and E_DEPRECATED
+	if(in_array($errno, array(2048,8,8192))) {
 		return;
 	}
 
@@ -221,7 +230,8 @@ function pronto_error($errno, $message, $file, $line)
 
 	// Function Backtrace
 	$tvars['backtrace'] = array();
-	$bt = debug_backtrace();
+	$bt = $backtrace ? $backtrace : debug_backtrace();
+	//$bt = debug_backtrace();
 	array_shift($bt);
 	foreach($bt as $tp) {
 		$fn = $caller = '';

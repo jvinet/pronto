@@ -59,7 +59,7 @@
 <body>
 <div id="summary">
 	<h1>Exception making <?php echo $method ?> request at <?php echo $uri ?></h1>
-	<h2><?php echo $message ?></h2>
+	<h2><?php echo nl2br($message) ?></h2>
 <table>
 	<tr>
 		<th>PHP</th>
