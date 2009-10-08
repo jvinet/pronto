@@ -9,7 +9,7 @@
  **/
 
 set_time_limit(0);
-define('PROFILE', 'cmdline');
+if(!defined('PROFILE')) define('PROFILE', 'cmdline');
 
 // Core Libraries
 require_once(DIR_FS_PRONTO.DS.'core'.DS.'registry.php');

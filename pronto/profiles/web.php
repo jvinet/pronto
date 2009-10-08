@@ -8,7 +8,7 @@
  *
  **/
 
-define('PROFILE', 'web');
+if(!defined('PROFILE')) define('PROFILE', 'web');
 
 // Core Libraries
 require_once(DIR_FS_PRONTO.DS.'core'.DS.'registry.php');
@@ -162,7 +162,7 @@ unset($p);
 /************************************************************************
  * HANDLE ERRORS/DEBUGGING/PROFILING
  ************************************************************************/
-error_reporting(E_ALL & ~E_NOTICE);
+$old = error_reporting(E_ALL & ~E_NOTICE);
 if(DEBUG === true) {
 	$web->enable_debug();
 	$db =& Registry::get('pronto:db:main');
@@ -173,6 +173,9 @@ if(DEBUG === true) {
 // To override it, define your own pronto_error() function in
 // app/profiles/web.php or somewhere else that is included before this file.
 set_error_handler('pronto_error');
+if(phpversion() >= 5) {
+	set_exception_handler('pronto_exception');
+}
 
 /************************************************************************
  * FINALLY, DISPATCH THE REQUEST
