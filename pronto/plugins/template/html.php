@@ -9,6 +9,8 @@
  **/
 class tpHtml extends Plugin
 {
+	var $guid = 1;
+
 	/**
 	 * Constructor
 	 */
@@ -335,6 +337,47 @@ class tpHtml extends Plugin
 		$ret .= $this->_attribs($attribs);
 		$ret .= " />";
 		return $ret;
+	}
+
+	/**
+	 * Build a tabbed interface, with separate content under each tab.
+	 *
+	 * @param array $tabs Array of arrays containing each tab definition.
+	 *
+	 * Example:
+	 @code
+	   echo $html->tabs(array(
+			 'tab1' => array('label'=>'First Tab',  'content'=>'<b>Hi!</b>'),
+			 'tab2' => array('label'=>'Active Tab', 'content'=>'Can you see me?', 'active'=>true),
+		 ));
+	 @endcode
+   *
+	 */
+	function tabs($tabs)
+	{
+		$guid = ++$this->guid;
+
+		$this->css_load('tabs');
+		$this->js_load('jq/jquery.tabs');
+
+		$out  = '<div id="tab_container'.$guid.'">';
+		$out .= '<ul>';
+		foreach($tabs as $tabid=>$tab) {
+			$active = $tab['active'] ? ' class="tabs-selected"' : '';
+			$out .= '<li'.$active.'><a href="#'.$tabid.'">'.$tab['label'].'</a></li>';
+		}
+		$out .= '</ul>';
+
+		foreach($tabs as $tabid=>$tab) {
+			$out .= '<div id="'.$tabid.'" style="background:#fff;">';
+			$out .= '<div class="clearfix">';
+			$out .= $tab['content'];
+			$out .= '</div></div>';
+		}
+		$out .= '</div>';
+
+		$this->js_run('', "$('#tab_container{$guid}').tabs();");
+		return $out;
 	}
 
 	/*

@@ -134,13 +134,13 @@ class tpTable extends Plugin
 		$this->depends->html->js_run('jq_tooltip', '$(\'td.options img\').Tooltip({showURL:false,extraClass:\'action\'});');
 		$this->depends->html->css_load('tooltip', 'tooltip');
 
-		// grid styles
-		$this->depends->html->css_load('grid', 'grid');
+		// grid assets
+		$this->depends->html->css_load('grid');
+		$this->depends->html->js_load('grid');
 
 		// setup AJAX routines if necessary
 		if($options['ajax']) {
-			$this->depends->html->js_load('ajax', 'ajax');
-			$this->depends->html->js_load('grid', 'grid');
+			$this->depends->html->js_load('ajax');
 			$this->depends->html->js_run('grid', '$(\'.ajax_action\').click(grid_dispatch);');
 		}
 
@@ -159,8 +159,21 @@ class tpTable extends Plugin
 			}
 		}
 
+		// beginning of output
+		$out = '';
+
+		// save grid configuration in the DOM so we can send it back to the
+		// page controller alongside AJAX requests
+		$p = $params;
+		unset($p['data']);
+		$out .= '<script type="text/javascript">';
+		$out .= 'if(typeof window.grid == "undefined") window.grid = {};';
+		//$out .= "window.grid.{$guid} = ".json_encode($p).";";
+		$out .= "window.grid.{$guid} = '".str_replace("'", "\\'", serialize($p))."';";
+		$out .= "</script>\n";
+
 		// <table>
-		$out = '<table id="'.$guid.'" cellspacing="0"';
+		$out .= '<table id="'.$guid.'" cellspacing="0"';
 		if($class) {
 			$out .= ' class="'.$class.'"';
 		}
@@ -183,7 +196,7 @@ class tpTable extends Plugin
 						$out .= ' onMouseOut="$(this).removeClass(\'hover\')"';
 					}
 					if(!$options['nosorting'] && !$column['nosort']) {
-						$out .= ' onClick="location.href=$(this).find(\'a\').attr(\'href\');return false;"';
+						$out .= ' onClick="return grid_sort(this);"';
 					}
 					if(preg_match('|^_MULTI_|', $name)) $style[] = 'text-align:center';
 				}
@@ -227,6 +240,7 @@ class tpTable extends Plugin
 
 		// SEARCH FILTERS
 		if(!$options['nofilters']) {
+			// for AJAX: $out .= '<form method="get" action="'.$grid_url.'" onSubmit="return grid_submit(this);">';
 			$out .= '<form method="get" action="'.$grid_url.'">';
 			// propagate GET vars
 			foreach($_GET as $k=>$v) {
@@ -287,6 +301,21 @@ class tpTable extends Plugin
 			}
 			$out .= "</tr>\n";
 			$out .= '</form>';
+		}
+
+		$cb_vars = array();
+		if(isset($params['cb_vars'])) {
+			foreach($params['cb_vars'] as $k=>$v) {
+				// (foreach can't use references in PHP4, so we do it this way)
+				$cb_vars[$k] =& $params['cb_vars']["$k"];
+			}
+		}
+
+		$totals = array();
+		if(isset($params['totals'])) {
+			foreach($params['totals'] as $k=>$v) {
+				$totals[$k] = 0;
+			}
 		}
 
 		// TABLE DATA
@@ -397,7 +426,7 @@ class tpTable extends Plugin
 				$out .= "</td>\n";
 			}
 			$out .= "</tr>\n";
-			// this <tr> is used by AJAX grids
+			// this <tr> is used by grids that load subcontent via AJAX
 			$out .= '<tr id="'.$tr_dom_id.'_form" class="ajaxcontent"';
 			$out .= "><td id=\"{$tr_dom_id}_form_td\" style=\"display:none;padding-left:13px\" colspan=\"100%\"></td></tr>\n";
 		}
@@ -539,12 +568,14 @@ class tpTable extends Plugin
 		return $out;
 	}
 
-	function _getparam($params, $name, $default)
+	/*
+	 * Fetch a value from an array, accessed by a key.  If the key
+	 * does not exist, put a default value in the array and return that.
+	 */
+	function _getparam(&$params, $name, $default)
 	{
-		if(isset($params[$name])) {
-			return $params[$name];
-		}
-		return $default;
+		if(!isset($params[$name])) $params[$name] = $default;
+		return $params[$name];
 	}
 
 }
