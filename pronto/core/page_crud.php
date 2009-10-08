@@ -108,8 +108,8 @@ class Page_CRUD extends Page
 			// passed control back to GET_create() for failed validation.
 		} else {
 			$data = $this->model->create_record();
-			if(!$this->hook_create__pre_edit($data)) return;
-			if(!$this->hook__pre_edit($data)) return;
+			if($this->hook_create__pre_edit($data) === false) return;
+			if($this->hook__pre_edit($data) === false) return;
 		}
 		$this->template->set('data', $data);
 
@@ -167,17 +167,17 @@ class Page_CRUD extends Page
 		if(!empty($errors)) {
 			$this->template->set('errors', $errors);
 			if($is_update) {
-				if(!$this->hook_edit__failed_validation($data)) return;
-				if(!$this->hook__failed_validation($data)) return;
-				if(!$this->hook_edit__pre_edit($data)) return;
-				if(!$this->hook__pre_edit($data)) return;
+				if($this->hook_edit__failed_validation($data) === false) return;
+				if($this->hook__failed_validation($data) === false) return;
+				if($this->hook_edit__pre_edit($data) === false) return;
+				if($this->hook__pre_edit($data) === false) return;
 				$this->template->set('data', $data);
 				$this->GET_edit();
 			} else {
-				if(!$this->hook_create__failed_validation($data)) return;
-				if(!$this->hook__failed_validation($data)) return;
-				if(!$this->hook_create__pre_edit($data)) return;
-				if(!$this->hook__pre_edit($data)) return;
+				if($this->hook_create__failed_validation($data) === false) return;
+				if($this->hook__failed_validation($data) === false) return;
+				if($this->hook_create__pre_edit($data) === false) return;
+				if($this->hook__pre_edit($data) === false) return;
 				$this->template->set('data', $data);
 				$this->GET_create();
 			}
@@ -186,13 +186,13 @@ class Page_CRUD extends Page
 
 		if($is_update) {
 			$id = $data['id'];
-			if(!$this->hook_update__pre_save($data)) return;
-			if(!$this->hook__pre_save($data)) return;
+			if($this->hook_update__pre_save($data) === false) return;
+			if($this->hook__pre_save($data) === false) return;
 			$this->model->save($data);
 			$flash = __('%s has been updated.', $this->human_name);
 		} else {
-			if(!$this->hook_insert__pre_save($data)) return;
-			if(!$this->hook__pre_save($data)) return;
+			if($this->hook_insert__pre_save($data) === false) return;
+			if($this->hook__pre_save($data) === false) return;
 			$id = $this->model->save($data);
 			$data['id'] = $id;
 			$flash = __('%s has been created.', $this->human_name);
@@ -224,11 +224,11 @@ class Page_CRUD extends Page
 
 		// run the "post" hooks
 		if($is_update) {
-			if(!$this->hook_update__post_save($data)) return;
+			if($this->hook_update__post_save($data) === false) return;
 		} else {
-			if(!$this->hook_insert__post_save($data)) return;
+			if($this->hook_insert__post_save($data) === false) return;
 		}
-		if(!$this->hook__post_save($data)) return;
+		if($this->hook__post_save($data) === false) return;
 
 		if($this->ajax) {
 			if($this->ajax_reload_parent) {
@@ -269,8 +269,8 @@ class Page_CRUD extends Page
 			$id = $this->param('id');
 			$data = $this->model->load($id) or $this->web->notfound();
 		}
-		if(!$this->hook_edit__pre_edit($data)) return;
-		if(!$this->hook__pre_edit($data)) return;
+		if($this->hook_edit__pre_edit($data) === false) return;
+		if($this->hook__pre_edit($data) === false) return;
 		$this->template->set('data', $data);
 
 		// populate file fields, if any
@@ -309,7 +309,7 @@ class Page_CRUD extends Page
 		$ids = $this->param('delete_ids', $this->param('ids', array($this->param('id'))));
 		foreach($ids as $id) {
 			$data = $this->model->load($id) or $this->web->notfound();
-			if(!$this->hook_delete__pre_delete($data)) return;
+			if($this->hook_delete__pre_delete($data) === false) return;
 			$this->model->delete($data['id']);
 
 			// delete any associated files
@@ -317,7 +317,7 @@ class Page_CRUD extends Page
 				foreach($this->model->files as $k=>$v) @unlink($this->model->files[$k]['path'].DS.$id);
 			}
 
-			if(!$this->hook_delete__post_delete($data)) return;
+			if($this->hook_delete__post_delete($data) === false) return;
 		}
 		$this->flash(__('%s has been deleted.', $this->human_name));
 		if($this->ajax) {
@@ -339,10 +339,10 @@ class Page_CRUD extends Page
 		$params = $this->model->enum_schema();
 		if(empty($params['order'])) $params['order'] = "{$this->model->pk} ASC"; 
 		if(empty($params['limit'])) $params['limit'] = 50;
-		if(!$this->hook_list__params($params)) return;
+		if($this->hook_list__params($params) === false) return;
 
 		list($data,$ttlrows,$curpage,$perpage) = $this->sql->enumerate($params);
-		if(!$this->hook_list__post_select($data)) return;
+		if($this->hook_list__post_select($data) === false) return;
 
 		if($this->ajax) {
 			$ret = array(
