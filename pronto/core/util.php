@@ -177,13 +177,13 @@ function error($message)
  */
 function pronto_exception($e)
 {
-	pronto_error($e->getCode(), $e->getMessage(), $e->getFile(), $e->getLine(), $e->getTrace());
+	pronto_error($e->getCode(), $e->getMessage(), $e->getFile(), $e->getLine(), null, $e->getTrace());
 }
 
 /**
  * Default error handler.
  */
-function pronto_error($errno, $message, $file, $line, $backtrace=null)
+function pronto_error($errno, $message, $file, $line, $context=null, $backtrace=null)
 {
 	// Don't report any errors if error_reporting == 0
 	if(error_reporting() == 0) return;

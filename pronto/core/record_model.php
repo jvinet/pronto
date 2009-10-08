@@ -55,6 +55,21 @@ class RecordModel_Base
 	var $enable_cache = false;
 
 	/**
+	 * An array of other models on which this model depends.
+	 * To use this, the model's table should have a "<model>_id"
+	 * column for each depending module.
+	 *
+	 * If the column name does not match the "<model>_id" pattern,
+	 * you can use a 2-dimensional array, with the first value being
+	 * the model name and the second value being the column name in
+	 * the table.
+	 *
+	 * eg: var $depends = array('user');
+	 * eg: var $depends = array('user', array('blog','blog_id'));
+	 */
+	var $submodels = null;
+
+	/**
 	 * An array of files associated with this model, used by
 	 * Page_CRUD to handle file uploads.  The 'type' element determines
 	 * the acceptable MIME type(s).  Use an array for multiple types, or
@@ -372,7 +387,25 @@ class RecordModel_Base
 		$data = $this->fetch($id);
 		if(!$data) return false;
 
-		// Load in file web locations.  The model subclass can override these
+		// Load in entities from other models on which this one depends.
+		//
+		// Note: At present, this facility can only link to other entities
+		// by primary key.
+		if(is_array($this->submodels)) foreach($this->submodels as $dep) {
+			if(is_array($dep)) {
+				// use the model=>column_name pattern
+				$mod = $dep[0];
+				$col = $dep[1];
+			} else {
+				// use the implicit column name of "<model>_id"
+				$col = "{$dep}_id";
+				$mod = $dep;
+			}
+			$this->depend($mod);
+			$data[$dep] = $this->depends->$mod->load($data[$col]);
+		}
+
+		// Load in web locations for files.  The model subclass can override these
 		// if necessary.
 		if(is_array($this->files)) foreach($this->files as $k=>$f) {
 			$fn = $f['filename'];

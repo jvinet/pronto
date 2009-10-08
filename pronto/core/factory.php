@@ -61,13 +61,18 @@ class Factory
 	}
 
 	/**
-	 * Return a new page controller object
+	 * Return a new page controller object.
+	 * If an existing controller object already exists, it will be used.
 	 *
 	 * @param string $name
 	 * @return object
 	 */
 	function &page($name)
 	{
+		$o =& Registry::get("pronto:page:$name");
+		// JRV
+		//if($o) return $o;
+
 		$filespec = array(DIR_FS_APP.DS.'pages'.DS.'*.php');
 		if(defined('MODULES')) {
 			foreach(explode(' ',MODULES) as $mod) {
@@ -80,17 +85,24 @@ class Factory
 		require_once(DIR_FS_PRONTO.DS.'core'.DS.'page_crud.php');
 		require_once(DIR_FS_PRONTO.DS.'core'.DS.'page_static.php');
 		$o =& Factory::newobj('pages', 'p'.$name, $filespec);
+
+		Registry::set("pronto:page:$name", $o);
 		return $o;
 	}
 
 	/**
 	 * Return a new data model object
+	 * If an existing model object already exists, it will be used.
 	 *
 	 * @param string $name
 	 * @return object
 	 */
 	function &model($name)
 	{
+		$o =& Registry::get("pronto:model:$name");
+		// JRV
+		//if($o) return $o;
+
 		$filespec = array(DIR_FS_APP.DS.'models'.DS.'*.php');
 		if(defined('MODULES')) {
 			foreach(explode(' ',MODULES) as $mod) {
@@ -106,6 +118,7 @@ class Factory
 		require_once(DIR_FS_APP.DS.'core'.DS.'model.php');
 
 		$o =& Factory::newobj('models', 'm'.$name, $filespec);
+		Registry::set("pronto:model:$name", $o);
 		return $o;
 	}
 
@@ -136,7 +149,8 @@ class Factory
 	}
 
 	/**
-	 * Return a new plugin object
+	 * Return a new plugin object.
+	 * If an existing plugin object already exists, it will be used.
 	 *
 	 * @param string $name
 	 * @param string $type Type of plugin (page, template)
@@ -155,9 +169,9 @@ class Factory
 				break;
 		}
 		$store =& Registry::get($regname);
-		if(!$store) $store = new stdClass;
+		if(!$store) $story = new stdClass;
 
-		// check if the plugin already exists
+		// check if plugin already exists
 		if(isset($store->$name)) return $store->$name;
 
 		$filespec = array(
@@ -174,13 +188,13 @@ class Factory
 		$o =& Factory::newobj("{$type}_plugins", $prefix.$name, $filespec);
 
 		$store->$name =& $o;
-		Registry::set($regname, $store);
-
+		Registry::set("$regname", $store);
 		return $o;
 	}
 
 	/**
 	 * Return a new helper (aka "template plugin") object
+	 * If an existing helper object already exists, it will be used.
 	 *
 	 * @param string $name
 	 * @return object

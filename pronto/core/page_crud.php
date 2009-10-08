@@ -108,8 +108,8 @@ class Page_CRUD extends Page
 			// passed control back to GET_create() for failed validation.
 		} else {
 			$data = $this->model->create_record();
-			$this->hook_create__pre_edit($data);
-			$this->hook__pre_edit($data);
+			if(!$this->hook_create__pre_edit($data)) return;
+			if(!$this->hook__pre_edit($data)) return;
 		}
 		$this->template->set('data', $data);
 
@@ -167,17 +167,17 @@ class Page_CRUD extends Page
 		if(!empty($errors)) {
 			$this->template->set('errors', $errors);
 			if($is_update) {
-				$this->hook_edit__failed_validation($data);
-				$this->hook__failed_validation($data);
-				$this->hook_edit__pre_edit($data);
-				$this->hook__pre_edit($data);
+				if(!$this->hook_edit__failed_validation($data)) return;
+				if(!$this->hook__failed_validation($data)) return;
+				if(!$this->hook_edit__pre_edit($data)) return;
+				if(!$this->hook__pre_edit($data)) return;
 				$this->template->set('data', $data);
 				$this->GET_edit();
 			} else {
-				$this->hook_create__failed_validation($data);
-				$this->hook__failed_validation($data);
-				$this->hook_create__pre_edit($data);
-				$this->hook__pre_edit($data);
+				if(!$this->hook_create__failed_validation($data)) return;
+				if(!$this->hook__failed_validation($data)) return;
+				if(!$this->hook_create__pre_edit($data)) return;
+				if(!$this->hook__pre_edit($data)) return;
 				$this->template->set('data', $data);
 				$this->GET_create();
 			}
@@ -186,13 +186,13 @@ class Page_CRUD extends Page
 
 		if($is_update) {
 			$id = $data['id'];
-			$this->hook_update__pre_save($data);
-			$this->hook__pre_save($data);
+			if(!$this->hook_update__pre_save($data)) return;
+			if(!$this->hook__pre_save($data)) return;
 			$this->model->save($data);
 			$flash = __('%s has been updated.', $this->human_name);
 		} else {
-			$this->hook_insert__pre_save($data);
-			$this->hook__pre_save($data);
+			if(!$this->hook_insert__pre_save($data)) return;
+			if(!$this->hook__pre_save($data)) return;
 			$id = $this->model->save($data);
 			$data['id'] = $id;
 			$flash = __('%s has been created.', $this->human_name);
@@ -224,11 +224,11 @@ class Page_CRUD extends Page
 
 		// run the "post" hooks
 		if($is_update) {
-			$this->hook_update__post_save($data);
+			if(!$this->hook_update__post_save($data)) return;
 		} else {
-			$this->hook_insert__post_save($data);
+			if(!$this->hook_insert__post_save($data)) return;
 		}
-		$this->hook__post_save($data);
+		if(!$this->hook__post_save($data)) return;
 
 		if($this->ajax) {
 			if($this->ajax_reload_parent) {
@@ -269,8 +269,8 @@ class Page_CRUD extends Page
 			$id = $this->param('id');
 			$data = $this->model->load($id) or $this->web->notfound();
 		}
-		$this->hook_edit__pre_edit($data);
-		$this->hook__pre_edit($data);
+		if(!$this->hook_edit__pre_edit($data)) return;
+		if(!$this->hook__pre_edit($data)) return;
 		$this->template->set('data', $data);
 
 		// populate file fields, if any
@@ -309,7 +309,7 @@ class Page_CRUD extends Page
 		$ids = $this->param('delete_ids', $this->param('ids', array($this->param('id'))));
 		foreach($ids as $id) {
 			$data = $this->model->load($id) or $this->web->notfound();
-			$this->hook_delete__pre_delete($data);
+			if(!$this->hook_delete__pre_delete($data)) return;
 			$this->model->delete($data['id']);
 
 			// delete any associated files
@@ -317,7 +317,7 @@ class Page_CRUD extends Page
 				foreach($this->model->files as $k=>$v) @unlink($this->model->files[$k]['path'].DS.$id);
 			}
 
-			$this->hook_delete__post_delete($data);
+			if(!$this->hook_delete__post_delete($data)) return;
 		}
 		$this->flash(__('%s has been deleted.', $this->human_name));
 		if($this->ajax) {
@@ -337,12 +337,12 @@ class Page_CRUD extends Page
 
 		// Gather list parameters from the model
 		$params = $this->model->enum_schema();
-		if(!isset($params['order'])) $params['order'] = "{$this->model->pk} ASC"; 
-		if(!isset($params['limit'])) $params['limit'] = 50;
-		$this->hook_list__params($params);
+		if(empty($params['order'])) $params['order'] = "{$this->model->pk} ASC"; 
+		if(empty($params['limit'])) $params['limit'] = 50;
+		if(!$this->hook_list__params($params)) return;
 
 		list($data,$ttlrows,$curpage,$perpage) = $this->sql->enumerate($params);
-		$this->hook_list__post_select($data);
+		if(!$this->hook_list__post_select($data)) return;
 
 		if($this->ajax) {
 			$ret = array(
@@ -353,12 +353,22 @@ class Page_CRUD extends Page
 			);
 
 			// use the 'fields' query var to return only the columns requested
-			$cols = explode('&', urldecode($this->param('cols')));
-			foreach($data as $k=>$v) {
-				$row = array('cell' => array());
-				if(isset($v['id'])) $row['id'] = $v['id'];
-				foreach($cols as $c) $row['cell'][] = $v[$c];
-				$ret['rows'][] = $row;
+			$cols = $this->param('cols');
+			if($cols) {
+				// Note: this method is currently in testing for a new AJAX-based grid component
+				$cols = explode('&', urldecode($this->param('cols')));
+				foreach($data as $k=>$v) {
+					$row = array('cell' => array());
+					if(isset($v['id'])) $row['id'] = $v['id'];
+					foreach($cols as $c) $row['cell'][] = $v[$c];
+					$ret['rows'][] = $row;
+				}
+			} else {
+				foreach($data as $k=>$v) {
+					$row = array();
+					foreach($v as $key=>$val) $row[$key] = $val;
+					$ret['rows'][] = $row;
+				}
 			}
 
 			echo json_encode($ret);
@@ -434,30 +444,32 @@ class Page_CRUD extends Page
 
 	/**********************************************************************
 	 * DATA HOOKS -- Override these to tweak data at some process points
+	 *               To stop any further execution in the calling function,
+	 *               just have your hook function return false.
 	 **********************************************************************/
  
 	/* These are run for both create AND edit operations */
-	function hook__pre_edit(&$data)          {}
-	function hook__failed_validation(&$data) {}
-	function hook__pre_save(&$data)          {}
-	function hook__post_save(&$data)         {}
+	function hook__pre_edit(&$data)          { return true; }
+	function hook__failed_validation(&$data) { return true; }
+	function hook__pre_save(&$data)          { return true; }
+	function hook__post_save(&$data)         { return true; }
 
 	/* The rest are split into their specific operations */
-	function hook_create__pre_edit(&$data)          {}
-	function hook_create__failed_validation(&$data) {}
-	function hook_edit__pre_edit(&$data)            {}
-	function hook_edit__failed_validation(&$data)   {}
+	function hook_create__pre_edit(&$data)          { return true; }
+	function hook_create__failed_validation(&$data) { return true; }
+	function hook_edit__pre_edit(&$data)            { return true; }
+	function hook_edit__failed_validation(&$data)   { return true; }
 
-	function hook_insert__pre_save(&$data)  {}
-	function hook_insert__post_save(&$data) {}
-	function hook_update__pre_save(&$data)  {}
-	function hook_update__post_save(&$data) {}
+	function hook_insert__pre_save(&$data)  { return true; }
+	function hook_insert__post_save(&$data) { return true; }
+	function hook_update__pre_save(&$data)  { return true; }
+	function hook_update__post_save(&$data) { return true; }
 
-	function hook_delete__pre_delete(&$data)  {}
-	function hook_delete__post_delete(&$data) {}
+	function hook_delete__pre_delete(&$data)  { return true; }
+	function hook_delete__post_delete(&$data) { return true; }
 
-	function hook_list__params(&$params)          {}
-	function hook_list__post_select(&$data)       {}
+	function hook_list__params(&$params)          { return true; }
+	function hook_list__post_select(&$data)       { return true; }
 }
 
 ?>
