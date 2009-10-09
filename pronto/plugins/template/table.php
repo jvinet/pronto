@@ -139,7 +139,7 @@ class tpTable extends Plugin
 		$this->depends->html->js_load('grid');
 
 		// setup AJAX routines if necessary
-		if($options['ajax']) {
+		if($this->_opt_isset($options, 'ajax')) {
 			$this->depends->html->js_load('ajax');
 			$this->depends->html->js_run('grid', '$(\'.ajax_action\').click(grid_dispatch);');
 		}
@@ -180,7 +180,7 @@ class tpTable extends Plugin
 		$out .= ">\n";
 
 		// COLUMN HEADERS
-		if(!$options['noheaders']) {
+		if(!$this->_opt_isset($options, 'noheaders')) {
 			$out .= "<tr class=\"label\">\n";
 			$i = 0;
 			foreach($params['columns'] as $name=>$column) {
@@ -195,7 +195,7 @@ class tpTable extends Plugin
 						$out .= ' onMouseOver="$(this).addClass(\'hover\')"';
 						$out .= ' onMouseOut="$(this).removeClass(\'hover\')"';
 					}
-					if(!$options['nosorting'] && !$column['nosort']) {
+					if(!$this->_opt_isset($options, 'nosorting') && !$column['nosort']) {
 						$out .= ' onClick="return grid_sort(this);"';
 					}
 					if(preg_match('|^_MULTI_|', $name)) $style[] = 'text-align:center';
@@ -203,7 +203,7 @@ class tpTable extends Plugin
 				$out .= ' class="'.implode(' ',$class).'"';
 				$out .= ' style="'.implode(';',$style).'">';
 				if(preg_match('|^_OPTIONS_|', $name)) {
-					if($name == '_OPTIONS_' && !$options['nofilters'] && !$options['nofilterbutton']) {
+					if($name == '_OPTIONS_' && !$this->_opt_isset($options, 'nofilters') && !$this->_opt_isset($options, 'nofilterbutton')) {
 						// TODO: show a different filters.html based on language selected (i18n)
 						$out .= $this->depends->html->link(__('Filter Help'), url('/static/filters.en.html'), false, true, array('class'=>'help'), true);
 					} else {
@@ -216,7 +216,7 @@ class tpTable extends Plugin
 					} else {
 						$label = $column['label'] ? $column['label'] : '&nbsp;';
 					}
-					if(!$options['nosorting'] && !$column['nosort']) {
+					if(!$this->_opt_isset($options, 'nosorting') && !$column['nosort']) {
 						// build new query string with sort parameters
 						$GET = $_GET;
 						$qs = array();
@@ -239,7 +239,7 @@ class tpTable extends Plugin
 		}
 
 		// SEARCH FILTERS
-		if(!$options['nofilters']) {
+		if(!$this->_opt_isset($options, 'nofilters')) {
 			// for AJAX: $out .= '<form method="get" action="'.$grid_url.'" onSubmit="return grid_submit(this);">';
 			$out .= '<form method="get" action="'.$grid_url.'">';
 			// propagate GET vars
@@ -260,7 +260,7 @@ class tpTable extends Plugin
 				$out .= ' class="'.implode(' ',$class).'"';
 				$out .= ' style="'.implode(';',$style).'">';
 				if(preg_match('|^_OPTIONS_|', $name)) {
-					if($name == '_OPTIONS_' && !$options['nofilters'] && !$options['nofilterbutton']) {
+					if($name == '_OPTIONS_' && !$this->_opt_isset($options, 'nofilters') && !$this->_opt_isset($options, 'nofilterbutton')) {
 						$out .= $this->depends->form->submit('filter_submit',__('Filter'),array('style'=>'width:auto'))."</th>\n";
 					} else {
 						$out .= '&nbsp;';
@@ -432,7 +432,7 @@ class tpTable extends Plugin
 		}
 
 		// TOTALS
-		if(!$options['nototals'] && count($totals)) {
+		if(!$this->_opt_isset($options, 'nototals') && count($totals)) {
 			$out .= "<tr class=\"totals\">\n";
 			$i = 0;
 			foreach($params['columns'] as $name=>$column) {
@@ -485,7 +485,7 @@ class tpTable extends Plugin
 			$numpages = (int)($params['rows'] / $params['perpage']);
 			if($params['rows'] % $params['perpage']) $numpages++;
 		}
-		if(!$options['nopagination'] && $numpages > 1) {
+		if(!$this->_opt_isset($options, 'nopagination') && $numpages > 1) {
 			$cp = $params['curpage'];
 			$pp = $params['perpage'];
 			$out .= "<tr class=\"pagination\">\n";
@@ -566,6 +566,18 @@ class tpTable extends Plugin
 			$out = '<a href="'.$url.'?'.$qs.'">'.$pagenum.'</a> ';
 		}
 		return $out;
+	}
+
+	/*
+	 * Check an array to see if an option is set, either as the key or as the value.
+	 */
+	function _opt_isset($options, $optname)
+	{
+		foreach($options as $k=>$v) {
+			if($k == $optname) return $v;
+			if($v == $optname) return true;
+		}
+		return false;
 	}
 
 	/*
