@@ -39,10 +39,11 @@ class tpTable extends Plugin
 		$tbl_id = isset($attribs['id']) ? $attribs['id'] : 'table'.++$this->guid;
 
 		// <table>
-		$out = '<table id="'.$tbl_id.'" cellspacing="0"';
+		$out = '<table id="'.$tbl_id.'" cellspacing="0" class="';
 		if(isset($params['class'])) {
-			$out .= ' class="'.$params['class'].'"';
+			$out .= $params['class'].' ';
 		}
+		$out .= 'table-highlight"';
 		foreach($attribs as $k=>$v) {
 			$out .= " $k=\"$v\"";
 		}
@@ -72,10 +73,10 @@ class tpTable extends Plugin
 			$out .= "</tr>\n";
 		}
 
-		$js  = "$('#{$tbl_id} tr').click(function(){ $('#{$tbl_id} tr').removeClass('selected');$(this).addClass('selected'); });";
-		$js .= "$('#{$tbl_id} tr').mouseover(function(){ $(this).addClass('highlight'); });";
-		$js .= "$('#{$tbl_id} tr').mouseout(function(){ $(this).removeClass('highlight'); });";
-		$this->depends->html->js_run('', $js);
+		$js  = "$('table.table-highlight tr').click(function(){ $(this).parent().parent().find('tr').removeClass('selected');$(this).addClass('selected'); });";
+		$js .= "$('table.table-highlight tr').mouseover(function(){ $(this).addClass('highlight'); });";
+		$js .= "$('table.table-highlight tr').mouseout(function(){ $(this).removeClass('highlight'); });";
+		$this->depends->html->js_run('tpTable:highlight', $js);
 
 		$out .= "</table>\n";
 		return $out;
