@@ -16,7 +16,7 @@ if(!isset($_GET['c'])) die;
 $fn = urldecode($_GET['c']).'.css';
 
 // sanity/safety checks
-if(ereg('\.\.', $fn)) die;
+if(preg_match('|\.\.|', $fn)) die;
 $base = dirname(__FILE__).DS.'css';
 $path = $base.DS.$fn;
 if(substr(dirname($path), 0, strlen($base)) != $base) die;
