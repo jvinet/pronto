@@ -63,6 +63,34 @@ class RecordSelector
 	}
 
 	/**
+	 * A convenience method for RecordSelector::where().  Adds a WHERE clause
+	 * that states "$col='$val'".
+	 *
+	 * @param string $col The column to match.
+	 * @param string $val The value of the column.
+	 */
+	function eq($col, $val)
+	{
+		return $this->where("$col='%s'", $val);
+	}
+
+	/**
+	 * A convenience method for RecordSelector::where().  Look for record(s)
+	 * that match all column values in the array.
+	 *
+	 * @param array $record Associative array of column->value mappings that
+	 *                      will be used as search criteria.
+	 */
+	function match($record)
+	{
+		$t = $this;
+		foreach($record as $k=>$v) {
+			$t = $this->eq($k, $v);
+		}
+		return $t;
+	}
+
+	/**
 	 * Add an additional ORDER BY restriction to the result set
 	 *
 	 * @param string $orderby "Order by" sub-clause
