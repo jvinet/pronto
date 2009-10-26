@@ -567,10 +567,13 @@ class Web {
 		$js .= "function pronto_run_queue() { var l=0; for(var x in pronto_js_load_queue) l++; if(l==0) { for(var y in pronto_js_run_queue) { eval('pronto_js_run_queue.'+y+'();'); } } }\n";
 		foreach($this->q_js_run as $k=>$v) {
 			if(substr($k, 0, 1) == '+') $k = substr($k, 1);
+			// remove commonly-used symbols that are not legal javascript var names
+			$k = str_replace(array(':','/','-','.'), '_', $k);
 			$js .= "pronto_js_run_queue.$k = function(){ $v }\n";
 		}
 		foreach($this->q_js_load as $k=>$v) {
 			$js .= "pronto_js_load_queue.$k = true;\n";
+			$k = str_replace(array(':','/','-','.'), '_', $k);
 			$js .= "$.getScript(\"$v\", function(){ delete pronto_js_load_queue.$k; pronto_run_queue(); });\n";
 		}
 		// if the load queue is empty, then we have to execute the run queue immediately

@@ -72,7 +72,9 @@ $db =& Registry::get('pronto:db:main');
 foreach($files as $f) {
 	unset($GLOBALS['insql_done'], $GLOBALS['LFILE']);
 	echo "Loading $f...\n";
-	do_multi_sql('', $f);
+	if(!do_multi_sql('', $f)) {
+		echo "Error: An error occurred while trying to run this SQL chunk.\n";
+	}
 }
 
 function do_sql($sql) {

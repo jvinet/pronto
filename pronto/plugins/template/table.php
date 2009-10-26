@@ -361,7 +361,7 @@ class tpTable extends Plugin
 			$js  = "$('#{$guid} tr').click(function(){ $('#{$guid} tr').removeClass('selected');$(this).addClass('selected'); });";
 			$js .= "$('#{$guid} tr').mouseover(function(){ $(this).addClass('highlight'); });";
 			$js .= "$('#{$guid} tr').mouseout(function(){ $(this).removeClass('highlight'); });";
-			$this->depends->html->js_run('', $js);
+			$this->depends->html->js_run("tpTable:$guid:highlight", $js);
 
 			foreach($params['columns'] as $name=>$column) {
 				$out .= '<td';
@@ -575,8 +575,8 @@ class tpTable extends Plugin
 	function _opt_isset($options, $optname)
 	{
 		foreach($options as $k=>$v) {
-			if($k == $optname) return $v;
-			if($v == $optname) return true;
+			if($k === $optname) return $v;
+			if($v === $optname) return true;
 		}
 		return false;
 	}
