@@ -156,7 +156,8 @@ class RecordSelector
 	 * arrays.
 	 *
 	 * @param ret2d boolean Always return an array of associative arrays, even
-	 *                      if only one record was found.
+	 *                      if only one record was found.  If zero recors are
+	 *                      found, an empty array is returned.
 	 *
 	 * @return array
 	 */
@@ -167,7 +168,7 @@ class RecordSelector
 		$ret = array();
 		foreach($ids as $id) $ret[] = $this->model->load($id);
 		switch(count($ret)) {
-			case 0:  return false;
+			case 0:  return $ret2d ? array() : false;
 			case 1:  return $ret2d ? $ret : $ret[0];
 			default: return $ret;
 		}
