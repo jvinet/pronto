@@ -12,6 +12,7 @@ if(!defined('PROFILE')) define('PROFILE', 'web');
 
 // Core Libraries
 require_once(DIR_FS_PRONTO.DS.'core'.DS.'registry.php');
+require_once(DIR_FS_PRONTO.DS.'core'.DS.'log.php');
 require_once(DIR_FS_PRONTO.DS.'core'.DS.'factory.php');
 if(phpversion() < 5) {
 	require_once(DIR_FS_PRONTO.DS.'core'.DS.'lazyload_php4.php');
