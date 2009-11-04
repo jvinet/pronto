@@ -6,6 +6,16 @@
  *
  * Description: A logging facility.
  *
+ * By default, there are two facilities, but you can add more:
+ *   - Pronto
+ *   - App
+ *
+ * These are the default priorities, in order:
+ *   - debug
+ *   - info
+ *   - warning
+ *   - error
+ *
  **/
 
 if(!defined('DIR_FS_LOG')) define('DIR_FS_LOG', DIR_FS_BASE.DS.'log');
@@ -29,14 +39,23 @@ class Logger
 			return;
 		}
 
-		$this->routes = array(
-			'pronto(:.*)*' => array(
-				'.*' => 'pronto.log'
-			),
-			'app(:.*)*' => array(
-				'.*' => 'app.log'
-			)
-		);
+		// Default routes - used if no routes were passed in.
+		if(DEBUG !== true) {
+			// If in Production mode, ignore priority levels "debug" and "info"
+			//
+			// NB: The ! prefix is not valid in regular expressions, but we parse
+			//     it correctly here.  Don't use it elsewhere - it won't work!
+			$this->routes = array(
+				'pronto(:.*)*' => array('!(debug|info)' => 'pronto.log'),
+				'app(:.*)*'    => array('!(debug|info)' => 'app.log')
+			);
+		} else {
+			// Debug mode logging -- capture all priorities
+			$this->routes = array(
+				'pronto(:.*)*' => array('.*' => 'pronto.log'),
+				'app(:.*)*'    => array('.*' => 'app.log')
+			);
+		}
 	}
 
 	function add_routes($routes)
@@ -47,17 +66,31 @@ class Logger
 	function msg($facility, $priority, $message)
 	{
 		foreach($this->routes as $fac=>$v) {
-			if(!preg_match("/$fac/", $facility)) continue;
-			echo "matched $fac<br>\n";
+			if(!$this->_preg($fac, $facility)) continue;
 			if(is_array($v)) {
 				foreach($v as $pri=>$fn) {
-					if(!preg_match("/$pri/", $priority)) continue;
+					if(!$this->_preg($pri, $priority)) continue;
 					$this->_log_msg($fn, $facility, $priority, $message);
 				}
 			} else {
 				$this->_log_msg($fn, $facility, $priority, $message);
 			}
 		}
+	}
+
+	/**
+	 * A simple frontend to preg_match.  Allows a prefix of '!' which negates
+	 * the regular expression.
+	 *
+	 * Don't include the RE delimiters (eg, "/"), they will be added.
+	 */
+	function _preg($re, $str)
+	{
+		if(substr($re, 0, 1) == '!') {
+			$re = substr($re, 1);
+			return !preg_match("/$re/", $str);
+		}
+		return preg_match("/$re/", $str);
 	}
 
 	function _log_msg($filename, $facility, $priority, $message)
@@ -71,7 +104,7 @@ class Logger
 			}
 		}
 		$dt = date('Y-m-d H:i:s');
-		$msg = "[$dt] [$facility:$priority] $message\n";
+		$msg = "[$dt] [$facility.$priority] $message\n";
 		fputs($this->files[$filename], $msg);
 	}
 }
@@ -97,14 +130,7 @@ function l() {
 		$message  = vsprintf($args[2], array_slice($args, 3));
 	}
 
-	echo "$facility:$priority $message<br>\n";
-
 	$logger->msg($facility, $priority, $message);
 }
-
-// Start up an instance immediately -- it will be the only one.
-$l = new Logger();
-Registry::set('pronto:logger', $l);
-
 
 ?>
