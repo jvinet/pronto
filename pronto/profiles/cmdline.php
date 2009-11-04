@@ -32,6 +32,17 @@ Registry::set('pronto:urls', $URLS);
 unset($URLS);
 
 /************************************************************************
+ * LOG INITIALIZATION
+ ************************************************************************/
+$l = new Logger();
+if(file_exists(DIR_FS_APP.DS.'config'.DS.'log.php')) {
+	require_once(DIR_FS_APP.DS.'config'.DS.'log.php');
+	$l->add_routes($LOG_ROUTES);
+}
+Registry::set('pronto:logger', $l);
+unset($l);
+
+/************************************************************************
  * CACHE INITIALIZATION
  ************************************************************************/
 if(USE_CACHE === true && defined('CACHE_DRIVER')) {
