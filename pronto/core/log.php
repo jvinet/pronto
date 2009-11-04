@@ -96,7 +96,8 @@ class Logger
 	function _log_msg($filename, $facility, $priority, $message)
 	{
 		if(!is_resource($this->files[$filename])) {
-			$path = DIR_FS_LOG.DS.$filename;
+			// prepend the log directory path if the filepath is not absolute
+			$path = substr($filename, 0, 1) == DS ? $filename : DIR_FS_LOG.DS.$filename;
 			$this->files[$filename] = @fopen($path, 'a');
 			if(!is_resource($this->files[$filename])) {
 				trigger_error("Cannot open log file: $path");

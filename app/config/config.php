@@ -57,16 +57,17 @@ define('SITE_URL_BASE', '');
  *   - DIR_FS_APP    :: Full path to the Application code (the app/ directory
  */
 define('DIR_WS_BASE',  '/pronto');
-define('DIR_FS_BASE',  '/home/httpd/html/pronto');
+define('DIR_FS_BASE',  '/srv/http/pronto');
 define('DIR_FS_PRONTO', DIR_FS_BASE.DS.'pronto');
 define('DIR_FS_APP',    DIR_FS_BASE.DS.'app');
+define('DIR_FS_LOG',    DIR_FS_APP.DS.'log');    // remove to disable logging
 
 /*
  * Enable Plugins/Helpers/Modules (space-delimited)
  */
 define('PLUGINS', 'mailer image file os');
 define('HELPERS', 'html form table pager navigation ajax');
-define('MODULES', 'user cms');
+define('MODULES', 'user');
 
 /*
  * Cache Settings

@@ -29,7 +29,7 @@ require_once(DIR_FS_PRONTO.DS.'core'.DS.'cache.php');
 require_once(DIR_FS_PRONTO.DS.'core'.DS.'util.php');
 
 // URL route config
-require_once(DIR_FS_APP.DS.'config/urls.php');
+require_once(DIR_FS_APP.DS.'config'.DS.'urls.php');
 Registry::set('pronto:urls', $URLS);
 unset($URLS);
 
