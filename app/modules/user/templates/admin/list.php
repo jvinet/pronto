@@ -2,9 +2,31 @@
 <?php echo $html->link_button(__('Create a User'), url('User_Admin','create'), 'icons/add.gif', '', false, array('style'=>'float:right')) ?>
 <br /><br />
 
+<table id="grid1" class="grid"></table>
+
+<?php $html->css_load('grid') ?>
+<?php $html->js_load('grid') ?>
+<script type="text/javascript">
+$(function(){
+	var grid = new Pronto.UI.Grid($('#grid1'), {
+		options: {},
+		columns: {
+			first_name:  {label:'First Name'},
+			last_name:   {label:'Last Name'},
+			email:       {label:'Email'},
+			status:      {label:'Status', type:'select', options:['active','pending','delete']},
+			access_keys: {label:'Access Keys', type:'select', options:['Admin','User']},
+			last_login:  {label:'Last Login', type:'date'}
+		}
+	});
+	grid.build();
+});
+</script>
+
 <?php
+/*
 echo $table->build_grid(array(
-	//'options'  => array('ajax'=>true),
+	'options'  => array('ajax'=>true),
 	'columns'  => array(
 		'_OPTIONS_'   => array(
 			'edit'   => $html->link($html->image('icons/edit.gif', array('title'=>__('Edit Item'),'class'=>'ajax_action')), url('User_Admin','edit').'?id=<id>'),
@@ -15,17 +37,15 @@ echo $table->build_grid(array(
 		'status'      => array('label'=>__('Status'),'type'=>'select','options'=>array_hash(array('active','pending','deleted'))),
 		'access_keys' => array('label'=>__('Access Keys'),'type'=>'select','options'=>array_hash($access_keys)),
 		'last_login'  => array('label'=>__('Last Login'),'type'=>'date','date_format'=>'Y-m-d'),
-/*
- * Example of a multi-select usage
 		'_MULTI_' => array(
 			'delete' => $html->button(__('Delete'), url('User','delete'), __('Are you sure?'), false, 'multi')
 		)
-*/
 	),
 	'data'    => $data,
 	'perpage' => $perpage,
 	'curpage' => $curpage,
 	'rows'    => $totalrows
 ));
+ */
 
 ?>

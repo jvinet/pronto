@@ -1,6 +1,9 @@
 <?php
-require_once("config_tinybrowser.php");
-require_once("fns_tinybrowser.php");
+require_once('config_tinybrowser.php');
+require_once('fns_tinybrowser.php');
+
+// delay script if set
+if($tinybrowser['delayprocess']>0) sleep($tinybrowser['delayprocess']);
 
 // Initialise files array and error vars
 $files = array();
@@ -12,6 +15,7 @@ $total = (isset($_GET['filetotal']) ? $_GET['filetotal'] : 0);
 
 // Assign get variables
 $folder = $tinybrowser['docroot'].urldecode($_GET['folder']);
+$foldernow = urlencode(str_replace($tinybrowser['path'][$_GET['type']],'',urldecode($_GET['folder'])));
 $passfeid = (isset($_GET['feid']) ? '&feid='.$_GET['feid'] : '');
 
 if ($handle = opendir($folder))
@@ -28,7 +32,9 @@ if ($handle = opendir($folder))
 			if(file_exists($dest_filename)) { unlink($tmp_filename); $dup++; continue; }
 
 			//-- Bad extensions
-			$ext = end(explode('.',$dest_filename));
+			$nameparts = explode('.',$dest_filename);
+			$ext = end($nameparts);
+			
 			if(!validateExtension($ext, $tinybrowser['prohibited'])) { unlink($tmp_filename); continue; }
         
 			//-- Rename temp file to dest file
@@ -54,17 +60,17 @@ if ($handle = opendir($folder))
 					if($widthnew != $imginfo[0] || $heightnew != $imginfo[1])
 						{
 						$im = convert_image($dest_filename,$mime);
-						resizeimage($im,$widthnew,$heightnew,$dest_filename,$tinybrowser['imagequality']);
+						resizeimage($im,$widthnew,$heightnew,$dest_filename,$tinybrowser['imagequality'],$mime);
 						imagedestroy($im);
 						}
 					}
 
 				// generate thumbnail
-				$thumbimg = $folder."_thumbs/_".rtrim($file,'_');
+				$thumbimg = $folder.'_thumbs/_'.rtrim($file,'_');
 				if (!file_exists($thumbimg))
 					{
 					$im = convert_image($dest_filename,$mime);
-					resizeimage	($im,$tinybrowser['thumbsize'],$tinybrowser['thumbsize'],$thumbimg,$tinybrowser['thumbquality']);
+					resizeimage	($im,$tinybrowser['thumbsize'],$tinybrowser['thumbsize'],$thumbimg,$tinybrowser['thumbquality'],$mime);
 					imagedestroy ($im);
 					}
 				}
@@ -77,16 +83,17 @@ $bad = $total-($good+$dup);
 
 // Check for problem during upload
 if($total>0 && $bad==$total) Header('Location: ./upload.php?type='.$_GET['type'].$passfeid.'&permerror=1&total='.$total);
-else Header('Location: ./upload.php?type='.$_GET['type'].$passfeid.'&badfiles='.$bad.'&goodfiles='.$good.'&dupfiles='.$dup);
+else Header('Location: ./upload.php?type='.$_GET['type'].$passfeid.'&folder='.$foldernow.'&badfiles='.$bad.'&goodfiles='.$good.'&dupfiles='.$dup);
 ?>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 	<head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Pragma" content="no-cache" />
 		<title>TinyBrowser :: Process Upload</title>
 	</head>
 	<body>
-		<p>You won't see this.</p>
+		<p>Sorry, there was an error processing file uploads.</p>
 	</body>
 </html>

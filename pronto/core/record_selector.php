@@ -195,11 +195,19 @@ class RecordSelector
 	 *
 	 * @return mixed Return a data record, or false if none are left.
 	 */
-	function one()
+	function load_one()
 	{
 		$ids = $this->_get_ids();
 		if(!isset($ids[$this->it_ptr])) return false;
 		return $this->model->load($this->it_ptr++);
+	}
+
+	/**
+	 * Alias for load_one()
+	 */
+	function one()
+	{
+		return $this->load_one();
 	}
 
 	/**

@@ -1,5 +1,5 @@
 <?php
-require_once("config_tinybrowser.php");
+require_once('config_tinybrowser.php');
 // Set language
 if(isset($tinybrowser['language']) && file_exists('langs/'.$tinybrowser['language'].'.php'))
 	{
@@ -9,7 +9,7 @@ else
 	{
 	require_once('langs/en.php'); // Falls back to English
 	}
-require_once("fns_tinybrowser.php");
+require_once('fns_tinybrowser.php');
 
 // Check session, if it exists
 if(session_id() != '')
@@ -21,9 +21,11 @@ if(session_id() != '')
 		}
 	}
 
-// Assign get variables
-$typenow = (isset($_GET['type']) ? $_GET['type'] : 'image');
+// Assign file operation variables
+$validtypes = array('image','media','file');
+$typenow = ((isset($_GET['type']) && in_array($_GET['type'],$validtypes)) ? $_GET['type'] : 'image');
 $standalone = ((isset($_GET['feid']) && $_GET['feid']!='') ? true : false);
+$foldernow = str_replace(array('../','..\\','./','.\\'),'',($tinybrowser['allowfolders'] && isset($_REQUEST['folder']) ? urldecode($_REQUEST['folder']) : ''));
 
 if($standalone)
 	{
@@ -36,11 +38,6 @@ else
 	$rowhlightinit =  '';	
 	}
 
-// Assign view, thumbnail and link paths
-$browsepath = $tinybrowser['path'][$typenow];
-$linkpath = $tinybrowser['link'][$typenow];
-$thumbpath = $tinybrowser[$tinybrowser['thumbsrc']][$typenow];
-
 // Assign browsing options
 $sortbynow = (isset($_REQUEST['sortby']) ? $_REQUEST['sortby'] : $tinybrowser['order']['by']);
 $sorttypenow = (isset($_REQUEST['sorttype']) ? $_REQUEST['sorttype'] : $tinybrowser['order']['type']);
@@ -48,6 +45,17 @@ $sorttypeflip = ($sorttypenow == 'asc' ? 'desc' : 'asc');
 $viewtypenow = (isset($_REQUEST['viewtype']) ? $_REQUEST['viewtype'] : $tinybrowser['view']['image']);
 $findnow = (isset($_POST['find']) && !empty($_POST['find']) ? $_POST['find'] : false);
 $showpagenow = (isset($_REQUEST['showpage']) ? $_REQUEST['showpage'] : 0);
+
+// Assign url pass variables
+$passfolder = '&folder='.urlencode($foldernow);
+$passfeid = (isset($_GET['feid']) && $_GET['feid']!='' ? '&feid='.$_GET['feid'] : '');
+$passviewtype = '&viewtype='.$viewtypenow;
+$passsortby = '&sortby='.$sortbynow.'&sorttype='.$sorttypenow;
+
+// Assign view, thumbnail and link paths
+$browsepath = $tinybrowser['path'][$typenow].$foldernow;
+$linkpath = $tinybrowser['link'][$typenow].$foldernow;
+$thumbpath = $tinybrowser[$tinybrowser['thumbsrc']][$typenow].$foldernow;
 
 // Assign sort parameters for column header links
 $sortbyget = array();
@@ -69,8 +77,8 @@ $thclass[$sortbynow] = ' class="'.$sorttypenow.'"';
 
 // Initalise alert array
 $notify = array(
-	"type" => array(),
-	"message" => array()
+	'type' => array(),
+	'message' => array()
 );
 $newthumbqty = 0;
 
@@ -82,15 +90,21 @@ if(file_exists($tinybrowser['docroot'].$browsepath))
 	$file = array();
 	while (($filename = readdir($dh)) !== false)
 		{
-		if($filename != "." && $filename != ".." && !is_dir($tinybrowser['docroot'].$browsepath.$filename))
+		// get file extension
+		$nameparts = explode('.',$filename);
+		$ext = end($nameparts);
+
+		// filter directories and prohibited file types
+		if($filename != '.' && $filename != '..' && !is_dir($tinybrowser['docroot'].$browsepath.$filename) && !in_array($ext, $tinybrowser['prohibited']) && ($typenow == 'file' || strpos(strtolower($tinybrowser['filetype'][$typenow]),strtolower($ext))))
 			{
 			// search file name if search term entered
-			if($findnow) $exists = stripos($filename,$findnow);
+			if($findnow) $exists = strpos(strtolower($filename),strtolower($findnow));
 	
 			// assign file details to array, for all files or those that match search
 			if(!$findnow || ($findnow && $exists !== false))
 				{
 				$file['name'][] = $filename;
+				$file['sortname'][] = strtolower($filename);
 				$file['modified'][] = filemtime($tinybrowser['docroot'].$browsepath.$filename);
 				$file['size'][] = filesize($tinybrowser['docroot'].$browsepath.$filename);
 	
@@ -103,14 +117,14 @@ if(file_exists($tinybrowser['docroot'].$browsepath))
 					$file['type'][] = $imginfo['mime'];
 					
 					// Check a thumbnail exists
-					if(!file_exists($tinybrowser['docroot'].$browsepath."_thumbs/")) createfolder($tinybrowser['docroot'].$browsepath."_thumbs/",$tinybrowser['unixpermissions']);
-			  		$thumbimg = $tinybrowser['docroot'].$browsepath."_thumbs/_".$filename;
+					if(!file_exists($tinybrowser['docroot'].$browsepath.'_thumbs/')) createfolder($tinybrowser['docroot'].$browsepath.'_thumbs/',$tinybrowser['unixpermissions']);
+			  		$thumbimg = $tinybrowser['docroot'].$browsepath.'_thumbs/_'.$filename;
 					if (!file_exists($thumbimg))
 						{
 						$nothumbimg = $tinybrowser['docroot'].$browsepath.$filename;
 						$mime = getimagesize($nothumbimg);
 						$im = convert_image($nothumbimg,$mime['mime']);
-						resizeimage($im,$tinybrowser['thumbsize'],$tinybrowser['thumbsize'],$thumbimg,$tinybrowser['thumbquality']);
+						resizeimage($im,$tinybrowser['thumbsize'],$tinybrowser['thumbsize'],$thumbimg,$tinybrowser['thumbquality'],$mime['mime']);
 						imagedestroy($im);
 						$newthumbqty++;
 						}
@@ -143,6 +157,10 @@ else
 		$notify['message'][]=sprintf(TB_MSGMKDIRFAIL, $browsepath);
 		}
 	}
+	
+// Assign directory structure to array
+$browsedirs=array();
+dirtree($browsedirs,$tinybrowser['filetype'][$typenow],$tinybrowser['docroot'],$tinybrowser['path'][$typenow]);
 	
 // generate alert if new thumbnails created
 if($newthumbqty>0)
@@ -180,10 +198,12 @@ else
 <head>
 <title>TinyBrowser :: <?php echo TB_BROWSE; ?></title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="Pragma" content="no-cache" />
 <?php
 if(!$standalone && $tinybrowser['integration']=='tinymce')
 	{
-	?><script language="javascript" type="text/javascript" src="../../tiny_mce_popup.js"></script><?php 
+	?><script language="javascript" type="text/javascript" src="../../tiny_mce_popup.js"></script>
+	<link rel="stylesheet" type="text/css" media="all" href="<?php echo $tinybrowser['tinymcecss']; ?>" /><?php
 	}
 else
 	{
@@ -196,35 +216,50 @@ else
 <body<?php echo $rowhlightinit; ?>>
 <?php
 if(count($notify['type'])>0) alert($notify);
+form_open('foldertab',false,'tinybrowser.php','?type='.$typenow.$passviewtype.$passsortby.$passfeid);
 ?>
 <div class="tabs">
 <ul>
-<li id="browse_tab" class="current"><span><a href="tinybrowser.php?type=<?php echo $typenow.$passfeid ; ?>"><?php echo TB_BROWSE; ?></a></span></li><?php
+<li id="browse_tab" class="current"><span><a href="tinybrowser.php?type=<?php echo $typenow.$passfolder.$passfeid; ?>"><?php echo TB_BROWSE; ?></a></span></li><?php
 if($tinybrowser['allowupload']) 
 	{
-	?><li id="upload_tab"><span><a href="upload.php?type=<?php echo $typenow.$passfeid ; ?>"><?php echo TB_UPLOAD; ?></a></span></li><?php
+	?><li id="upload_tab"><span><a href="upload.php?type=<?php echo $typenow.$passfolder.$passfeid; ?>"><?php echo TB_UPLOAD; ?></a></span></li><?php
 	}
 if($tinybrowser['allowedit'] || $tinybrowser['allowdelete'])
 	{
-	?><li id="edit_tab"><span><a href="edit.php?type=<?php echo $typenow.$passfeid ; ?>"><?php echo TB_EDIT; ?></a></span></li><?php
-	} ?>
+	?><li id="edit_tab"><span><a href="edit.php?type=<?php echo $typenow.$passfolder.$passfeid; ?>"><?php echo TB_EDIT; ?></a></span></li><?php
+	}
+if($tinybrowser['allowfolders'])
+	{
+	?><li id="folders_tab"><span><a href="folders.php?type=<?php echo $typenow.$passfolder.$passfeid; ?>"><?php echo TB_FOLDERS; ?></a></span></li><?php
+	}
+// Display folder select, if multiple exist
+if(count($browsedirs)>1)
+	{
+	?><li id="folder_tab" class="right"><span><?php
+	form_select($browsedirs,'folder',TB_FOLDERCURR,urlencode($foldernow),true);
+	?></span></li><?php
+	} 
+?>
 </ul>
 </div>
+</form>
 <div class="panel_wrapper">
 <div id="general_panel" class="panel currentmod">
 <fieldset>
 <legend><?php echo TB_BROWSEFILES; ?></legend>
 <?php
-form_open('browse','custom',basename($_SERVER["SCRIPT_NAME"]),'?type='.$typenow.$passfeid);
+form_open('browse','custom','tinybrowser.php','?type='.$typenow.$passfolder.$passfeid);
 ?>
 <div class="pushleft">
 <?php
+
 // Offer view type if file type is image
 if($typenow=='image')
 	{
 	$select = array(
-		array("thumb",TB_THUMBS),
-		array("detail",TB_DETAILS)
+		array('thumb',TB_THUMBS),
+		array('detail',TB_DETAILS)
 	);
 	form_select($select,'viewtype',TB_VIEW,$viewtypenow,true);
 	}
@@ -253,16 +288,16 @@ form_submit_button('search',TB_SEARCH,'');
 // if image show dimensions header
 if($typenow=='image')
 	{
-	$imagehead = '<th><a href="?type='.$typenow.$passfeid.$sortbyget['dimensions'].'"'.$thclass['dimensions'].'>'.TB_DIMENSIONS.'</a></th>';
+	$imagehead = '<th><a href="?type='.$typenow.$passfolder.$passfeid.$sortbyget['dimensions'].'"'.$thclass['dimensions'].'>'.TB_DIMENSIONS.'</a></th>';
 	}
 else $imagehead = '';
 
 echo '<div class="tabularwrapper"><table class="browse">'
-		.'<tr><th><a href="?type='.$typenow.$passfeid.$sortbyget['name'].'"'.$thclass['name'].'>'.TB_FILENAME.'</a></th>'
-		.'<th><a href="?type='.$typenow.$passfeid.$sortbyget['size'].'"'.$thclass['size'].'>'.TB_SIZE.'</a></th>'
+		.'<tr><th><a href="?type='.$typenow.$passfolder.$passfeid.$sortbyget['name'].'"'.$thclass['name'].'>'.TB_FILENAME.'</a></th>'
+		.'<th><a href="?type='.$typenow.$passfolder.$passfeid.$sortbyget['size'].'"'.$thclass['size'].'>'.TB_SIZE.'</a></th>'
 		.$imagehead
-		.'<th><a href="?type='.$typenow.$passfeid.$sortbyget['type'].'"'.$thclass['type'].'>'.TB_TYPE.'</th>'
-		.'<th><a href="?type='.$typenow.$passfeid.$sortbyget['modified'].'"'.$thclass['modified'].'>'.TB_DATE.'</th></tr>';
+		.'<th><a href="?type='.$typenow.$passfolder.$passfeid.$sortbyget['type'].'"'.$thclass['type'].'>'.TB_TYPE.'</th>'
+		.'<th><a href="?type='.$typenow.$passfolder.$passfeid.$sortbyget['modified'].'"'.$thclass['modified'].'>'.TB_DATE.'</th></tr>';
 
 // show image thumbnails, unless detail view is selected
 if($typenow=='image' && $viewtypenow != 'detail')
@@ -272,10 +307,10 @@ if($typenow=='image' && $viewtypenow != 'detail')
 	for($i=$showpage_start;$i<$showpage_end;$i++)
 		{
 		echo '<div class="img-browser"><a href="#" onclick="selectURL(\''.$linkpath.$file['name'][$i].'\');" title="'.TB_FILENAME.': '.$file['name'][$i]
+				.'&#13;&#10;'.TB_DIMENSIONS.': '.$file['width'][$i].' x '.$file['height'][$i]
+				.'&#13;&#10;'.TB_DATE.': '.date($tinybrowser['dateformat'],$file['modified'][$i])
 				.'&#13;&#10;'.TB_TYPE.': '.$file['type'][$i]
 				.'&#13;&#10;'.TB_SIZE.': '.bytestostring($file['size'][$i],1)
-				.'&#13;&#10;'.TB_DATE.': '.date($tinybrowser['dateformat'],$file['modified'][$i])
-				.'&#13;&#10;'.TB_DIMENSIONS.': '.$file['width'][$i].' x '.$file['height'][$i]
 				.'"><img src="'.$thumbpath.'_thumbs/_'.$file['name'][$i]
 				.'"  /><div class="filename">'.$file['name'][$i].'</div></a></div>';
 		}

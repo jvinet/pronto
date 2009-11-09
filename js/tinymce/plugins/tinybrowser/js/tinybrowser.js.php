@@ -1,6 +1,6 @@
 <?php
 $mainpage = (strpos(basename($_SERVER['HTTP_REFERER']),'tinybrowser.php') === 0 ? true : false);
-require_once("../config_tinybrowser.php");
+require_once('../config_tinybrowser.php');
 
 if($mainpage && !isset($_GET['feid']) && $tinybrowser['integration'] == 'tinymce')
 	{?>
@@ -49,7 +49,11 @@ elseif($mainpage && $_GET['feid'] != '')
 	function selectURL(url) {
 	opener.document.getElementById("<?php echo $_GET['feid']; ?>").value = url;
 	// Set img source of element id, if img id exists (format is elementid + "img")
-	if(typeof(opener.document.getElementById("<?php echo $_GET['feid']; ?>img")) != "undefined" && opener.document.getElementById("<?php echo $_GET['feid']; ?>img").src.length != 0)
+	if (
+        typeof(opener.document.getElementById("<?php echo $_GET['feid']; ?>img")) != "undefined"
+        && opener.document.getElementById("<?php echo $_GET['feid']; ?>img") != null
+        && opener.document.getElementById("<?php echo $_GET['feid']; ?>img").src.length != 0
+		)
 	   {
 		opener.document.getElementById("<?php echo $_GET['feid']; ?>img").src = url;
 		}
@@ -69,7 +73,7 @@ for (var i=0;i<x.length;i++)
 var y = document.getElementsByTagName('th');
 for (var ii=0;ii<y.length;ii++) 
 	{
-	y[ii].onmouseover = function () {if(this.className != "nohover") this.className = "over " + this.className;}
+	y[ii].onmouseover = function () {if(this.className != "nohvr") this.className = "over " + this.className;}
 	y[ii].onmouseout = function () {this.className = this.className.replace("over", ""); this.className = this.className.replace(" ", "");}
 	}
 }

@@ -2,12 +2,16 @@
 /*
 TinyBrowser 1.32 - A TinyMCE file browser (C) 2008  Bryn Jones
 Language 'fi'
-Author: Iisakki Pirilä
+Author: Iisakki Pirilä - Markus Sällinen
 email: iisakki[at]piuha[dot]fi
 */
 define("TB_BROWSE", "Selaa");
 define("TB_EDIT", "Muokkaa");
 define("TB_UPLOAD", "Lataa palvelimelle");
+define("TB_FOLDERS", "Kansiot");
+define("TB_FOLDERNAME", "Kansion nimi");
+define("TB_FOLDERCURR", "Nykyinen kansio: ");
+define("TB_FOLDERDEST", "Kohde: ");
 define("TB_VIEW", "Näytä: ");
 define("TB_SHOW", "Näytä: ");
 define("TB_PAGE", "Sivu");
@@ -23,10 +27,12 @@ define("TB_DETAILS", "Tarkat tiedot");
 define("TB_THUMBS", "Esikatselukuvat");
 define("TB_EDITFILES", "Muokkaa tiedostoja");
 define("TB_ACTION", "Toiminto");
+define("TB_CREATE", "Luo");
 define("TB_DELETE", "Poista");
 define("TB_RENAME", "Nimeä uudelleen");
 define("TB_ROTATE", "Käännä");
 define("TB_RESIZE", "Muuta kokoa");
+define("TB_MOVE", "Siirrä");
 define("TB_UPLOADFILES", "Lataa tiedostoja");
 define("TB_PROGRESS", "Vaihe");
 define("TB_REMOVE", "Poista");
@@ -42,8 +48,10 @@ define("TB_ROTATECCW", "Käännä 90 astetta vastapäivään");
 define("TB_MSGNEWTHUMBS", "%s uutta esikatselukuvaa luotu.");
 define("TB_MSGMKDIR", "Kansion '%s' luominen onnistui.");
 define("TB_MSGMKDIRFAIL", "Kansion '%s' luominen epäonnistui - tarkista oikeudet.");
+define("TB_MSGCREATE", "%s kansiota on luotu oninstuneesti.");
 define("TB_MSGDELETE", "%s tiedoston poistaminen onnistui.");
 define("TB_MSGRENAME", "%s tiedoston uudelleennimeäminen onnistui.");
+define("TB_MSGMOVE", "%s tiedostoa on siirretty onnistuneesti");
 define("TB_MSGRESIZE", "%s kuvan koon muuttaminen onnistui.");
 define("TB_MSGROTATE", "%s kuvan kääntäminen onnistui.");
 define("TB_MSGEDITERR", "Toiminto epäonnistui %s tiedostolle.");
@@ -56,4 +64,5 @@ define("TB_TTLMAXSIZE", "Tiedostokoossa virhe");
 define("TB_DENIED", "Tämä sivu vaatii käyttöoikeuden.");
 define("TB_UPDENIED", "Tämä sivu vaatii latausoikeudet.");
 define("TB_EDDENIED", "Tämä sivu vaatii muokkaus- tai poisto- oikeudet.");
+define("TB_FODENIED", "Tämä sivu vaatii kansioiden hallintaoikeudet.");
 ?>

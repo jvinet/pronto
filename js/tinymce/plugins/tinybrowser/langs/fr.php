@@ -1,9 +1,10 @@
 <?php
 /*
-TinyBrowser 1.32 - A TinyMCE file browser (C) 2008  Bryn Jones
 Default Language 'fr'
-Author: Laurent Hayoun
-email: contact[at]h2lsoft[dot]com
+Traductions for TinyBrowser 1.4 Beta.
+Based on the 1.3 files, with folders traductions adds
+Author: Stéphane Rouillé , Ligne13 Web Agency
+email: stephane@ligne13.com
 */
 define("TB_BROWSE", "Ouvrir...");
 define("TB_EDIT", "Editer");
@@ -18,6 +19,7 @@ define("TB_TYPE", "Type");
 define("TB_DATE", "Date Modification");
 define("TB_SEARCH", "Rechercher");
 define("TB_FILES", "Fichiers");
+define("TB_FOLDERS", "Dossiers");
 define("TB_BROWSEFILES", "Ouvrir Fichiers");
 define("TB_DETAILS", "Détails");
 define("TB_THUMBS", "Vignettes");
@@ -26,6 +28,7 @@ define("TB_ACTION", "Action");
 define("TB_DELETE", "Supprimer");
 define("TB_RENAME", "Renommer");
 define("TB_ROTATE", "Pivoter");
+define("TB_MOVE", "Deplacer");
 define("TB_RESIZE", "Redimensionner");
 define("TB_UPLOADFILES", "Upload Fichiers");
 define("TB_PROGRESS", "Progression");
@@ -39,6 +42,10 @@ define("TB_TYPEMEDIA", "Media");
 define("TB_TYPEFILE", "Tous Fichiers");
 define("TB_ROTATECW", "Rotation 90 degrés horaire");
 define("TB_ROTATECCW", "Rotation 90 degrés anti-horaire");
+define("TB_CREATE", "Créer");
+define("TB_FOLDERNAME", "Nom du dossier");
+define("TB_MSGCREATE", "Le dossier a bien été crée.");
+define("TB_FOLDERCURR", "Dossier actuel ");
 define("TB_MSGNEWTHUMBS", "%s nouvelles vignettes créées.");
 define("TB_MSGMKDIR", "Le '%s' répertoire a été créé avec succès.");
 define("TB_MSGMKDIRFAIL", "Impossible de créer le répertoire '%s' - vérifier vos permissions.");

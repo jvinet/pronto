@@ -1,4 +1,6 @@
 <?php
+require_once("config_tinybrowser.php");
+
 $tbpath = pathinfo($_SERVER['SCRIPT_NAME']);
 $tbmain = $tbpath['dirname'].'/tinybrowser.php';
 ?>
@@ -23,8 +25,8 @@ $tbmain = $tbpath['dirname'].'/tinybrowser.php';
     tinyMCE.activeEditor.windowManager.open({
         file : cmsURL,
         title : 'Tiny Browser',
-        width : 650, 
-        height : 440,
+        width : <?php echo $tinybrowser['window']['width']; ?>, 
+        height : <?php echo $tinybrowser['window']['height']; ?>,
         resizable : "yes",
 		  scrollbars : "yes",
         inline : "yes",  // This parameter only has an effect if you use the inlinepopups plugin!

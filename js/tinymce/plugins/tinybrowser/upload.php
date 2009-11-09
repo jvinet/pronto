@@ -1,5 +1,5 @@
 <?php
-require_once("config_tinybrowser.php");
+require_once('config_tinybrowser.php');
 // Set language
 if(isset($tinybrowser['language']) && file_exists('langs/'.$tinybrowser['language'].'.php'))
 	{
@@ -9,7 +9,7 @@ else
 	{
 	require_once('langs/en.php'); // Falls back to English
 	}
-require_once("fns_tinybrowser.php");
+require_once('fns_tinybrowser.php');
 
 // Check session, if it exists
 if(session_id() != '')
@@ -28,8 +28,19 @@ if(!$tinybrowser['allowupload'])
 	}
 
 // Assign get variables
-$typenow = (isset($_GET['type']) ? $_GET['type'] : 'image');
+$validtypes = array('image','media','file');
+$typenow = ((isset($_GET['type']) && in_array($_GET['type'],$validtypes)) ? $_GET['type'] : 'image');
+$foldernow = str_replace(array('../','..\\','./','.\\'),'',($tinybrowser['allowfolders'] && isset($_REQUEST['folder']) ? urldecode($_REQUEST['folder']) : ''));
+$passfolder = '&folder='.urlencode($foldernow);
 $passfeid = (isset($_GET['feid']) && $_GET['feid']!='' ? '&feid='.$_GET['feid'] : '');
+$passupfeid = (isset($_GET['feid']) && $_GET['feid']!='' ? $_GET['feid'] : '');
+
+// Assign upload path
+$uploadpath = urlencode($tinybrowser['path'][$typenow].$foldernow);
+
+// Assign directory structure to array
+$uploaddirs=array();
+dirtree($uploaddirs,$tinybrowser['filetype'][$typenow],$tinybrowser['docroot'],$tinybrowser['path'][$typenow]);
 
 // determine file dialog file types
 switch ($_GET['type'])
@@ -49,8 +60,8 @@ $filelist = $filestr.' ('.$tinybrowser['filetype'][$_GET['type']].')';
 
 // Initalise alert array
 $notify = array(
-	"type" => array(),
-	"message" => array()
+	'type' => array(),
+	'message' => array()
 );
 $goodqty = (isset($_GET['goodfiles']) ? $_GET['goodfiles'] : 0);
 $badqty = (isset($_GET['badfiles']) ? $_GET['badfiles'] : 0);
@@ -82,6 +93,7 @@ if(isset($_GET['permerror']))
 <head>
 <title>TinyBrowser :: <?php echo TB_UPLOAD; ?></title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="Pragma" content="no-cache" />
 <?php
 if($passfeid == '' && $tinybrowser['integration']=='tinymce')
 	{
@@ -101,10 +113,10 @@ document.location = url;
 </script>
 </head>
 <body onload='
-      var so = new SWFObject("flexupload.swf", "mymovie", "600", "340", "9", "#ffffff");
-      so.addVariable("folder", "<?php echo urlencode($tinybrowser['path'][$typenow]); ?>");
+      var so = new SWFObject("flexupload.swf", "mymovie", "100%", "340", "9", "#ffffff");
+      so.addVariable("folder", "<?php echo $uploadpath; ?>");
       so.addVariable("uptype", "<?php echo $typenow; ?>");
-      so.addVariable("destid", "<?php echo $passfeid; ?>");
+      so.addVariable("destid", "<?php echo $passupfeid; ?>");
       so.addVariable("maxsize", "<?php echo $tinybrowser['maxsize'][$_GET['type']]; ?>");
       so.addVariable("sessid", "<?php echo session_id(); ?>");
       so.addVariable("obfus", "<?php echo md5($_SERVER['DOCUMENT_ROOT'].$tinybrowser['obfuscate']); ?>");
@@ -125,22 +137,40 @@ document.location = url;
       so.write("flashcontent");'>
 <?php
 if(count($notify['type'])>0) alert($notify);
+form_open('foldertab',false,'upload.php','?type='.$typenow.$passfeid);
 ?>
 <div class="tabs">
 <ul>
-<li id="browse_tab"><span><a href="tinybrowser.php?type=<?php echo $typenow.$passfeid ; ?>"><?php echo TB_BROWSE; ?></a></span></li>
-<li id="upload_tab" class="current"><span><a href="upload.php?type=<?php echo $typenow.$passfeid ; ?>"><?php echo TB_UPLOAD; ?></a></span></li>
+<li id="browse_tab"><span><a href="tinybrowser.php?type=<?php echo $typenow.$passfolder.$passfeid ; ?>"><?php echo TB_BROWSE; ?></a></span></li>
+<li id="upload_tab" class="current"><span><a href="upload.php?type=<?php echo $typenow.$passfolder.$passfeid ; ?>"><?php echo TB_UPLOAD; ?></a></span></li>
 <?php
 if($tinybrowser['allowedit'] || $tinybrowser['allowdelete'])
 	{
-	?><li id="edit_tab"><span><a href="edit.php?type=<?php echo $typenow.$passfeid ; ?>"><?php echo TB_EDIT; ?></a></span></li>
-	<?php } ?>
+	?><li id="edit_tab"><span><a href="edit.php?type=<?php echo $typenow.$passfolder.$passfeid ; ?>"><?php echo TB_EDIT; ?></a></span></li>
+	<?php 
+	}
+if($tinybrowser['allowfolders'])
+	{
+	?><li id="folders_tab"><span><a href="folders.php?type=<?php echo $typenow.$passfolder.$passfeid; ?>"><?php echo TB_FOLDERS; ?></a></span></li><?php
+	}
+// Display folder select, if multiple exist
+if(count($uploaddirs)>1)
+	{
+	?><li id="folder_tab" class="right"><span><?php
+	form_select($uploaddirs,'folder',TB_FOLDERCURR,urlencode($foldernow),true);
+	?></span></li><?php
+	}
+?>
 </ul>
 </div>
+</form>
 <div class="panel_wrapper">
 <div id="general_panel" class="panel currentmod">
 <fieldset>
 <legend><?php echo TB_UPLOADFILES; ?></legend>
+<?php
+
+?>
     <div id="flashcontent"></div>
 </fieldset></div></div>
 </body>

@@ -115,6 +115,7 @@ class Logger
  */
 function l() {
 	$logger =& Registry::get('pronto:logger');
+	if(!$logger) return;
 
 	$args = func_get_args();
 	if(count($args) == 1) {

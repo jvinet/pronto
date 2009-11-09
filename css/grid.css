@@ -7,6 +7,9 @@ table.grid h1, table.grid h2 {
 	/* hide form titles when shown within a grid */
 	display: none;
 }
+table.grid a img {
+	border: none;
+}
 table.grid tr {
 	background-color: #fff;
 }
@@ -88,11 +91,13 @@ table.grid input.spinner {
 	text-align: left;
 	background: #484848 url(/img/spinner-dark.gif) center right no-repeat;
 }
-table.grid tr th.hover {
+table.grid tr th.hover,
+table.grid tr th.selected {
 	background: #9fdcff url(/img/thead-hl.gif) top left repeat-x;
 	cursor: pointer;
 }
-table.grid tr th.hover a {
+table.grid tr th.hover a,
+table.grid tr th.selected a {
 	color: #000;
 }
 table.grid th a.help {

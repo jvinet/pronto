@@ -67,7 +67,7 @@ define('DIR_FS_LOG',    DIR_FS_APP.DS.'log');    // remove to disable logging
  */
 define('PLUGINS', 'mailer image file os');
 define('HELPERS', 'html form table pager navigation ajax');
-define('MODULES', 'user');
+define('MODULES', 'user cms person');
 
 /*
  * Cache Settings

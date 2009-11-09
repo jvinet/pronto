@@ -1,13 +1,17 @@
-<?php 
+<?php
 /*
-TinyBrowser 1.32 - A TinyMCE file browser (C) 2008  Bryn Jones
+TinyBrowser 1.40 - A TinyMCE file browser (C) 2008  Bryn Jones
 Language 'zh-cn'
-Author: John Tam
+Author: John Tam , Last update:2008/10/17
 email: jokytam168[at]gmail[dot]com
 */
 		define("TB_BROWSE", "浏览");
 		define("TB_EDIT", "编辑");
 		define("TB_UPLOAD", "上传档案");
+		define("TB_FOLDERS", "资料夹");
+ 		define("TB_FOLDERNAME", "资料夹名称");
+		define("TB_FOLDERCURR", "当前资料夹: ");
+ 		define("TB_FOLDERDEST", "目的地资料夹: ");
 		define("TB_VIEW", "排列图示依: ");
 		define("TB_SHOW", "展示: ");
 		define("TB_PAGE", "页");
@@ -22,11 +26,13 @@ email: jokytam168[at]gmail[dot]com
 		define("TB_DETAILS", "详细资料");
 		define("TB_THUMBS", "缩图");
 		define("TB_EDITFILES", "编辑档案");
-		define("TB_ACTION", "动作");
+		define("TB_ACTION", "动作: ");
+ 		define("TB_CREATE", "建立");
 		define("TB_DELETE", "删除");
 		define("TB_RENAME", "更名档案");
 		define("TB_ROTATE", "旋转图片");
 		define("TB_RESIZE", "调整大小");
+ 		define("TB_MOVE", "移动档案");
 		define("TB_UPLOADFILES", "上传档案");
 		define("TB_PROGRESS", "上传进度");
 		define("TB_REMOVE", "移除");
@@ -34,16 +40,18 @@ email: jokytam168[at]gmail[dot]com
 		define("TB_WIDTH", "宽度");
 		define("TB_HEIGHT", "高度");
 		define("TB_NONE", "保持原状");
-		define("TB_TYPEIMG", "图片");
+		define("TB_TYPEIMG", "图片档案");
 		define("TB_TYPEMEDIA", "多媒体档案");
 		define("TB_TYPEFILE", "其他档案");
 		define("TB_ROTATECW", "顺时针旋转90度");
 		define("TB_ROTATECCW", "逆时针旋转90度");
 		define("TB_MSGNEWTHUMBS", "图片 %s 的缩图成功产生！");
-		define("TB_MSGMKDIR", "资料夹 '%s' 成功建立！");
-		define("TB_MSGMKDIRFAIL", "无法建立资料夹 '%s' ，请检查资料夹写入权限");
+		define("TB_MSGMKDIR", "资料夹 %s 成功建立！");
+		define("TB_MSGMKDIRFAIL", "无法建立资料夹 %s ，请检查资料夹写入权限");
+		define("TB_MSGCREATE", "建立资料夹 %s 成功！");
 		define("TB_MSGDELETE", "删除 %s 笔档案完成");
 		define("TB_MSGRENAME", "档案 %s 更名完成");
+ 		define("TB_MSGMOVE", "档案 %s 移动完成");
 		define("TB_MSGRESIZE", "图片 %s 调整大小完成");
 		define("TB_MSGROTATE", "图片 %s 旋转完成");
 		define("TB_MSGEDITERR", "在进行操作时，档案 %s 遭遇错误，无法进行您的要求！");
@@ -56,4 +64,5 @@ email: jokytam168[at]gmail[dot]com
 		define("TB_DENIED", "您没有权限操作本项功能");
 		define("TB_UPDENIED", "您没有上传档案的权限");
 		define("TB_EDDENIED", "您没有修改及删除档案的权限");
+ 		define("TB_FODENIED", "您没有建立及修改资料夹的权限");
 ?>

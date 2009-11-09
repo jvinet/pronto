@@ -3,10 +3,23 @@ require_once("../config_tinybrowser.php");
 
 header ("Content-type: text/css");
 ?>
+html { 
+overflow: -moz-scrollbars-vertical !important; 
+}
 .panel_wrapper div.currentmod {
 display:block;
 width:100%; 
 overflow-x:hidden;
+}
+.tabs li.right {
+float:right;
+margin:0;
+}
+.tabs span {
+font-size: 10px;
+}
+fieldset {
+padding-bottom: 10px;
 }
 form {
 margin: 0;
@@ -163,7 +176,7 @@ background-position: 0 4px;
 }
 a.imghover img {
 position: absolute; 
-z-index: 31; 
+z-index: 31;
 background-color: #fff;
 padding: 4px;
 border: 1px solid #888888;
@@ -210,3 +223,4 @@ background-color: #FFBBBB;
 border-color: #1133DD;
 background-color: #AACCFF;
 }
+

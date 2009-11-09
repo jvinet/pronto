@@ -1,13 +1,18 @@
 <?php 
 /*
-TinyBrowser 1.32 - A TinyMCE file browser (C) 2008  Bryn Jones
+TinyBrowser 1.40 - A TinyMCE file browser (C) 2008  Bryn Jones
 Language: nl
 Author: Rudy Mens
 email: ruud[at]lazyadmin[dot]nl
+updated by fc.stuurman@hccnet.nl
 */
 define("TB_BROWSE", "Bladeren");
 define("TB_EDIT", "Aanpassen");
 define("TB_UPLOAD", "Upload");
+define("TB_FOLDERS", "Folders");
+define("TB_FOLDERNAME", "Folder Naam");
+define("TB_FOLDERCURR", "Huidige Folder: ");
+define("TB_FOLDERDEST", "Doel Folder: ");
 define("TB_VIEW", "Beeld: ");
 define("TB_SHOW", "Show: ");
 define("TB_PAGE", "Pagina");
@@ -23,10 +28,12 @@ define("TB_DETAILS", "Details");
 define("TB_THUMBS", "Miniatuurweergaven");
 define("TB_EDITFILES", "Bestanden aanpassen");
 define("TB_ACTION", "Actie");
+define("TB_CREATE", "Creer");
 define("TB_DELETE", "Verwijder");
 define("TB_RENAME", "Hernoem");
 define("TB_ROTATE", "Draaien");
 define("TB_RESIZE", "Formaat wijzigen");
+define("TB_MOVE", "Verplaats");
 define("TB_UPLOADFILES", "Upload Bestanden");
 define("TB_PROGRESS", "Voortgang");
 define("TB_REMOVE", "Verwijderen");
@@ -42,8 +49,10 @@ define("TB_ROTATECCW", "Linksom draaien");
 define("TB_MSGNEWTHUMBS", "%s nieuwe miniatuurweergaven van de afbeeldingen zijn gegenareerd.");
 define("TB_MSGMKDIR", "De map '%s' is successvol aangemaakt.");
 define("TB_MSGMKDIRFAIL", "Kan de map '%s' niet aanmaken - Kijk je rechten instellingen na.");
+define("TB_MSGCREATE", "%s bestand(en) is/zijn succesvol gecreerd.");
 define("TB_MSGDELETE", "%s bestand(en) is/zijn succesvol verwijderd.");
 define("TB_MSGRENAME", "%s bestand(en) is/zijn succesvol hernoemd.");
+define("TB_MSGMOVE", "%s bestand(en) is/zijn succesvol verplaatst.");
 define("TB_MSGRESIZE", "%s afbeelding(en) is/zijn succesvol gewijzigd.");
 define("TB_MSGROTATE", "%s afbeelding(en) is/zijn succesvol hernoemd.");
 define("TB_MSGEDITERR", "%s bestand(en) gevonden met problemen tijdens deze handeling.");
@@ -56,4 +65,5 @@ define("TB_TTLMAXSIZE", "Bestand is te groot");
 define("TB_DENIED", "Je bent niet bevoegd om deze pagina te bekijken.");
 define("TB_UPDENIED", "Je hebt upload rechten nodig om deze pagina te bekijken.");
 define("TB_EDDENIED", "Je hebt verwijder of aanpas rechten nodig om deze pagina te bekijken.");
+define("TB_FODENIED", "Je hebt folder maintenance rechten nodig om deze pagina te bekijken.");
 ?>

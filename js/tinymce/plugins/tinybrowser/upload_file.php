@@ -1,6 +1,6 @@
 <?php
-require_once("config_tinybrowser.php");
-require_once("fns_tinybrowser.php");
+require_once('config_tinybrowser.php');
+require_once('fns_tinybrowser.php');
 
 // Check session, if it exists
 if(session_id() != '')
@@ -16,7 +16,9 @@ if(isset($_GET['type'])) { $typenow = $_GET['type']; } else { echo 'Error!'; exi
 if(isset($_GET['folder'])) { $dest_folder = urldecode($_GET['folder']); } else { echo 'Error!'; exit; } 
 
 // Check file extension isn't prohibited
-$ext = end(explode('.',$_FILES['Filedata']['name']));
+$nameparts = explode('.',$_FILES['Filedata']['name']);
+$ext = end($nameparts);
+
 if(!validateExtension($ext, $tinybrowser['prohibited'])) { echo 'Error!'; exit; } 
 
 // Check file data
@@ -24,7 +26,8 @@ if ($_FILES['Filedata']['tmp_name'] && $_FILES['Filedata']['name'])
 	{	
 	$source_file = $_FILES['Filedata']['tmp_name'];
 	$file_name = stripslashes($_FILES['Filedata']['name']);
-	if(is_dir($tinybrowser['docroot'].$folder_name.$dest_folder))
+	if($tinybrowser['cleanfilename']) $file_name = clean_filename($file_name);
+	if(is_dir($tinybrowser['docroot'].$dest_folder))
 		{
 		$success = copy($source_file,$tinybrowser['docroot'].$dest_folder.'/'.$file_name.'_');
 		}

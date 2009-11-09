@@ -1,4 +1,11 @@
-<?php echo $user['first_name'] ?>, 
+<?php
+	switch(true) {
+		case !empty($user['first_name']): $n = "Hello {$user['first_name']},"; break;
+		case !empty($user['name']):       $n = "Hello {$user['name']},"; break;
+		default:                          $n = "Hello,"; break;
+	}
+	echo "$n\n";
+?>
 
 <?php _e("We've received a request to reset your password on %s.", SITE_NAME) ?> 
 <?php _e("Your temporary password is:") ?> 
