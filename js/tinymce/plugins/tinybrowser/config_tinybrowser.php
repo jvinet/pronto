@@ -34,8 +34,7 @@ if(!defined('_TINYBROWSER_CONFIG')) {
 			unset($key, $dbcfg);
 		}
 	}
-	if(isset($_GET['sessidpass'])) session_id($_GET['sessidpass']); // workaround for Flash session bug
-	start_session();
+	start_session($_GET['sessidpass']);
 
 /*
 TinyBrowser 1.41 - A TinyMCE file browser (C) 2008  Bryn Jones
