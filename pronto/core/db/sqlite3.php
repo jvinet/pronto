@@ -69,6 +69,10 @@ class DB_SQLite3 extends DB_Base
 	function get_insert_id() {
 		return $this->conn->lastInsertRowID();
 	}
+
+	function free_result($q) {
+		return true;
+	}
 }
 
 ?>

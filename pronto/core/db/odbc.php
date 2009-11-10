@@ -62,6 +62,10 @@ class DB_ODBC extends DB_Base
 		$r = odbc_fetch_row(odbc_exec("select @@IDENTITY", $this->conn));
 		return $r[0];
 	}
+
+	function free_result($q) {
+		return odbc_free_result($q);
+	}
 }
 
 ?>

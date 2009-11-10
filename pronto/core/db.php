@@ -130,7 +130,8 @@ class DB_Base
 	 * @return mixed
 	 */
 	function &get_item($query_str, $query_arg="") {
-		if(($item = $this->fetch_array($this->execute($query_str, $query_arg)))) {
+		$q = $this->execute($query_str, $query_arg);
+		if(($item = $this->fetch_array($q, true))) {
 			return $item;
 		} else {
 			$ret = false;
@@ -168,6 +169,7 @@ class DB_Base
 				$list[$row[$key]] = $row;
 			}
 		}
+		$this->free_result($result);
 		return $list;
 	}
 
@@ -182,14 +184,14 @@ class DB_Base
 	 */
 	function &get_value($query_str, $query_arg="", $value="") {
 		if(empty($value)) {
-			if($item = $this->fetch_row($this->execute($query_str, $query_arg))) { 
+			if($item = $this->fetch_row($this->execute($query_str, $query_arg), true)) { 
 				return $item[0];
 			} else {
 				$ret = false;
 				return $ret;
 			}
 		} else {
-			if($item = $this->fetch_array($this->execute($query_str, $query_arg))) { 
+			if($item = $this->fetch_array($this->execute($query_str, $query_arg), true)) { 
 				return $item[$value];
 			} else {
 				$ret = false;
@@ -219,6 +221,7 @@ class DB_Base
 				$values[] = $item[$value];
 			}
 		}
+		$this->free_result($result);
 		return $values;
 	}
 
@@ -233,7 +236,7 @@ class DB_Base
 	 * @return mixed
 	 */
 	function &get_item_pair($query_str, $query_arg="") {
-		if($item = $this->fetch_array($this->execute($query_str, $query_arg))) {
+		if($item = $this->fetch_array($this->execute($query_str, $query_arg), true)) {
 			if(count($item) > 2) {
 				$key = array_shift($item);
 				$sub = array();
@@ -280,6 +283,7 @@ class DB_Base
 				$list[$key] = $val;
 			}
 		}
+		$this->free_result($result);
 		return $list;
 	}
 

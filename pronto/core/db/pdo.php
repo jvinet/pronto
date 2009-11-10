@@ -91,6 +91,10 @@ class DB_PDO extends DB_Base
 	function get_insert_id() {
 		return $this->conn->lastInsertId();
 	}
+
+	function free_result($q) {
+		return true;
+	}
 }
 
 ?>

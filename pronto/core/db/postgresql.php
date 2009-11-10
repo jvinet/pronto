@@ -84,6 +84,10 @@ class DB_PostgreSQL extends DB_Base
 		$q = @pg_query($this->conn, "SELECT lastval()");
 		return $q ? array_shift($this->fetch_row($q)) : 0;
 	}
+
+	function free_result($q) {
+		return pg_free_result($q);
+	}
 }
 
 ?>

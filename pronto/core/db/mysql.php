@@ -52,12 +52,16 @@ class DB_MySQL extends DB_Base
 		return mysql_query($sql, $this->conn);
 	}
 
-	function fetch_row(&$q) {
-		return mysql_fetch_array($q, MYSQL_NUM);
+	function fetch_row(&$q, $free_result=false) {
+		$a = mysql_fetch_array($q, MYSQL_NUM);
+		if($free_result) mysql_free_result($q);
+		return $a;
 	}
 
-	function fetch_array(&$q) {
-		return mysql_fetch_array($q, MYSQL_ASSOC);
+	function fetch_array(&$q, $free_result=false) {
+		$a = mysql_fetch_array($q, MYSQL_ASSOC);
+		if($free_result) mysql_free_result($q);
+		return $a;
 	}
 
 	function fetch_field(&$q, $num) {
@@ -74,6 +78,10 @@ class DB_MySQL extends DB_Base
 
 	function get_insert_id() {
 		return mysql_insert_id($this->conn);
+	}
+
+	function free_result($q) {
+		return mysql_free_result($q);
 	}
 }
 

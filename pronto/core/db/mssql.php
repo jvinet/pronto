@@ -64,6 +64,10 @@ class DB_MSSQL extends DB_Base
 		$r = mssql_fetch_row(mssql_query("select @@IDENTITY", $this->conn));
 		return $r[0];
 	}
+
+	function free_result($q) {
+		return mssql_free_result($q);
+	}
 }
 
 ?>

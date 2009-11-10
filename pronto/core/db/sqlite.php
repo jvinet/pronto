@@ -68,6 +68,10 @@ class DB_SQLite extends DB_Base
 	function get_insert_id() {
 		return sqlite_last_insert_rowid($this->conn);
 	}
+
+	function free_result($q) {
+		return true;
+	}
 }
 
 ?>
