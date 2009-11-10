@@ -40,11 +40,11 @@ class RecordModel_Base
 	/**
 	 * Name of database table this model will use
 	 */
-	var $table        = null;
+	var $table = null;
 	/**
 	 * Name of the PK column in this table (one column only)
 	 */
-	var $pk           = 'id';
+	var $pk = 'id';
 	/**
 	 * Enable caching for this entity.  Only enable this if you plan to
 	 * be diligent about _only_ inserting/updating/fetching/deleting this
@@ -55,7 +55,7 @@ class RecordModel_Base
 	var $enable_cache = false;
 
 	/**
-	 * An array of other models on which this model depends.
+	 * An array of other models that this model links to.
 	 * To use this, the model's table should have a "<model>_id"
 	 * column for each depending module.
 	 *
@@ -64,8 +64,8 @@ class RecordModel_Base
 	 * the model name and the second value being the column name in
 	 * the table.
 	 *
-	 * eg: var $depends = array('user');
-	 * eg: var $depends = array('user', array('blog','blog_id'));
+	 * eg: var $submodels = array('user');
+	 * eg: var $submodels = array('user', array('blog','blog_id'));
 	 */
 	var $submodels = null;
 
