@@ -199,7 +199,7 @@ class RecordSelector
 	{
 		$ids = $this->_get_ids();
 		if(!isset($ids[$this->it_ptr])) return false;
-		return $this->model->load($this->it_ptr++);
+		return $this->model->load($ids[$this->it_ptr++]);
 	}
 
 	/**
