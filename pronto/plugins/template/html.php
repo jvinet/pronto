@@ -201,21 +201,22 @@ class tpHtml extends Plugin
 	/**
 	 * Create a new URL by adding or substituting in new query arguments
 	 *
-	 * @param string $base_url The URL to start with before adding/modifying the
-	 *                         query arguments (defaults to the current URL if left blnak)
 	 * @param array $args An associative array of name-value pairs of query arguments
 	 *                    to add to $base_url
+	 * @param string $base_url The URL to start with before adding/modifying the
+	 *                         query arguments (defaults to the current URI if left blnak)
 	 * @return string The final URL
 	 */
-	function composite_url($base_url, $args)
+	function composite_url($args, $base_url='')
 	{
-		if(empty($base_url)) {
-			if(defined('CURRENT_URL')) {
-				$base_url = url(CURRENT_URL);
-			} else {
-				$base_url = url('/');
-			}
+		if(!is_array($args)) {
+			// backwards compatibility for the old prototype: ($base_url, $args)
+			$t = $args;
+			$args = $base_url;
+			$base_url = $t;
 		}
+
+		if(empty($base_url)) $base_url = $_SERVER['REQUEST_URI'];
 
 		// disassemble the current url and map out the query args
 		$parts = parse_url($base_url);
