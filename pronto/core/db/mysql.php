@@ -81,7 +81,7 @@ class DB_MySQL extends DB_Base
 	}
 
 	function free_result($q) {
-		return mysql_free_result($q);
+		return @mysql_free_result($q);
 	}
 }
 

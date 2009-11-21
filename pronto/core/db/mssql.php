@@ -66,7 +66,7 @@ class DB_MSSQL extends DB_Base
 	}
 
 	function free_result($q) {
-		return mssql_free_result($q);
+		return @mssql_free_result($q);
 	}
 }
 

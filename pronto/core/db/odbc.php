@@ -64,7 +64,7 @@ class DB_ODBC extends DB_Base
 	}
 
 	function free_result($q) {
-		return odbc_free_result($q);
+		return @odbc_free_result($q);
 	}
 }
 

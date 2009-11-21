@@ -86,7 +86,7 @@ class DB_PostgreSQL extends DB_Base
 	}
 
 	function free_result($q) {
-		return pg_free_result($q);
+		return @pg_free_result($q);
 	}
 }
 
