@@ -108,9 +108,9 @@ class Logger
 	{
 		if(substr($re, 0, 1) == '!') {
 			$re = substr($re, 1);
-			return !preg_match("/$re/", $str);
+			return !preg_match("/^$re$/", $str);
 		}
-		return preg_match("/$re/", $str, $matches);
+		return preg_match("/^$re$/", $str, $matches);
 	}
 
 	function _log_msg($filename, $facility, $priority, $message)
