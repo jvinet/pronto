@@ -66,14 +66,18 @@ class Logger
 	function msg($facility, $priority, $message)
 	{
 		foreach($this->routes as $fac=>$v) {
-			if(!$this->_preg($fac, $facility)) continue;
+			$m = array();
+			if(!$this->_preg($fac, $facility, $m)) continue;
+			for($i = 1; $i < count($m); $i++) $v = str_replace("\\$i", $m[$i], $v);
 			if(is_array($v)) {
 				foreach($v as $pri=>$fn) {
-					if(!$this->_preg($pri, $priority)) continue;
+					$m = array();
+					if(!$this->_preg($pri, $priority, $m)) continue;
+					for($i = 1; $i < count($m); $i++) $fn = str_replace("\\$i", $m[$i], $fn);
 					$this->_log_msg($fn, $facility, $priority, $message);
 				}
 			} else {
-				$this->_log_msg($fn, $facility, $priority, $message);
+				$this->_log_msg($v, $facility, $priority, $message);
 			}
 		}
 	}
@@ -84,13 +88,13 @@ class Logger
 	 *
 	 * Don't include the RE delimiters (eg, "/"), they will be added.
 	 */
-	function _preg($re, $str)
+	function _preg($re, $str, &$matches)
 	{
 		if(substr($re, 0, 1) == '!') {
 			$re = substr($re, 1);
 			return !preg_match("/$re/", $str);
 		}
-		return preg_match("/$re/", $str);
+		return preg_match("/$re/", $str, $matches);
 	}
 
 	function _log_msg($filename, $facility, $priority, $message)
