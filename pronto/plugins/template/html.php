@@ -221,7 +221,10 @@ class tpHtml extends Plugin
 		// disassemble the current url and map out the query args
 		$parts = parse_url($base_url);
 		$query = array();
-		foreach(explode('&', $parts['query']) as $k=>$v) if($v) $query[$k] = $v;
+		foreach(explode('&', $parts['query']) as $q) {
+			$p = explode('=', $q);
+			$query[$p[0]] = $p[1];
+		}
 
 		// now add (or sub) in the new ones
 		foreach($args as $k=>$v) $query[$k] = $v;
