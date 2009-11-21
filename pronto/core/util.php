@@ -189,9 +189,7 @@ function backtrace()
 		}
 		if($tp['function']) $fn .= "{$tp['function']}()";
 		if($tp['file']) $caller .= "{$tp['file']}:{$tp['line']}";
-		foreach($backtrace as $bt) {
-			$out .= "$fn\t\t\t$caller\n";
-		}
+		$out .= "$fn\t\t\t$caller\n";
 	}
 	return $out;
 }
