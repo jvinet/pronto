@@ -2,7 +2,8 @@
 /**
  * Configuration for logging routes.
  *
- * Log routes are controlled by facility and priority.
+ * Log routes are controlled by facility and priority.  A log message
+ * can match multiple routes.
  *
  * By default, there are two facilities, but you can add more:
  *   - Pronto
@@ -26,11 +27,19 @@
  */
 
 $LOG_ROUTES = array(
-	/* Example: Log all 'app' messages of 'warning' priority */
-	//'app' => array('warning' => 'warnings.log'),
+	// Debug: Log everything
+	'pronto(:.*)*' => array('.*' => 'pronto.log'),
+	'app(:.*)*'    => array('.*' => 'app.log'),
+
+	// Production: Don't log debug/info messages
+	//'pronto(:.*)*' => array('!(debug|info)' => 'pronto.log'),
+	//'app(:.*)*'    => array('!(debug|info)' => 'app.log'),
 	
-	/* Example: Log all 'mymod' messages that aren't debug or info level */ 
+	/* Example: Messages from 'mymod' facililty that aren't debug or info priority */ 
 	//'mymod' => array('!(debug|info)' => 'mymod.log'),
+
+	/* Example: Log each subapp to a different file */
+	//'app:(.*)' => 'app_\1.txt',
 );
 
 ?>

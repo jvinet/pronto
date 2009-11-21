@@ -49,6 +49,7 @@ if(DEBUG === true && isset($_GET['phpinfo'])) {
 $l = new Logger();
 if(file_exists(DIR_FS_APP.DS.'config'.DS.'log.php')) {
 	require_once(DIR_FS_APP.DS.'config'.DS.'log.php');
+	$l->clear_routes();
 	$l->add_routes($LOG_ROUTES);
 }
 Registry::set('pronto:logger', $l);
@@ -92,6 +93,12 @@ if(defined('MODULES')) {
 			$URLS += $old;
 			Registry::set('pronto:urls', $URLS);
 			unset($old, $URLS);
+		}
+		if(file_exists($modpath.'log.php')) {
+			$l =& Registry::get('pronto:logger');
+			require_once($modpath.'log.php');
+			$l->add_routes($LOG_ROUTES);
+			unset($l);
 		}
 	}
 	unset($modname, $modpath);

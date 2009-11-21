@@ -18,7 +18,7 @@
  *
  **/
 
-if(!defined('DIR_FS_LOG')) define('DIR_FS_LOG', DIR_FS_BASE.DS.'log');
+if(!defined('DIR_FS_LOG')) define('DIR_FS_LOG', DIR_FS_APP.DS.'log');
 
 class Logger
 {
@@ -58,11 +58,27 @@ class Logger
 		}
 	}
 
+	/**
+	 * Add multiple log routes.
+	 */
 	function add_routes($routes)
 	{
 		foreach($routes as $k=>$v) $this->routes[$k] = $v;
 	}
 
+	/**
+	 * Empty routing table.
+	 */
+	function clear_routes()
+	{
+		$this->routes = array();
+	}
+
+
+	/**
+	 * Log a message to the specific facility and priority.
+	 * A log message can match more than one route.
+	 */
 	function msg($facility, $priority, $message)
 	{
 		foreach($this->routes as $fac=>$v) {
@@ -99,6 +115,9 @@ class Logger
 
 	function _log_msg($filename, $facility, $priority, $message)
 	{
+		// silently fail if the log directory doesn't exist
+		if(!is_dir(DIR_FS_LOG)) return;
+
 		if(!is_resource($this->files[$filename])) {
 			// prepend the log directory path if the filepath is not absolute
 			$path = substr($filename, 0, 1) == DS ? $filename : DIR_FS_LOG.DS.$filename;
