@@ -172,6 +172,31 @@ function error($message)
 }
 
 /**
+ * Generate a function backtrace in a readable format.
+ */
+function backtrace()
+{
+	$out  = "Method/Function\t\t\tCaller\n";
+	$out .= "---------------\t\t\t------\n";
+	$bt = $backtrace ? $backtrace : debug_backtrace();
+	array_shift($bt);
+	foreach($bt as $tp) {
+		$fn = $caller = '';
+		if($tp['object']) {
+			$fn .= get_class($tp['object']).'::';
+		} else if($tp['class']) {
+			$fn .= "{$tp['class']}::";
+		}
+		if($tp['function']) $fn .= "{$tp['function']}()";
+		if($tp['file']) $caller .= "{$tp['file']}:{$tp['line']}";
+		foreach($backtrace as $bt) {
+			$out .= "$fn\t\t\t$caller\n";
+		}
+	}
+	return $out;
+}
+
+/**
  * Default exception handler.  This function just proxies the error through
  * to pronto_error().
  */
@@ -231,7 +256,6 @@ function pronto_error($errno, $message, $file, $line, $context=null, $backtrace=
 	// Function Backtrace
 	$tvars['backtrace'] = array();
 	$bt = $backtrace ? $backtrace : debug_backtrace();
-	//$bt = debug_backtrace();
 	array_shift($bt);
 	foreach($bt as $tp) {
 		$fn = $caller = '';
