@@ -123,7 +123,8 @@ class Logger
 			$path = substr($filename, 0, 1) == DS ? $filename : DIR_FS_LOG.DS.$filename;
 			$this->files[$filename] = @fopen($path, 'a');
 			if(!is_resource($this->files[$filename])) {
-				trigger_error("Cannot open log file: $path");
+				// Undecided on how we should act here.  For now, we quietly ignore the error.
+				/*trigger_error("Cannot open log file: $path");*/
 				return;
 			}
 		}

@@ -85,6 +85,18 @@ h1 {
 	top: 40px;
 	color: #e8bf67;
 }
+#loading {
+	background: url(/img/spinner-dark2.gif) top left no-repeat;
+	width: 24px;
+	height: 24px;
+	position: absolute;
+	left: 125px;
+	top: 22px;
+	display: none;
+	/*  A more general location:
+	left: 20px;
+	top: 53px; */
+}
 
 /********************************************************************
  * CONTAINER/CONTENT/FOOTER REGIONS

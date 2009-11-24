@@ -36,6 +36,7 @@
 			<?php endif ?>
 		</div>
 		<div id="flash"></div>
+		<div id="loading"></div>
 	<?php if(isset($FLASH_MESSAGE)): ?>
 		<script type="text/javascript">$(function(){ flash_set('<?php echo str_replace("'", "\\'", $FLASH_MESSAGE) ?>'); })</script>
 	<?php elseif(is_array($languages) && count($languages)): ?>
