@@ -2,6 +2,7 @@ table.grid {
 	border: 1px solid #ccc;
 	font-size: 8pt;
 	width: 100%;
+	border-collapse: collapse;
 }
 table.grid h1, table.grid h2 {
 	/* hide form titles when shown within a grid */

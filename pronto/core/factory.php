@@ -9,7 +9,7 @@
  *
  * A NOTE ABOUT PERFORMANCE:
  *   The Factory class is not very efficient without caching enabled.
- *   It uses a dynamic method of buildling file->class maps, and without
+ *   It uses a dynamic method of building file->class maps, and without
  *   a cache, it has to do this for each web request.  If performance
  *   is important to you, then it is highly recommended that you enable
  *   some form of caching.  See config/cache.php.

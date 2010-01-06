@@ -60,7 +60,7 @@ define('DIR_WS_BASE',  '/pronto');
 define('DIR_FS_BASE',  '/srv/http/pronto');
 define('DIR_FS_PRONTO', DIR_FS_BASE.DS.'pronto');
 define('DIR_FS_APP',    DIR_FS_BASE.DS.'app');
-define('DIR_FS_LOG',    DIR_FS_APP.DS.'log');    // remove to disable logging
+//define('DIR_FS_LOG',    DIR_FS_APP.DS.'log');    // comment-out to disable logging
 
 /*
  * Enable Plugins/Helpers/Modules (space-delimited)
