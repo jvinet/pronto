@@ -5,10 +5,10 @@
 <table id="grid1" class="grid"></table>
 
 <?php $html->css_load('grid') ?>
-<?php $html->js_load('grid') ?>
+<?php $html->js_load('pronto.grid') ?>
 <script type="text/javascript">
 $(function(){
-	var grid = new Pronto.UI.Grid($('#grid1'), {
+	var grid = new Pronto.UI.Grid($('#grid1'), '', {
 		options: {},
 		columns: {
 			first_name:  {label:'First Name'},
