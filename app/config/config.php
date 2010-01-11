@@ -67,7 +67,7 @@ define('DIR_FS_APP',    DIR_FS_BASE.DS.'app');
  */
 define('PLUGINS', 'mailer image file os');
 define('HELPERS', 'html form table pager navigation ajax');
-define('MODULES', 'user cms person');
+define('MODULES', 'user');
 
 /*
  * Cache Settings

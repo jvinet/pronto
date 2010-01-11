@@ -19,4 +19,3 @@
 	</ul>
 </p>
 
-<a href="#" onClick="$('#loading').toggle(); return false;">Click me</a>

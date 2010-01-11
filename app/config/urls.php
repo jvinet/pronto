@@ -52,12 +52,7 @@
  */
 
 $URLS = array(
-	//'/(.*)' => 'Home',                    // everything goes to the page server
-
-	'/grid/(.*)'  => 'Grid',
-
-	'/'     => 'Home',
-	'/(.*)' => array('CMS_Page','view'),  // everything else goes to the CMS
+	'/(.*)' => 'Home',                    // everything goes to the page server
 );
 
 ?>

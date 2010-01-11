@@ -40,6 +40,10 @@ Pronto.UI.tag.text = function(name, value, htmlopts) {
 	return this.input('text', name, value, htmlopts);
 }
 
+Pronto.UI.tag.password = function(name, value, htmlopts) {
+	return this.input('password', name, value, htmlopts);
+}
+
 Pronto.UI.tag.checkbox = function(name, value, htmlopts) {
 	return this.input('checkbox', name, value, htmlopts);
 }

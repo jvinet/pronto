@@ -2,10 +2,16 @@
 <?php echo $html->link_button(__('Create a User'), url('User_Admin','create'), 'icons/add.gif', '', false, array('style'=>'float:right')) ?>
 <br /><br />
 
-<table id="grid1" class="grid"></table>
-
 <?php $html->css_load('grid') ?>
 <?php $html->js_load('pronto.grid') ?>
+
+<?php
+	/**
+	 * This is a stub for testing the new Javascript version of the rich Grid.
+	 * It is still in development, and probably not ready for general use.
+	 * 
+	 * But you can play with it if you want.  :)
+<table id="grid1" class="grid"></table>
 <script type="text/javascript">
 $(function(){
 	var grid = new Pronto.UI.Grid($('#grid1'), '', {
@@ -22,9 +28,9 @@ $(function(){
 	grid.build();
 });
 </script>
+<?php */ ?>
 
 <?php
-/*
 echo $table->build_grid(array(
 	'options'  => array('ajax'=>true),
 	'columns'  => array(
@@ -46,6 +52,5 @@ echo $table->build_grid(array(
 	'curpage' => $curpage,
 	'rows'    => $totalrows
 ));
- */
 
 ?>
