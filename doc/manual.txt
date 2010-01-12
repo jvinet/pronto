@@ -1,7 +1,7 @@
 PRONTO WEB FRAMEWORK
 ====================
 Judd Vinet <jvinet@zeroflux.org>
-v0.6, August 2009
+v0.6, January 2010
 
 
 [[X0]]
@@ -17,9 +17,9 @@ files within.
 
 1. Untar the Pronto archive into your web root or a subdirectory thereof.
    We'll assume `/var/www/html/pronto`.
-2. Edit `app/config/config.php` and change the `DIR_*_BAE` constants to
+2. Edit `app/config/config.php` and change the `DIR_*_BASE` constants to
    match the location of your Pronto installation.
-3. Create a database for Pronto, then edit `app/config/databses.php` and
+3. Create a database for Pronto, then edit `app/config/databases.php` and
    change the settings to match the access credentials for your new Pronto
    database.
 4. Create the necessary tables from the schema files in `app/config/sql`.
@@ -83,7 +83,7 @@ Underneath the four high-level components, there are additional elements
 that support the framework.
 
 .Utility Elements:
-- Database Abstraction (with protection for SQL injection)
+- Database Abstraction (with protection for SQL injection attacks)
 - Data Sanitization (protection for XSS attacks)
 - Access Control
 - Input Validation
@@ -113,7 +113,7 @@ request is received:
 The dispatcher is the traffic cop.  It examines the request URI and
 decides which page controller it should pass control to, based on a
 series of regular expressions that define the URL->Controller mapping.
-The URL map is set in `app/config/urls.php`.
+The primary URL map is set in `app/config/urls.php`.
 
 [[X3-2]]
 The `$web` object
@@ -144,13 +144,13 @@ controllers.
 [php]
 source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 $URLS = array(
-	'/user/(.*)'       => 'User',
-	'/book/(.*)'       => 'Book',
+	'/user/(.*)' => 'User',
+	'/book/(.*)' => 'Book',
 
-	'/login/'          => array('User','login'),
-	'/logout/'         => array('User','logout'),
+	'/login/'    => array('User','login'),
+	'/logout/'   => array('User','logout'),
 
-	'/'                => 'Home'
+	'/'          => 'Home'
 );
 source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -161,7 +161,7 @@ a specific controller class (array).
 
 When routing a request, the dispatcher will choose the first array element
 that matches the current URL being requested.  If the target is an entire
-controller (such as the `/user/(.\*)` and `/book(.\*)` examples above) then
+controller (such as the `/user/(.*)` and `/book(.*)` examples above) then
 the portion of the regular expression surrounded by parentheses will be
 used to determine the action handler to be called within the page
 controller.
@@ -184,7 +184,7 @@ While most URL routes use the basic `(.*)` subpattern, it is possible to
 use more.  One such use is a *named subpattern*, which binds the
 subpattern to a name.  When a route matches, Pronto will merge the values
 of the named subpatterns into the standard request argument list
-(see <<X4-2-1,Where Input Variables Come From>>).  The controller can then
+(see <<X4-2-a,Where Input Variables Come From>>).  The controller can then
 access these values through the regular `Page::param()` method.
 
 .Using named subpatterns
@@ -421,7 +421,7 @@ source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 [[X4-3]]
 Wildcard Handlers, Inline Variables
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Using <<X3-3-1,named subpatterns>> is one way to use URLs that contain
+Using <<X3-3-a,named subpatterns>> is one way to use URLs that contain
 variables __inline__, ie, variables occur in the URL path itself, not in
 the query string.
 
@@ -678,7 +678,7 @@ There are three functions that can be used to render templates.
 |==============================================================================
 |`Page::render()`      |Parse a template and render it to the browser
 |`Page::fetch()`       |Parse a template and return the output to the caller
-|`Page::ajax_render()` |Render a template as an AJAX response (covered more later)
+|`Page::ajax_render()` |Render a template as an AJAX response (covered later)
 |==============================================================================
 
 You'll probably use the `Page::render()` function the most, but
@@ -798,28 +798,12 @@ The RecordModel is the parent class for all data models in Pronto.  You
 will extend this class whenever you create a new data model, overriding
 any public/callable methods that require customization.
 
-REMOVE THIS
------------
-Models do not actually perform any data introspection or Object Relational
-Mapping (ORM) by default.  They simply act as a place to store functions
-that relate directly to a data entity.  You are still responsible for
-writing your own SQL for the most part.  The creation and execution of
-safe SQL is reinforced by a well-designed database abstraction class that
-focuses on the DRY (Don't Repeat Yourself) principle.
-
-REMOVE THIS
------------
-While Pronto does not provide any full ORM capabilities, the base `Model`
-class does provide some convienience functions for the more simple queries,
-such as PK-based lookups or lookups with a single column in the WHERE
-clause. See the `DB_Base` class in the API Reference for a list of
-methods.
-
 [[X6-1]]
 The Core Operations
 ~~~~~~~~~~~~~~~~~~~
 The base `RecordModel` class provides an interface for the common operations
-associated with a simple data entity.
+associated with a simple data entity.  These are the methods that will be
+called by your controllers.
 
 .Common data entity operations
 [cols="1,1*2"]
@@ -835,8 +819,21 @@ associated with a simple data entity.
 |=========================================================================
 
 Some of the methods listed above are actually frontends to other,
-lower-order methods that do the real work.  The lower-order methods that
-you should override in your model classes.
+lower-order methods that do the real work.  These lower-order methods are
+the ones you should override in your model classes.
+
+.Base model methods to be overridden
+[cols="1,1*2"]
+|=========================================================================
+|`validate`            |Validate form data for an insert or update operation
+|`sanitize`            |Perform any necessary data sanitization prior to operating
+|`create_record`       |Return a "default" set of data to populate a form for entity creation
+|`load_record`         |Return a full data record, retrieved by Primary Key (PK)
+|`delete_record`       |Delete a record by PK
+|`save_record`         |Save a record to the DB (insert/update)
+|`enum_schema`         |Provide parameters necessary to enumerate (list)
+                        or search for records
+|=========================================================================
 
 The reason for the separation is because of the cache.  The frontend
 methods (i.e., the ones called by other components of the application) are
@@ -857,7 +854,7 @@ For extremely simple entities, the implementation within the base
 to override the functionality within your own model class.
 
 [NOTE]
-Very simple models may benefit from the <<XX,fly-model>> facility as well.
+Very simple models may benefit from the <<X6-8,fly-model>> facility as well.
 
 Model class names are prefixed with a lowercase `m`.
 
@@ -1075,7 +1072,7 @@ Finding Records
 So we've shown how you define the behavior around a data entity.  Now how
 do we actually __find__ records?
 
-We use *RecordSelector*.
+We use the *RecordSelector* facility.
 
 RecordSelector is a simple class that provides a fluent API for building
 record queries, also known as *selectors*.  You can build a selector by
@@ -1285,6 +1282,38 @@ class mUser extends RecordModel
 		$this->depends->blog->delete($user['blog_id']);
 		// now delete ourself
 		parent::delete_record($id);
+	}
+}
+?>
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+[[X6-8]]
+Using fly-models
+~~~~~~~~~~~~~~~~
+In some cases, it may be overkill to actually build a model class around
+a DB table when there's no need to override any methods.  In cases like
+these, you can adopt the base model functionality in the form of a
+*fly-model*.  A fly-model gives you a model object that is instantiated
+directly from the base RecordModel class.
+
+.Using a fly-model
+[php]
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<?php
+class pPerson extends Page
+{
+	function GET()
+	{
+		// fly-models required one argument: the name of the DB table
+		$m =& Factory::fly_model('people');
+
+		// now use the object as any other model
+		$s = $m->find()->order('name');
+		while($user = $s->one()) {
+			echo "Person: " . $user['name'] . "<br />";
+		}
+
+		$m->save(array('name'=>'John Doe', 'age'=>30));
 	}
 }
 ?>
@@ -1566,7 +1595,7 @@ source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This method works fine and still looks clean, but do we really need to
 explicitly list each action when all we need to do is render the
-correponsding template?
+corresponding template?
 
 No.  We can use the `Page_Static` class.
 
@@ -2299,14 +2328,15 @@ There are currently six page plugins included with Pronto.  Each
 page plugin class name is prefixed with a `pp`.
 
 .Plugins
-`-------------`-------------------------------------------------------------
-`ppFile`      Handles file uploads that come through a <form>
-`ppImage`     Handles image uploads: format conversion and resizing
-`ppMailer`    A frontend to SwiftMailer, an email facility
-`ppOS`        A couple useful OS-level methods
-`ppPHPMailer` A frontend to PHPMailer, deprecated in favor of SwiftMailer
-`ppPDF`       Converts HTML to PDF using either DOMPDF or PrinceXML
--------------------------------------------------------------------------
+[cols="1,1*2"]
+|=========================================================================
+|`ppFile`      |Handles file uploads that come through a <form>
+|`ppImage`     |Handles image uploads: format conversion and resizing
+|`ppMailer`    |A frontend to SwiftMailer, an email facility
+|`ppOS`        |A couple useful OS-level methods
+|`ppPHPMailer` |A frontend to PHPMailer, deprecated in favor of SwiftMailer
+|`ppPDF`       |Converts HTML to PDF using either DOMPDF or PrinceXML
+|=========================================================================
 
 The usage of these plugins is a little easier to understand than some of
 the helpers, so we won't spend too much time on them.
@@ -2504,10 +2534,11 @@ Pronto provides two scripts that use Google Translate to translate
 messages files into new language.
 
 .Translation scripts
-`----------------------`-------------------------------------------------
-`google_translate.php` Translate a messages file from English to another language.
-`translate_all.php`    Translate the English messages file into all other languages supported by Google Translate.
--------------------------------------------------------------------------
+[cols="1,1*2"]
+|=========================================================================
+|`google_translate.php` |Translate a messages file from English to another language.
+|`translate_all.php`    |Translate the English messages file into all other languages supported by Google Translate.
+|=========================================================================
 
 [NOTE]
 Translations provided by machines ("robot translations") are rarely
@@ -2553,11 +2584,12 @@ choice, based on a few values available.  Here are the values it will look
 for, in this order:
 
 .Values used for setting a language
-`------------------------------------`-----------------------------------
-`$_SESSION[\'LANGUAGE\']`            The application is responsible for setting this.  It is intended to be used by site visitors who likely have no user/preferences record in the DB.  Perhaps your application has a "Language" select dropdown that the visitor can choose from.
-`$_SESSION[\'USER\'][\'language\']`  When a user logs in, typically their record is stored in `$_SESSION[\'USER\']`.  If a `language` field is present, it would be found here.
-`$_SERVER[\'HTTP_ACCEPT_LANGUAGE\']` If the visitor's browser provides an `Accept-Language` HTTP header, Pronto will look through it for languages that your application supports, and choose the first it finds.
--------------------------------------------------------------------------
+[cols="1,1*2"]
+|=========================================================================
+|`$_SESSION['LANGUAGE']`            |The application is responsible for setting this.  It is intended to be used by site visitors who likely have no user/preferences record in the DB.  Perhaps your application has a "Language" select dropdown that the visitor can choose from.
+|`$_SESSION['USER']['language']`    |When a user logs in, typically their record is stored in `$_SESSION[\'USER\']`.  If a `language` field is present, it would be found here.
+|`$_SERVER['HTTP_ACCEPT_LANGUAGE']` |If the visitor's browser provides an `Accept-Language` HTTP header, Pronto will look through it for languages that your application supports, and choose the first it finds.
+|=========================================================================
 
 The one function you'll probably need the `$i18n` object for is
 retrieving a list of languages that your application supports.  You can
