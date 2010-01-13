@@ -3481,7 +3481,89 @@ http://www.gnu.org/software/src-highlite -->
 <span style="color: #FF0000">}</span>
 <span style="color: #990000">?&gt;</span></tt></pre></div></div>
 </div>
-<h2 id="X11">12. Modules</h2>
+<h2 id="X11">12. Logging</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>Pronto provides a robust logging facility for debugging, error handling,
+and any other uses you may forsee.</p></div>
+<div class="paragraph"><p>To activate logging, you first tell Pronto where log files will exist.  To
+do so, uncomment the line in <tt>app/config/config.php</tt> that defines the
+<strong>DIR_FS_LOG</strong> constant.  By default, this is set to <tt>app/log</tt>.</p></div>
+<div class="paragraph"><p>Once the configuration directive is set, you must create the directory and
+ensure it is writable by the UID that will be executing the web requests
+(usually this is the UID of the web server).</p></div>
+<h3 id="X11-2">12.1. Making a Log Entry</h3><div style="clear:left"></div>
+<div class="paragraph"><p>Log entries require three parameters: A facility, a priority, and the log
+message.  A globally-accessible shortcut function exists that can be used
+to create log entries from any point in the application.  This function
+can accept one, two, or three arguments.  If the facility or priority is
+omitted, defaults will be used.</p></div>
+<div class="listingblock">
+<div class="title">Making a Log Entry</div>
+<div class="content"><!-- Generator: GNU source-highlight 3.0.1
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt><span style="color: #990000">&lt;?php</span>
+<span style="font-weight: bold"><span style="color: #0000FF">class</span></span> pUser <span style="font-weight: bold"><span style="color: #0000FF">extends</span></span> Page
+<span style="color: #FF0000">{</span>
+        <span style="font-weight: bold"><span style="color: #0000FF">function</span></span> <span style="font-weight: bold"><span style="color: #000000">GET</span></span><span style="color: #990000">()</span>
+        <span style="color: #FF0000">{</span>
+                <span style="font-style: italic"><span style="color: #9A1900">// create a log message with facility=test and priority=urgent</span></span>
+                <span style="font-weight: bold"><span style="color: #000000">l</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'test'</span><span style="color: #990000">,</span> <span style="color: #FF0000">'urgent'</span><span style="color: #990000">,</span> <span style="color: #FF0000">'I am a log message!'</span><span style="color: #990000">);</span>
+
+                <span style="font-style: italic"><span style="color: #9A1900">// create a log message with facility=app (default) and priority=low</span></span>
+                <span style="font-weight: bold"><span style="color: #000000">l</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'low'</span><span style="color: #990000">,</span> <span style="color: #FF0000">'I am a low-priority message'</span><span style="color: #990000">);</span>
+
+                <span style="font-style: italic"><span style="color: #9A1900">// create a log message with facility=app (default) and</span></span>
+                <span style="font-style: italic"><span style="color: #9A1900">// priority=info (default)</span></span>
+                <span style="font-weight: bold"><span style="color: #000000">l</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'I am a very default log message'</span><span style="color: #990000">);</span>
+        <span style="color: #FF0000">}</span>
+<span style="color: #FF0000">}</span>
+<span style="color: #990000">?&gt;</span></tt></pre></div></div>
+<div class="admonitionblock">
+<table><tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">If you do require direct access to the Log object, you can retrieve it via
+the Registry: <tt>$log =&amp; Registry::get('pronto:logger')</tt></td>
+</tr></table>
+</div>
+<h3 id="X11-3">12.2. Log Routing</h3><div style="clear:left"></div>
+<div class="paragraph"><p>So based on facilities and priorities, where do these log entries actually
+end up?  The ultimate destination for these messages depends on the <strong>log
+routes</strong>, which is similar to URL routing.</p></div>
+<div class="paragraph"><p>Log routes are configured via the <tt>$LOG_ROUTES</tt> array in
+<tt>app/config/log.php</tt>.  The key for each element is a regular expression
+that must match the facility name.  Facility names can be a regular
+alphanumeric string (eg, "app" or "mymodule"), or they can contain one or
+more facility subsections, separated by colons (eg, "app:controller").
+This format is a convention, not a requirement.</p></div>
+<div class="paragraph"><p>The element of each array can be a string (the log filename), or an array
+itself.  If it is an array, then each key of this array is the priority,
+and each value is the log filename.</p></div>
+<div class="listingblock">
+<div class="title">Configuring log routes</div>
+<div class="content"><!-- Generator: GNU source-highlight 3.0.1
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt><span style="color: #990000">&lt;?php</span>
+<span style="color: #009900">$LOG_ROUTES</span> <span style="color: #990000">=</span> <span style="font-weight: bold"><span style="color: #0000FF">array</span></span><span style="color: #990000">(</span>
+        <span style="font-style: italic"><span style="color: #9A1900">// log all framework-related messages here</span></span>
+        <span style="color: #FF0000">'pronto(:.*)*'</span> <span style="color: #990000">=&gt;</span> <span style="font-weight: bold"><span style="color: #0000FF">array</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'.*'</span> <span style="color: #990000">=&gt;</span> <span style="color: #FF0000">'pronto.log'</span><span style="color: #990000">),</span>
+
+        <span style="font-style: italic"><span style="color: #9A1900">// log all app-related messages here</span></span>
+        <span style="color: #FF0000">'app(:.*)*'</span>    <span style="color: #990000">=&gt;</span> <span style="font-weight: bold"><span style="color: #0000FF">array</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'.*'</span> <span style="color: #990000">=&gt;</span> <span style="color: #FF0000">'app.log'</span><span style="color: #990000">),</span>
+
+        <span style="font-style: italic"><span style="color: #9A1900">// use the subpattern of the regex to log each sub-facility</span></span>
+        <span style="font-style: italic"><span style="color: #9A1900">// to a separate file</span></span>
+        <span style="color: #FF0000">'mymod:(.*)'</span>   <span style="color: #990000">=&gt;</span> <span style="color: #FF0000">'mymod_\1.log'</span><span style="color: #990000">,</span>
+<span style="color: #990000">);</span>
+<span style="color: #990000">?&gt;</span></tt></pre></div></div>
+<div class="paragraph"><p>See <tt>app/config/log.php</tt> for more examples.</p></div>
+</div>
+<h2 id="X12">13. Modules</h2>
 <div class="sectionbody">
 <div class="paragraph"><p>Most of your page controllers, models, and templates will sit in their
 respective subdirectories under the <tt>app</tt> directory.  But it&#8217;s also
@@ -3493,13 +3575,13 @@ models, and templates, located in a subdirectory of <tt>app/modules</tt>.  The
 Pronto distribution code includes a sample module called <tt>dummy</tt> that can
 be used as a template.  There is also a module generator available in the
 <tt>pronto/bin/generators</tt> directory.</p></div>
-<h3 id="X11-1">12.1. Enabling Modules</h3><div style="clear:left"></div>
+<h3 id="X12-1">13.1. Enabling Modules</h3><div style="clear:left"></div>
 <div class="paragraph"><p>Once you have a module you want to include in your application, you must
 enable it by adding it to the <tt>MODULES</tt> constant in <tt>app/config.php</tt>.</p></div>
 <div class="paragraph"><p>Each module typically comes with its own URL routing rules, which are
 stored in <tt>app/modules/&lt;module_name&gt;/config/urls.php</tt>.  These rules will
 be automatically prepended to the master URL routing table.</p></div>
-<h3 id="X11-2">12.2. Using The Module Generator</h3><div style="clear:left"></div>
+<h3 id="X12-2">13.2. Using The Module Generator</h3><div style="clear:left"></div>
 <div class="paragraph"><p>Like the CRUD generator, the module generator can save you a few minutes
 of copy/paste time by setting up the basic file structure for a new
 Pronto module.</p></div>
@@ -3517,7 +3599,7 @@ New Page Controller: app/modules/my_module/pages/page.php
 To enable this module, add it to the MODULES constant in app/config/config.php</tt></pre>
 </div></div>
 </div>
-<h2 id="X12">13. Caching</h2>
+<h2 id="X13">14. Caching</h2>
 <div class="sectionbody">
 <div class="paragraph"><p>Caching is a very effective way of getting more performance out of your
 application.  In a stateless environment such as the web, it becomes
@@ -3529,7 +3611,7 @@ the database can be avoided by using the cached version instead.  Pronto
 supports transparent caching of data entities for which this feature is
 enabled, and also provides a generic caching facility for explicit caching
 of other data.</p></div>
-<h3 id="X12-1">13.1. Enabling the Cache Layer</h3><div style="clear:left"></div>
+<h3 id="X13-1">14.1. Enabling the Cache Layer</h3><div style="clear:left"></div>
 <div class="paragraph"><p>To enable caching, you must edit <tt>app/config/cache.php</tt>.  In it you can
 enable caching and define the cache driver you wish to use as well as any
 additional driver-specific configuration options.</p></div>
@@ -3558,7 +3640,7 @@ you have other caches available such as Memcache or APC, it&#8217;s
 recommended to use one of those instead.</td>
 </tr></table>
 </div>
-<h3 id="X12-2">13.2. Caching in Data Models</h3><div style="clear:left"></div>
+<h3 id="X13-2">14.2. Caching in Data Models</h3><div style="clear:left"></div>
 <div class="paragraph"><p>Pronto&#8217;s data models support automatic caching at the entity level, but to
 use it, you must enable this feature for each data model.</p></div>
 <div class="listingblock">
@@ -3616,7 +3698,7 @@ contains the special cache-handling logic.  If you do need to override
 <tt>Model::get()</tt>, then make sure to call <tt>parent::get($id)</tt> within it.</td>
 </tr></table>
 </div>
-<h3 id="X12-3">13.3. Explicit Caching</h3><div style="clear:left"></div>
+<h3 id="X13-3">14.3. Explicit Caching</h3><div style="clear:left"></div>
 <div class="paragraph"><p>You can also use Pronto&#8217;s caching facility directly if you wish to cache
 other types of data.  The cache object can be acquired through
 the global <tt>Registry</tt> class.  It is a simple key/value system with the
@@ -3649,13 +3731,13 @@ http://www.gnu.org/software/src-highlite -->
 <span style="color: #FF0000">}</span>
 <span style="color: #990000">?&gt;</span></tt></pre></div></div>
 </div>
-<h2 id="X13">14. Extending Pronto</h2>
+<h2 id="X14">15. Extending Pronto</h2>
 <div class="sectionbody">
 <div class="paragraph"><p>Pronto attempts to provide a good base on which to develop, but sometimes
 its desireable to be able to modify some of the underlying functionality.</p></div>
 <div class="paragraph"><p>You&#8217;ll rarely have to do this, but Pronto does provide a few areas that
 can be easily overridden.</p></div>
-<h3 id="X13-1">14.1. Overriding base functionality of Models, Pages, and Plugins</h3><div style="clear:left"></div>
+<h3 id="X14-1">15.1. Overriding base functionality of Models, Pages, and Plugins</h3><div style="clear:left"></div>
 <div class="paragraph"><p>The base classes for page controllers, data models, and plugins can be
 found in the <tt>pronto/core</tt> directory.  However, you&#8217;ll notice that these
 classes are actually named <tt>Page_Base</tt>, <tt>Model_Base</tt>, and <tt>Plugin_Base</tt>,
@@ -3663,7 +3745,7 @@ respectively.</p></div>
 <div class="paragraph"><p>The <em>real</em> base classes are actually in the <tt>app/core</tt> directory, and
 they&#8217;re intended to be modified by you if need be.  To add any base-level
 methods or override existing ones, simply add them to these classes.</p></div>
-<h3 id="X13-2">14.2. Execution Profiles</h3><div style="clear:left"></div>
+<h3 id="X14-2">15.2. Execution Profiles</h3><div style="clear:left"></div>
 <div class="paragraph"><p>By now, we all know that the life of a Pronto request begins at
 <tt>index.php</tt>.  But this script&#8217;s primary job is to pass control to an
 <strong>execution profile</strong>, which is in charge of setting up the runtime
@@ -3685,7 +3767,7 @@ pain of upgrading the framework code at a later time.</p></div>
 <div id="footer">
 <div id="footer-text">
 Version 0.6<br />
-Last updated 2010-01-11 23:46:40 ADT
+Last updated 2010-01-12 23:34:28 ADT
 </div>
 </div>
 </body>

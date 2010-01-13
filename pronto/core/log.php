@@ -135,7 +135,12 @@ class Logger
 }
 
 /**
- * Shortcut function.
+ * Globally-accessible shortcut function to Log::msg().
+ *
+ * You can provide one, two, or three arguments to this function.
+ * One argument:    l($message)
+ * Two arguments:   l($priority, $message)
+ * Three arguments: l($facility, $priority, $message)
  */
 function l() {
 	$logger =& Registry::get('pronto:logger');

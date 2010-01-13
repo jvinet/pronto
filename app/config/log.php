@@ -39,7 +39,7 @@ $LOG_ROUTES = array(
 	//'mymod' => array('!(debug|info)' => 'mymod.log'),
 
 	/* Example: Log each subapp to a different file */
-	//'app:(.*)' => 'app_\1.txt',
+	//'app:(.*)' => 'app_\1.log',
 );
 
 ?>

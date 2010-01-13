@@ -2613,6 +2613,94 @@ class pUser extends Page
 source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 [[X11]]
+Logging
+-------
+Pronto provides a robust logging facility for debugging, error handling,
+and any other uses you may forsee.
+
+To activate logging, you first tell Pronto where log files will exist.  To
+do so, uncomment the line in `app/config/config.php` that defines the
+*DIR_FS_LOG* constant.  By default, this is set to `app/log`.
+
+Once the configuration directive is set, you must create the directory and
+ensure it is writable by the UID that will be executing the web requests
+(usually this is the UID of the web server).
+
+[[X11-2]]
+Making a Log Entry
+~~~~~~~~~~~~~~~~~~
+Log entries require three parameters: A facility, a priority, and the log
+message.  A globally-accessible shortcut function exists that can be used
+to create log entries from any point in the application.  This function
+can accept one, two, or three arguments.  If the facility or priority is
+omitted, defaults will be used.
+
+.Making a Log Entry
+[php]
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<?php
+class pUser extends Page
+{
+	function GET()
+	{
+		// create a log message with facility=test and priority=urgent
+		l('test', 'urgent', 'I am a log message!');
+
+		// create a log message with facility=app (default) and priority=low
+		l('low', 'I am a low-priority message');
+
+		// create a log message with facility=app (default) and
+		// priority=info (default)
+		l('I am a very default log message');
+	}
+}
+?>
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+[NOTE]
+If you require direct access to the Log object, you can retrieve it via
+the Registry: `$log =& Registry::get('pronto:logger')`
+
+[[X11-3]]
+Log Routing
+~~~~~~~~~~~
+So based on facilities and priorities, where do these log entries actually
+end up?  The ultimate destination for these messages depends on the *log
+routes*, which is similar to URL routing.
+
+Log routes are configured via the `$LOG_ROUTES` array in
+`app/config/log.php`.  The key for each element is a regular expression
+that must match the facility name.  Facility names can be a regular
+alphanumeric string (eg, "app" or "mymodule"), or they can contain one or
+more facility subsections, separated by colons (eg, "app:controller").
+This format is a convention, not a requirement.
+
+The element of each array can be a string (the log filename), or an array
+itself.  If it is an array, then each key of this array is the priority,
+and each value is the log filename.
+
+.Configuring log routes
+[php]
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<?php
+$LOG_ROUTES = array(
+	// log all framework-related messages here
+	'pronto(:.*)*' => array('.*' => 'pronto.log'),
+
+	// log all app-related messages here
+	'app(:.*)*'    => array('.*' => 'app.log'),
+
+	// use the subpattern of the regex to log each sub-facility
+	// to a separate file
+	'mymod:(.*)'   => 'mymod_\1.log',
+);
+?>
+source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+See `app/config/log.php` for more examples.
+
+
+[[X12]]
 Modules
 -------
 Most of your page controllers, models, and templates will sit in their
@@ -2627,7 +2715,7 @@ Pronto distribution code includes a sample module called `dummy` that can
 be used as a template.  There is also a module generator available in the
 `pronto/bin/generators` directory.
 
-[[X11-1]]
+[[X12-1]]
 Enabling Modules
 ~~~~~~~~~~~~~~~~
 Once you have a module you want to include in your application, you must
@@ -2637,7 +2725,7 @@ Each module typically comes with its own URL routing rules, which are
 stored in `app/modules/<module_name>/config/urls.php`.  These rules will
 be automatically prepended to the master URL routing table.
 
-[[X11-2]]
+[[X12-2]]
 Using The Module Generator
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 Like the CRUD generator, the module generator can save you a few minutes
@@ -2657,7 +2745,7 @@ New Page Controller: app/modules/my_module/pages/page.php
 To enable this module, add it to the MODULES constant in app/config/config.php
 ---------------------------------------------------------------------
 
-[[X12]]
+[[X13]]
 Caching
 -------
 Caching is a very effective way of getting more performance out of your
@@ -2672,7 +2760,7 @@ supports transparent caching of data entities for which this feature is
 enabled, and also provides a generic caching facility for explicit caching
 of other data.
 
-[[X12-1]]
+[[X13-1]]
 Enabling the Cache Layer
 ~~~~~~~~~~~~~~~~~~~~~~~~
 To enable caching, you must edit `app/config/cache.php`.  In it you can
@@ -2699,7 +2787,7 @@ memory-baesd caches that will probably be faster for you.  If
 you have other caches available such as Memcache or APC, it's
 recommended to use one of those instead.
 
-[[X12-2]]
+[[X13-2]]
 Caching in Data Models
 ~~~~~~~~~~~~~~~~~~~~~~
 Pronto's data models support automatic caching at the entity level, but to
@@ -2756,7 +2844,7 @@ This is why your data models should never override `Model::get()`, only
 contains the special cache-handling logic.  If you do need to override
 `Model::get()`, then make sure to call `parent::get($id)` within it.
 
-[[X12-3]]
+[[X13-3]]
 Explicit Caching
 ~~~~~~~~~~~~~~~~
 You can also use Pronto's caching facility directly if you wish to cache
@@ -2791,7 +2879,7 @@ class pUser extends Page
 source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-[[X13]]
+[[X14]]
 Extending Pronto
 ----------------
 Pronto attempts to provide a good base on which to develop, but sometimes
@@ -2800,7 +2888,7 @@ its desireable to be able to modify some of the underlying functionality.
 You'll rarely have to do this, but Pronto does provide a few areas that
 can be easily overridden.
 
-[[X13-1]]
+[[X14-1]]
 Overriding base functionality of Models, Pages, and Plugins
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The base classes for page controllers, data models, and plugins can be
@@ -2812,7 +2900,7 @@ The _real_ base classes are actually in the `app/core` directory, and
 they're intended to be modified by you if need be.  To add any base-level
 methods or override existing ones, simply add them to these classes.
 
-[[X13-2]]
+[[X14-2]]
 Execution Profiles
 ~~~~~~~~~~~~~~~~~~
 By now, we all know that the life of a Pronto request begins at
