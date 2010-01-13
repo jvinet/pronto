@@ -411,7 +411,7 @@ div#toc a:visited { color: blue; }
 </style>
 <script type="text/javascript">
 /*<![CDATA[*/
-window.onload = function(){asciidoc.footnotes();}
+window.onload = function(){asciidoc.footnotes(); asciidoc.toc(2);}
 var asciidoc = {  // Namespace.
 
 /////////////////////////////////////////////////////////////////////
@@ -549,13 +549,17 @@ footnotes: function () {
 <span id="email"><tt>&lt;<a href="mailto:jvinet@zeroflux.org">jvinet@zeroflux.org</a>&gt;</tt></span><br />
 <span id="revnumber">version 0.6,</span>
 <span id="revdate">January 2010</span>
+<div id="toc">
+  <div id="toctitle">Table of Contents</div>
+  <noscript><p><b>JavaScript must be enabled in your browser to display the table of contents.</b></p></noscript>
+</div>
 </div>
 <div id="content">
 <div id="preamble">
 <div class="sectionbody">
 </div>
 </div>
-<h2 id="X0">Quick Start</h2>
+<h2 id="X0">1. Quick Start</h2>
 <div class="sectionbody">
 <div class="paragraph"><p>Most of this manual will be long and boring, so for those of you who
 already know everything about everything, here are the barebones steps
@@ -610,7 +614,7 @@ $ php ../pronto/bin/load_schemas.php -a
 $ firefox http://localhost/pronto/</tt></pre>
 </div></div>
 </div>
-<h2 id="X1">Philosophy</h2>
+<h2 id="X1">2. Philosophy</h2>
 <div class="sectionbody">
 <div class="paragraph"><p>Like most web frameworks, Pronto is designed to ease the development of
 web applications by eliminating redundant code and promoting a logical
@@ -627,7 +631,7 @@ that, as you delve into it, you will find aspects that you will never use.
 Just ignore them and carry on with your business.  They are present
 because they are useful to some developers.</p></div>
 </div>
-<h2 id="X2">Components</h2>
+<h2 id="X2">3. Components</h2>
 <div class="sectionbody">
 <div class="paragraph"><p>There are four core elements to Pronto.</p></div>
 <div class="ulist"><div class="title">Core Elements:</div><ul>
@@ -710,9 +714,9 @@ Factory for creating new objects
 </li>
 </ul></div>
 </div>
-<h2 id="X3">The Dispatcher</h2>
+<h2 id="X3">4. The Dispatcher</h2>
 <div class="sectionbody">
-<h3 id="_the_life_of_a_web_request">The Life of a Web Request</h3><div style="clear:left"></div>
+<h3 id="_the_life_of_a_web_request">4.1. The Life of a Web Request</h3><div style="clear:left"></div>
 <div class="paragraph"><p>The following diagram outlines the typical flow of execution when a web
 request is received:</p></div>
 <div class="literalblock">
@@ -727,7 +731,7 @@ request is received:</p></div>
 decides which page controller it should pass control to, based on a
 series of regular expressions that define the URL&#8594;Controller mapping.
 The primary URL map is set in <tt>app/config/urls.php</tt>.</p></div>
-<h3 id="X3-2">The <tt>$web</tt> object</h3><div style="clear:left"></div>
+<h3 id="X3-2">4.2. The <tt>$web</tt> object</h3><div style="clear:left"></div>
 <div class="paragraph"><p>There is exactly one dispatch object at any point in the framework, and it
 is typically referred to as <tt>$web</tt>.  The dispatcher receives control from
 the <strong>web</strong> execution profile and is charged with the task of determining
@@ -761,7 +765,7 @@ debug messages
 </p>
 </li>
 </ul></div>
-<h3 id="X3-3">URL Configuration</h3><div style="clear:left"></div>
+<h3 id="X3-3">4.3. URL Configuration</h3><div style="clear:left"></div>
 <div class="paragraph"><p>Despite the numerous facilities the dispatcher provides, its core mission
 is to direct control to the proper page controller.  This is configured
 using an array that maps URL patterns to their respective page
@@ -800,7 +804,7 @@ dispatcher will look for a "catch-all" handler for that request type.  For
 example, if the browser issues a POST request for <tt>/user/list</tt> and the
 dispatcher cannot find a <tt>pUser::POST_list()</tt> method, then it will look
 for a <tt>pUser::POST()</tt> method instead.</p></div>
-<h4 id="X3-3-a">Named Subpatterns</h4>
+<h4 id="X3-3-a">4.3.1. Named Subpatterns</h4>
 <div class="paragraph"><p>While most URL routes use the basic <tt>(.*)</tt> subpattern, it is possible to
 use more.  One such use is a <strong>named subpattern</strong>, which binds the
 subpattern to a name.  When a route matches, Pronto will merge the values
@@ -819,7 +823,7 @@ http://www.gnu.org/software/src-highlite -->
 
         <span style="color: #FF0000">'/'</span> <span style="color: #990000">=&gt;</span> <span style="color: #FF0000">'Home'</span>
 <span style="color: #990000">);</span></tt></pre></div></div>
-<h3 id="X3-4">Generating URLs</h3><div style="clear:left"></div>
+<h3 id="X3-4">4.4. Generating URLs</h3><div style="clear:left"></div>
 <div class="paragraph"><p>Throughout any web application, you&#8217;re going to need to create links and
 forms that send the browser to other areas of the application.  The
 simplest method is to just hardcode these URLs into your application (eg,
@@ -830,7 +834,7 @@ than <tt>/pronto</tt>?  Or what if you decide to move all user management to
 to reflect the change.</p></div>
 <div class="paragraph"><p>Pronto&#8217;s solution is contained within the globally-accessible <tt>url()</tt>
 function.  This function works in two contexts.</p></div>
-<h4 id="X3-4-a">URL Fragments</h4>
+<h4 id="X3-4-a">4.4.1. URL Fragments</h4>
 <div class="paragraph"><p>In the first context, you simply pass it the relative URL fragment, and it
 will resolve it into the full relative URL, including any sub-directory in
 which your application is installed.  For example, if the application is
@@ -839,7 +843,7 @@ will return <tt>/blog/user/create</tt>.</p></div>
 <div class="paragraph"><p>Simple enough, but this only solves the problem of a varying install
 location.  What if you decide to change the URL location of your <tt>User</tt>
 controller from <tt>/user</tt> to <tt>/admin/user</tt>?</p></div>
-<h4 id="X3-4-b">Controller/Action Tuples</h4>
+<h4 id="X3-4-b">4.4.2. Controller/Action Tuples</h4>
 <div class="paragraph"><p>The second context handles this.  If you pass the <tt>url()</tt> function two
 parameters, the controller and the action, then it will use these to
 search through your URL route configuration (set in
@@ -858,7 +862,7 @@ function <tt>absolute_url()</tt>.  It does the same thing, but returns a full
 URL, which can be useful when sending out links to external sources, such
 as an email recipient.</p></div>
 </div>
-<h2 id="X4">Page Controllers</h2>
+<h2 id="X4">5. Page Controllers</h2>
 <div class="sectionbody">
 <div class="paragraph"><p>The page controller is where most of your application logic will go.  They
 are typically organized by the data entities they operate on, or a common
@@ -901,7 +905,7 @@ the name of the controller itself.  The file itself can technically be
 named anything you like, but conventionally it shares the same name as the
 controller.  For example, the <tt>User</tt> page would have a class name of
 <tt>pUser</tt> and would be located in <tt>app/pages/user.php</tt>.</p></div>
-<h3 id="X4-1">Controller Action Handlers</h3><div style="clear:left"></div>
+<h3 id="X4-1">5.1. Controller Action Handlers</h3><div style="clear:left"></div>
 <div class="paragraph"><p>Within each page controller are a number of methods called <strong>action
 handlers</strong>.  These methods are responsible for performing the logic
 required for the request(s) they are linked to.</p></div>
@@ -947,10 +951,10 @@ RSS-friendly blog, you may want to implement a HEAD request for your blog,
 as some readers will use this to retrieve the <tt>Last-Modified</tt> header or the
 <tt>E-Tag</tt> header.  Or perhaps you&#8217;d like to write a RESTful API and need to
 respond to the PUT and DELETE verbs.</p></div>
-<h3 id="X4-2">Parameters</h3><div style="clear:left"></div>
+<h3 id="X4-2">5.2. Parameters</h3><div style="clear:left"></div>
 <div class="paragraph"><p>Before we talk about retrieving input data, let&#8217;s see where it comes from
 and how Pronto deals with it.</p></div>
-<h4 id="X4-2-a">Where Input Variables Come From</h4>
+<h4 id="X4-2-a">5.2.1. Where Input Variables Come From</h4>
 <div class="paragraph"><p>Before passing control to a page controller, the dispatcher will collect
 data from a few different places.  They are listed here, in order of
 precedence.  Latter entries override previous ones.</p></div>
@@ -976,7 +980,7 @@ Parameters from the URL route (defined in <tt>app/config/urls.php</tt>)
 </p>
 </li>
 </ul></div>
-<h4 id="X4-2-b">Retrieving Input Data</h4>
+<h4 id="X4-2-b">5.2.2. Retrieving Input Data</h4>
 <div class="paragraph"><p>There are a few ways to collect GET/POST data from within a controller.
 The first method is through the use of two convenience methods in the
 base <tt>Page</tt> class.</p></div>
@@ -1040,7 +1044,7 @@ http://www.gnu.org/software/src-highlite -->
         <span style="color: #FF0000">}</span>
 <span style="color: #FF0000">}</span>
 <span style="color: #990000">?&gt;</span></tt></pre></div></div>
-<h3 id="X4-3">Wildcard Handlers, Inline Variables</h3><div style="clear:left"></div>
+<h3 id="X4-3">5.3. Wildcard Handlers, Inline Variables</h3><div style="clear:left"></div>
 <div class="paragraph"><p>Using <a href="#X3-3-a">named subpatterns</a> is one way to use URLs that contain
 variables <em>inline</em>, ie, variables occur in the URL path itself, not in
 the query string.</p></div>
@@ -1091,7 +1095,7 @@ a visitor could inadvertently trigger an error if they made a request that
 did not include the variable (eg, <tt>/user/hello/</tt>).</td>
 </tr></table>
 </div>
-<h3 id="X4-4">Validating GET/POST data</h3><div style="clear:left"></div>
+<h3 id="X4-4">5.4. Validating GET/POST data</h3><div style="clear:left"></div>
 <div class="paragraph"><p>It&#8217;s very important to validate all data coming in from the web browser,
 both to ensure data integrity and maintain security.</p></div>
 <div class="paragraph"><p>Most validation is delegated to the data models, but there are times when
@@ -1150,7 +1154,7 @@ http://www.gnu.org/software/src-highlite -->
         <span style="color: #FF0000">}</span>
 <span style="color: #FF0000">}</span>
 <span style="color: #990000">?&gt;</span></tt></pre></div></div>
-<h3 id="X4-5">Calling controller elements from other controllers</h3><div style="clear:left"></div>
+<h3 id="X4-5">5.5. Calling controller elements from other controllers</h3><div style="clear:left"></div>
 <div class="paragraph"><p>The typical flow of a Pronto web request usually only involves a single
 page controller, but there are some scenarios where it makes sense to
 call an action from another page controller.  This is possible with the
@@ -1199,7 +1203,7 @@ http://www.gnu.org/software/src-highlite -->
 <span style="color: #FF0000">}</span>
 <span style="color: #990000">?&gt;</span></tt></pre></div></div>
 </div>
-<h2 id="X5">The Template</h2>
+<h2 id="X5">6. The Template</h2>
 <div class="sectionbody">
 <div class="paragraph"><p>Templates serve as the presentation layer of Pronto.  When a page
 controller has finished its business, it will typically render a template
@@ -1251,7 +1255,7 @@ typically renders them.  The logical structure is to have subdirectories
 within the <tt>app/templates</tt> directory that match the names of the page
 controllers that will be rendering them.  This is recommended but not
 required.</p></div>
-<h3 id="X5-1">Template Variables</h3><div style="clear:left"></div>
+<h3 id="X5-1">6.1. Template Variables</h3><div style="clear:left"></div>
 <div class="paragraph"><p>As shown in the example above, templates can reference their variables in
 the global scope, but they are limited only to variables that have been
 set using <tt>Template::set()</tt>, <tt>Page::tset()</tt>, or objects that serve as
@@ -1296,7 +1300,7 @@ http://www.gnu.org/software/src-highlite -->
         <span style="color: #FF0000">}</span>
 <span style="color: #FF0000">}</span>
 <span style="color: #990000">?&gt;</span></tt></pre></div></div>
-<h3 id="X5-2">Rendering a Template</h3><div style="clear:left"></div>
+<h3 id="X5-2">6.2. Rendering a Template</h3><div style="clear:left"></div>
 <div class="paragraph"><p>There are three functions that can be used to render templates.</p></div>
 <div class="tableblock">
 <table rules="all"
@@ -1347,7 +1351,7 @@ http://www.gnu.org/software/src-highlite -->
 <div class="paragraph"><p>Like the methods for settings template variables, the real functionality
 is actually in the <tt>Template</tt> class itself.  The methods in <tt>Page</tt> are
 merely convenience methods that call the real ones.</p></div>
-<h3 id="X5-3">Layouts</h3><div style="clear:left"></div>
+<h3 id="X5-3">6.3. Layouts</h3><div style="clear:left"></div>
 <div class="paragraph"><p>Layouts provide a way of establishing one or more outer structures to the
 presentation/look-and-feel of your web application.  Most of the
 application&#8217;s structure and styling will be relegated to the layout,
@@ -1414,7 +1418,7 @@ http://www.gnu.org/software/src-highlite -->
 <span style="color: #FF0000">}</span>
 <span style="color: #990000">?&gt;</span></tt></pre></div></div>
 </div>
-<h2 id="X6">The Model</h2>
+<h2 id="X6">7. The Model</h2>
 <div class="sectionbody">
 <div class="paragraph"><p>Models are responsible for any logic that surrounds the manipulation of a
 data entity.  Its typical responsibilities are to faciliate create,
@@ -1430,7 +1434,7 @@ fluent API.</p></div>
 <div class="paragraph"><p>The RecordModel is the parent class for all data models in Pronto.  You
 will extend this class whenever you create a new data model, overriding
 any public/callable methods that require customization.</p></div>
-<h3 id="X6-1">The Core Operations</h3><div style="clear:left"></div>
+<h3 id="X6-1">7.1. The Core Operations</h3><div style="clear:left"></div>
 <div class="paragraph"><p>The base <tt>RecordModel</tt> class provides an interface for the common operations
 associated with a simple data entity.  These are the methods that will be
 called by your controllers.</p></div>
@@ -1542,7 +1546,7 @@ to override the functionality within your own model class.</p></div>
 </tr></table>
 </div>
 <div class="paragraph"><p>Model class names are prefixed with a lowercase <tt>m</tt>.</p></div>
-<h3 id="X6-2">Accessing the Database</h3><div style="clear:left"></div>
+<h3 id="X6-2">7.2. Accessing the Database</h3><div style="clear:left"></div>
 <div class="paragraph"><p>Database connection parameters are stored in <tt>app/config/databases.php</tt>.
 Pronto supports multiple databases, though one database is expected to be
 the primary/default.  Unless set otherwise, data models will use the
@@ -1643,7 +1647,7 @@ cellspacing="0" cellpadding="4">
 models themselves.  But just in case, <tt>$db</tt> is available to the dispatch
 and page controllers.  It can be passed to plugins as well, though there
 are usually better ways of doing this.</p></div>
-<h3 id="X6-3">Accessing a non-primary database</h3><div style="clear:left"></div>
+<h3 id="X6-3">7.3. Accessing a non-primary database</h3><div style="clear:left"></div>
 <div class="paragraph"><p>By default, Pronto will use the database connection labeled as <tt>main</tt>.
 This object appears in the registry as <tt>pronto:db:main</tt>.</p></div>
 <div class="listingblock">
@@ -1684,7 +1688,7 @@ http://www.gnu.org/software/src-highlite -->
         <span style="color: #FF0000">}</span>
 <span style="color: #FF0000">}</span>
 <span style="color: #990000">?&gt;</span></tt></pre></div></div>
-<h3 id="X6-4">Defining parameters for enumeration</h3><div style="clear:left"></div>
+<h3 id="X6-4">7.4. Defining parameters for enumeration</h3><div style="clear:left"></div>
 <div class="paragraph"><p>Of all the operations listed in the beginning of this section, the one
 that probably stands out is the last one, <tt>enum_schema()</tt>.  Within
 the Pronto framework itself, this method is only used by one method, and
@@ -1816,7 +1820,7 @@ http://www.gnu.org/software/src-highlite -->
 <span style="color: #990000">?&gt;</span></tt></pre></div></div>
 <div class="paragraph"><p>If you&#8217;d like to see how this data is used, take a look at the
 <tt>SQL_Generator::enumerate()</tt> method in <tt>pronto/core/sql.php</tt>.</p></div>
-<h3 id="X6-5">Finding Records</h3><div style="clear:left"></div>
+<h3 id="X6-5">7.5. Finding Records</h3><div style="clear:left"></div>
 <div class="paragraph"><p>So we&#8217;ve shown how you define the behavior around a data entity.  Now how
 do we actually <em>find</em> records?</p></div>
 <div class="paragraph"><p>We use the <strong>RecordSelector</strong> facility.</p></div>
@@ -1862,7 +1866,7 @@ know SQL to be effective in Pronto.</p></div>
 <div class="paragraph"><p>Also note that this API can only build basic queries.  If you have more
 advanced work to do at the database level, you will definitely want to
 write your SQL manually and query the database through <tt>$db</tt>.</p></div>
-<h3 id="X6-6">Example: A model and its use</h3><div style="clear:left"></div>
+<h3 id="X6-6">7.6. Example: A model and its use</h3><div style="clear:left"></div>
 <div class="paragraph"><p>Let&#8217;s look at a simple example of a model and how it might be used from a
 page controller.</p></div>
 <div class="listingblock">
@@ -2001,7 +2005,7 @@ http://www.gnu.org/software/src-highlite -->
 for some well-organized, readable code, and the GET/POST split in the
 controller makes it easy to tell which stage we&#8217;re at in the signup
 process.</p></div>
-<h3 id="X6-7">Using other models from within a model</h3><div style="clear:left"></div>
+<h3 id="X6-7">7.7. Using other models from within a model</h3><div style="clear:left"></div>
 <div class="paragraph"><p>It&#8217;s possible for a model to depend on other models.  This occurs a lot
 when you have entities that link to each other.  A model for managing
 users probably shouldn&#8217;t directly modify another entity type, so instead
@@ -2031,7 +2035,7 @@ http://www.gnu.org/software/src-highlite -->
         <span style="color: #FF0000">}</span>
 <span style="color: #FF0000">}</span>
 <span style="color: #990000">?&gt;</span></tt></pre></div></div>
-<h3 id="X6-8">Using fly-models</h3><div style="clear:left"></div>
+<h3 id="X6-8">7.8. Using fly-models</h3><div style="clear:left"></div>
 <div class="paragraph"><p>In some cases, it may be overkill to actually build a model class around
 a DB table when there&#8217;s no need to override any methods.  In cases like
 these, you can adopt the base model functionality in the form of a
@@ -2062,7 +2066,7 @@ http://www.gnu.org/software/src-highlite -->
 <span style="color: #FF0000">}</span>
 <span style="color: #990000">?&gt;</span></tt></pre></div></div>
 </div>
-<h2 id="X7">Sessions and Authentication</h2>
+<h2 id="X7">8. Sessions and Authentication</h2>
 <div class="sectionbody">
 <div class="paragraph"><p>There is no special facility in place for storing and retrieving session
 data, so you can use the standard PHP superglobal <tt>$_SESSION</tt> just as you
@@ -2083,7 +2087,7 @@ provide a facility for access control lists (ACLs) and access checks.</p></div>
 like.  Once authenticated, you can use Pronto&#8217;s access control features to
 keep track of whether a user is logged in or not, and what areas of the
 web application they are allowed to access.</p></div>
-<h3 id="X7-1">Access Control</h3><div style="clear:left"></div>
+<h3 id="X7-1">8.1. Access Control</h3><div style="clear:left"></div>
 <div class="paragraph"><p>In Pronto, there are two pieces of data that constitute your access policy
 framework: The <strong>access model</strong> and the <strong>access keys</strong>.</p></div>
 <div class="paragraph"><p>An access key, when assigned to a user, gives that user access to parts
@@ -2223,7 +2227,7 @@ http://www.gnu.org/software/src-highlite -->
                 <span style="color: #FF0000">}</span>
 <span style="color: #FF0000">}</span>
 <span style="color: #990000">?&gt;</span></tt></pre></div></div>
-<h3 id="X7-2">User Authentication</h3><div style="clear:left"></div>
+<h3 id="X7-2">8.2. User Authentication</h3><div style="clear:left"></div>
 <div class="paragraph"><p>So now that we know how to test for proper access, how do we tell Pronto
 that a user is authenticated?</p></div>
 <div class="paragraph"><p>The <tt>$web</tt> object holds a reference to the <tt>Access</tt> class, which is the
@@ -2304,14 +2308,14 @@ by throwing this in a page controller: <tt>debug($_SESSION['_ACCESS']);</tt></td
 </tr></table>
 </div>
 </div>
-<h2 id="X8">Specialized Controllers</h2>
+<h2 id="X8">9. Specialized Controllers</h2>
 <div class="sectionbody">
 <div class="paragraph"><p>The <tt>Page</tt> class is the one that you will extend most of your page
 controllers from, but Pronto does provide a couple other page controller
 classes that serve a more specialized purpose.  If their features appeal
 to you, you can always extend your page controller from one of them.</p></div>
 <div class="paragraph"><p>Currently there are only two specialized controllers.</p></div>
-<h3 id="X8-1">The Static Controller</h3><div style="clear:left"></div>
+<h3 id="X8-1">9.1. The Static Controller</h3><div style="clear:left"></div>
 <div class="paragraph"><p>The beautiful harmony of page controllers, models, and templates can be a
 wonderful thing, but if all you want to do is render a simple template,
 then it feels a little overkill to have to do something like this:</p></div>
@@ -2382,7 +2386,7 @@ http://www.gnu.org/software/src-highlite -->
 
         <span style="color: #FF0000">'/(.*)'</span>            <span style="color: #990000">=&gt;</span> <span style="color: #FF0000">'Home'</span>
 <span style="color: #990000">);</span></tt></pre></div></div>
-<h3 id="X8-2">The CRUD Controller</h3><div style="clear:left"></div>
+<h3 id="X8-2">9.2. The CRUD Controller</h3><div style="clear:left"></div>
 <div class="paragraph"><p>Most web developers recognize the common operations around a data entity.
 We lovingly call them CRUD, and they stand for <strong>Create</strong>, <strong>Retrieve</strong>,
 <strong>Update</strong>, and <strong>Delete</strong>.</p></div>
@@ -2433,7 +2437,7 @@ cellspacing="0" cellpadding="4">
 </div>
 <div class="paragraph"><p>Of course, like any page controller, you can override these actions and/or
 add your own if the basic <tt>Page_CRUD</tt> ones do not fulfill your needs.</p></div>
-<h4 id="X8-2-a">Setting the Entity</h4>
+<h4 id="X8-2-a">9.2.1. Setting the Entity</h4>
 <div class="paragraph"><p>When using <tt>Page_CRUD</tt>, the first thing you need to do is to tell it which
 entity it should be managing.  This is done with the
 <tt>Page_CRUD::set_entity()</tt> method.</p></div>
@@ -2463,7 +2467,7 @@ will render templates in the <tt>app/templates/&lt;entity_name&gt;</tt> director
 <div class="paragraph"><p>Even though <tt>Page_CRUD</tt> will do the controller logic for you, you still
 have to create the templates yourself, as they will certainly vary from
 entity to entity.  Use the <a href="#X8-2-d">CRUD generator</a> to automate this task.</p></div>
-<h4 id="X8-2-b">Controlling Access to Actions</h4>
+<h4 id="X8-2-b">9.2.2. Controlling Access to Actions</h4>
 <div class="paragraph"><p>Most entities should be protected by some sort of access checks.  Since
 <tt>Page_CRUD</tt> handles most of the actions for us, we can&#8217;t insert a call to
 <tt>$this-&gt;web-&gt;check_access()</tt> in each one.  Instead, simply override the
@@ -2537,7 +2541,7 @@ http://www.gnu.org/software/src-highlite -->
         <span style="color: #FF0000">}</span>
 <span style="color: #FF0000">}</span>
 <span style="color: #990000">?&gt;</span></tt></pre></div></div>
-<h4 id="X8-2-c">Process Hooks</h4>
+<h4 id="X8-2-c">9.2.3. Process Hooks</h4>
 <div class="paragraph"><p><tt>Page_CRUD</tt> does a good job at covering the fundamental operations of a
 data entity.  However, every entity is different, and there are often
 times when you need to add a little code at certain points in the process.</p></div>
@@ -2660,7 +2664,7 @@ http://www.gnu.org/software/src-highlite -->
                 <span style="color: #009900">$data</span><span style="color: #990000">[</span><span style="color: #FF0000">'last_edited_by'</span><span style="color: #990000">]</span> <span style="color: #990000">=</span> ACCESS_ID<span style="color: #990000">;</span>
         <span style="color: #FF0000">}</span>
 <span style="color: #FF0000">}</span></tt></pre></div></div>
-<h4 id="X8-2-d">Using the CRUD generator</h4>
+<h4 id="X8-2-d">9.2.4. Using the CRUD generator</h4>
 <div class="paragraph"><p>The <tt>Page_CRUD</tt> class can greatly speed up development.  While it serves
 as a great scaffolding method in early stages of development, it&#8217;s also
 featureful enough to work with entities in later development and
@@ -2728,7 +2732,7 @@ carry on the to the next entity.  Both the <tt>tpTable</tt> and <tt>tpForm</tt> 
 support a number of customizations and control, but if they don&#8217;t suit
 your needs, you can always do things the old-fashioned way.</p></div>
 </div>
-<h2 id="X9">Plugins</h2>
+<h2 id="X9">10. Plugins</h2>
 <div class="sectionbody">
 <div class="paragraph"><p>Pronto makes avid use of plugins both at the <strong>controller</strong> and the
 <strong>template</strong> layers.  The interface between controllers/templates and their
@@ -2768,7 +2772,7 @@ http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
 <pre><tt><span style="font-weight: bold"><span style="color: #0000FF">&lt;p&gt;</span></span>We're in a template<span style="font-weight: bold"><span style="color: #0000FF">&lt;/p&gt;</span></span>
 <span style="font-weight: bold"><span style="color: #0000FF">&lt;p&gt;</span></span>Here is a link: &lt;?php echo $html-&gt;link('Go Home', url('/')) ?&gt;<span style="font-weight: bold"><span style="color: #0000FF">&lt;/p&gt;</span></span></tt></pre></div></div>
-<h3 id="X9-1">Template Plugins</h3><div style="clear:left"></div>
+<h3 id="X9-1">10.1. Template Plugins</h3><div style="clear:left"></div>
 <div class="paragraph"><p>There are currently six helpers included with Pronto.  Each class name is
 prefixed with a <tt>tp</tt>.</p></div>
 <div class="tableblock">
@@ -2809,7 +2813,7 @@ cellspacing="0" cellpadding="4">
 </div>
 <div class="paragraph"><p>We will cover each of these in brief.  For a more thorough understanding,
 it&#8217;s not a bad idea to examine the API docs or the plugin code itself.</p></div>
-<h4 id="X9-1-a">The <tt>html</tt> Plugin</h4>
+<h4 id="X9-1-a">10.1.1. The <tt>html</tt> Plugin</h4>
 <div class="paragraph"><p>Most of the methods in the <tt>html</tt> plugin are pretty self-explanatory.  The
 API Reference will probably serve you best.</p></div>
 <div class="paragraph"><p>The more interesting methods in this plugin are probably the Javascript
@@ -2843,7 +2847,7 @@ http://www.gnu.org/software/src-highlite -->
         <span style="font-style: italic"><span style="color: #9A1900">// autogenerate one)</span></span>
         <span style="color: #009900">$html</span><span style="color: #990000">-&gt;</span><span style="font-weight: bold"><span style="color: #000000">js_run</span></span><span style="color: #990000">(</span><span style="color: #FF0000">''</span><span style="color: #990000">,</span> <span style="color: #FF0000">"alert('Hello World!');"</span><span style="color: #990000">);</span>
 <span style="color: #990000">?&gt;</span></tt></pre></div></div>
-<h4 id="X9-1-b">The <tt>form</tt> Plugin</h4>
+<h4 id="X9-1-b">10.1.2. The <tt>form</tt> Plugin</h4>
 <div class="paragraph"><p>The <tt>form</tt> plugin is used to build fully-functional forms or to generate
 individual form elements.  It&#8217;s pretty smart and robust, but don&#8217;t expect
 it to be smart enough to generate every fancy form you can think of.</p></div>
@@ -2916,7 +2920,7 @@ method, both at the form level and at the element level.  We suggest you
 read through the code and comments in <tt>pronto/plugins/template/form.php</tt>
 to see them.  Also consult the example applications provided on the Pronto
 website, as they can elucidate.</p></div>
-<h4 id="X9-1-c">The <tt>table</tt> Plugin</h4>
+<h4 id="X9-1-c">10.1.3. The <tt>table</tt> Plugin</h4>
 <div class="paragraph"><p>The <tt>table</tt> plugin only provides two primary methods: <tt>build_table()</tt> and
 <tt>build_grid()</tt>.</p></div>
 <div class="paragraph"><p><tt>tpTable::build_table()</tt> is just a dumb table generator, but can be useful
@@ -3016,7 +3020,7 @@ user has never logged in.</p></div>
 <div class="paragraph"><p>Like <tt>tpForm::build_form()</tt>, there are many more options available, and
 it&#8217;s best to consult the API documentation, examples apps, or the code
 itself to see how they work.</p></div>
-<h4 id="X9-1-d">The <tt>ajax</tt> Plugin</h4>
+<h4 id="X9-1-d">10.1.4. The <tt>ajax</tt> Plugin</h4>
 <div class="paragraph"><p>The <tt>ajax</tt> plugin provides widgets that have an AJAX/DHTML element to
 them, such as a find-as-you-type autocomplete widget or a modal dialog
 window.</p></div>
@@ -3062,7 +3066,7 @@ http://www.gnu.org/software/src-highlite -->
 <span style="color: #990000">&lt;?php</span> <span style="font-weight: bold"><span style="color: #0000FF">echo</span></span> <span style="color: #009900">$ajax</span><span style="color: #990000">-&gt;</span><span style="font-weight: bold"><span style="color: #000000">popup_buttons</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'Close'</span> <span style="color: #990000">=&gt;</span> <span style="font-weight: bold"><span style="color: #0000FF">array</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'action'</span><span style="color: #990000">=&gt;</span><span style="color: #FF0000">'close'</span><span style="color: #990000">))</span> <span style="color: #990000">?&gt;</span></tt></pre></div></div>
 <div class="paragraph"><p>The <tt>ajax</tt> plugin is still in a state of flux, but its modest offering has
 already proven to be very useful for building rich user interfaces.</p></div>
-<h4 id="X9-1-e">The <tt>navigation</tt> Plugin</h4>
+<h4 id="X9-1-e">10.1.5. The <tt>navigation</tt> Plugin</h4>
 <div class="paragraph"><p>The <tt>navigation</tt> plugin provides a simple method of defining and rendering
 a two-level nagivation menu.  It&#8217;s understood that most applications will
 have a customized public-facing layout, but many applications may want to
@@ -3099,7 +3103,7 @@ by Lorenzo Bettini
 http://www.lorenzobettini.it
 http://www.gnu.org/software/src-highlite -->
 <pre><tt><span style="color: #990000">&lt;?php</span> <span style="font-weight: bold"><span style="color: #0000FF">echo</span></span> <span style="color: #009900">$navigation</span><span style="color: #990000">-&gt;</span><span style="font-weight: bold"><span style="color: #000000">menu</span></span><span style="color: #990000">()</span> <span style="color: #990000">?&gt;</span></tt></pre></div></div>
-<h4 id="X9-1-f">The <tt>pager</tt> Plugin</h4>
+<h4 id="X9-1-f">10.1.6. The <tt>pager</tt> Plugin</h4>
 <div class="paragraph"><p>Most web applications will, at some point, need to provide some sort of
 record listing.  If there are many records to list, then it makes sense to
 break these up into sections.  The <tt>pager</tt> plugin will render a pagination
@@ -3119,7 +3123,7 @@ http://www.gnu.org/software/src-highlite -->
 <span style="color: #990000">?&gt;</span></tt></pre></div></div>
 <div class="paragraph"><p>You can adjust the styling of the pagination control by modifying the
 <tt>pagination</tt> classes in <tt>css/main.css</tt>.</p></div>
-<h3 id="X9-2">Page Plugins</h3><div style="clear:left"></div>
+<h3 id="X9-2">10.2. Page Plugins</h3><div style="clear:left"></div>
 <div class="paragraph"><p>Page plugins are just like template plugins except that they operate at
 the page controller level.  As such, they have a little more leeway in
 what they can do.  For example, if you really wanted, you could pass in
@@ -3216,13 +3220,13 @@ http://www.gnu.org/software/src-highlite -->
         <span style="color: #FF0000">}</span>
 
 <span style="color: #FF0000">}</span></tt></pre></div></div>
-<h3 id="X9-3">Custom Plugins</h3><div style="clear:left"></div>
+<h3 id="X9-3">10.3. Custom Plugins</h3><div style="clear:left"></div>
 <div class="paragraph"><p>It&#8217;s easy to write your own plugins for Pronto.  To create your own
 page/template plugin, simply copy one of the existing ones to get the
 class structure, then add your own functionality.  To activate it, add
 your plugin name to the <tt>PLUGINS</tt> or <tt>HELPERS</tt> constants in
 <tt>app/config/config.php</tt>.</p></div>
-<h4 id="X9-3-a">Depending on other plugins</h4>
+<h4 id="X9-3-a">10.3.1. Depending on other plugins</h4>
 <div class="paragraph"><p>Like models, plugins can depend on each other for cross-functionality.
 The format is the same as with models.</p></div>
 <div class="listingblock">
@@ -3243,7 +3247,7 @@ http://www.gnu.org/software/src-highlite -->
 <span style="color: #FF0000">}</span>
 <span style="color: #990000">?&gt;</span></tt></pre></div></div>
 </div>
-<h2 id="X10">Internationalization</h2>
+<h2 id="X10">11. Internationalization</h2>
 <div class="sectionbody">
 <div class="paragraph"><p>Pronto provides its own facility for internationalization (hereon referred
 to as <strong>i18n</strong>).  Currently it only supports string translation, but in the
@@ -3294,7 +3298,7 @@ in Pronto (it is set in <tt>app/config/config.php</tt>), as this will ensure you
 don&#8217;t run into encoding issues when changing languages.</td>
 </tr></table>
 </div>
-<h3 id="X10-1">Using <tt>__()</tt> and <tt>_e()</tt></h3><div style="clear:left"></div>
+<h3 id="X10-1">11.1. Using <tt>__()</tt> and <tt>_e()</tt></h3><div style="clear:left"></div>
 <div class="paragraph"><p>These functions both act somewhat akin to the way <tt>printf()</tt> style functions
 do.  They accept a regular string, and optionally, can take a number of
 arguments that will be substituted into the string, just as <tt>printf()</tt>
@@ -3320,7 +3324,7 @@ them to have to translate the "bottles of beer" string 99 times, once for
 each number.</p></div>
 <div class="paragraph"><p>By using printf-style placeholders, we ensure the string itself only
 appears once in the messages file.</p></div>
-<h3 id="X10-2">Compiling the messages file</h3><div style="clear:left"></div>
+<h3 id="X10-2">11.2. Compiling the messages file</h3><div style="clear:left"></div>
 <div class="paragraph"><p>Okay, so now all your strings are enclosed in <tt>__()</tt> or <tt>_e()</tt>.  The next
 step is to generate the messages file.</p></div>
 <div class="paragraph"><p>I18n messages files are stored in <tt>app/config/i18n</tt>.  Each file resides in
@@ -3364,7 +3368,7 @@ http://www.gnu.org/software/src-highlite -->
         <span style="color: #FF0000">"Are you sure?"</span> <span style="color: #990000">=&gt;</span> <span style="color: #FF0000">"Etes-vous sûr?"</span><span style="color: #990000">,</span>
 <span style="color: #990000">);</span>
 <span style="color: #990000">?&gt;</span></tt></pre></div></div>
-<h4 id="X10-2-a">Using Google Translate for Translations</h4>
+<h4 id="X10-2-a">11.2.1. Using Google Translate for Translations</h4>
 <div class="paragraph"><p>Pronto provides two scripts that use Google Translate to translate
 messages files into new language.</p></div>
 <div class="tableblock">
@@ -3423,7 +3427,7 @@ Translating English to Portuguese...
 Translating English to Russian...
 Translating English to Spanish...</tt></pre>
 </div></div>
-<h3 id="X10-3">The <tt>i18n</tt> Class</h3><div style="clear:left"></div>
+<h3 id="X10-3">11.3. The <tt>i18n</tt> Class</h3><div style="clear:left"></div>
 <div class="paragraph"><p>Like the <tt>Access</tt> class and others, the <tt>I18N</tt> class is a utility-level
 class that is instantiated only once per Pronto invocation.  The object is
 held by the <tt>$web</tt> object, so it can be referenced through that.</p></div>
@@ -3477,7 +3481,7 @@ http://www.gnu.org/software/src-highlite -->
 <span style="color: #FF0000">}</span>
 <span style="color: #990000">?&gt;</span></tt></pre></div></div>
 </div>
-<h2 id="X11">Modules</h2>
+<h2 id="X11">12. Modules</h2>
 <div class="sectionbody">
 <div class="paragraph"><p>Most of your page controllers, models, and templates will sit in their
 respective subdirectories under the <tt>app</tt> directory.  But it&#8217;s also
@@ -3489,13 +3493,13 @@ models, and templates, located in a subdirectory of <tt>app/modules</tt>.  The
 Pronto distribution code includes a sample module called <tt>dummy</tt> that can
 be used as a template.  There is also a module generator available in the
 <tt>pronto/bin/generators</tt> directory.</p></div>
-<h3 id="X11-1">Enabling Modules</h3><div style="clear:left"></div>
+<h3 id="X11-1">12.1. Enabling Modules</h3><div style="clear:left"></div>
 <div class="paragraph"><p>Once you have a module you want to include in your application, you must
 enable it by adding it to the <tt>MODULES</tt> constant in <tt>app/config.php</tt>.</p></div>
 <div class="paragraph"><p>Each module typically comes with its own URL routing rules, which are
 stored in <tt>app/modules/&lt;module_name&gt;/config/urls.php</tt>.  These rules will
 be automatically prepended to the master URL routing table.</p></div>
-<h3 id="X11-2">Using The Module Generator</h3><div style="clear:left"></div>
+<h3 id="X11-2">12.2. Using The Module Generator</h3><div style="clear:left"></div>
 <div class="paragraph"><p>Like the CRUD generator, the module generator can save you a few minutes
 of copy/paste time by setting up the basic file structure for a new
 Pronto module.</p></div>
@@ -3513,7 +3517,7 @@ New Page Controller: app/modules/my_module/pages/page.php
 To enable this module, add it to the MODULES constant in app/config/config.php</tt></pre>
 </div></div>
 </div>
-<h2 id="X12">Caching</h2>
+<h2 id="X12">13. Caching</h2>
 <div class="sectionbody">
 <div class="paragraph"><p>Caching is a very effective way of getting more performance out of your
 application.  In a stateless environment such as the web, it becomes
@@ -3525,7 +3529,7 @@ the database can be avoided by using the cached version instead.  Pronto
 supports transparent caching of data entities for which this feature is
 enabled, and also provides a generic caching facility for explicit caching
 of other data.</p></div>
-<h3 id="X12-1">Enabling the Cache Layer</h3><div style="clear:left"></div>
+<h3 id="X12-1">13.1. Enabling the Cache Layer</h3><div style="clear:left"></div>
 <div class="paragraph"><p>To enable caching, you must edit <tt>app/config/cache.php</tt>.  In it you can
 enable caching and define the cache driver you wish to use as well as any
 additional driver-specific configuration options.</p></div>
@@ -3554,7 +3558,7 @@ you have other caches available such as Memcache or APC, it&#8217;s
 recommended to use one of those instead.</td>
 </tr></table>
 </div>
-<h3 id="X12-2">Caching in Data Models</h3><div style="clear:left"></div>
+<h3 id="X12-2">13.2. Caching in Data Models</h3><div style="clear:left"></div>
 <div class="paragraph"><p>Pronto&#8217;s data models support automatic caching at the entity level, but to
 use it, you must enable this feature for each data model.</p></div>
 <div class="listingblock">
@@ -3612,7 +3616,7 @@ contains the special cache-handling logic.  If you do need to override
 <tt>Model::get()</tt>, then make sure to call <tt>parent::get($id)</tt> within it.</td>
 </tr></table>
 </div>
-<h3 id="X12-3">Explicit Caching</h3><div style="clear:left"></div>
+<h3 id="X12-3">13.3. Explicit Caching</h3><div style="clear:left"></div>
 <div class="paragraph"><p>You can also use Pronto&#8217;s caching facility directly if you wish to cache
 other types of data.  The cache object can be acquired through
 the global <tt>Registry</tt> class.  It is a simple key/value system with the
@@ -3645,13 +3649,13 @@ http://www.gnu.org/software/src-highlite -->
 <span style="color: #FF0000">}</span>
 <span style="color: #990000">?&gt;</span></tt></pre></div></div>
 </div>
-<h2 id="X13">Extending Pronto</h2>
+<h2 id="X13">14. Extending Pronto</h2>
 <div class="sectionbody">
 <div class="paragraph"><p>Pronto attempts to provide a good base on which to develop, but sometimes
 its desireable to be able to modify some of the underlying functionality.</p></div>
 <div class="paragraph"><p>You&#8217;ll rarely have to do this, but Pronto does provide a few areas that
 can be easily overridden.</p></div>
-<h3 id="X13-1">Overriding base functionality of Models, Pages, and Plugins</h3><div style="clear:left"></div>
+<h3 id="X13-1">14.1. Overriding base functionality of Models, Pages, and Plugins</h3><div style="clear:left"></div>
 <div class="paragraph"><p>The base classes for page controllers, data models, and plugins can be
 found in the <tt>pronto/core</tt> directory.  However, you&#8217;ll notice that these
 classes are actually named <tt>Page_Base</tt>, <tt>Model_Base</tt>, and <tt>Plugin_Base</tt>,
@@ -3659,7 +3663,7 @@ respectively.</p></div>
 <div class="paragraph"><p>The <em>real</em> base classes are actually in the <tt>app/core</tt> directory, and
 they&#8217;re intended to be modified by you if need be.  To add any base-level
 methods or override existing ones, simply add them to these classes.</p></div>
-<h3 id="X13-2">Execution Profiles</h3><div style="clear:left"></div>
+<h3 id="X13-2">14.2. Execution Profiles</h3><div style="clear:left"></div>
 <div class="paragraph"><p>By now, we all know that the life of a Pronto request begins at
 <tt>index.php</tt>.  But this script&#8217;s primary job is to pass control to an
 <strong>execution profile</strong>, which is in charge of setting up the runtime
