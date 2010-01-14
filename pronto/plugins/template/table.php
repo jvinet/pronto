@@ -206,7 +206,7 @@ class tpTable extends Plugin
 				if(preg_match('|^_OPTIONS_|', $name)) {
 					if($name == '_OPTIONS_' && !$this->_opt_isset($options, 'nofilters') && !$this->_opt_isset($options, 'nofilterbutton')) {
 						// TODO: show a different filters.html based on language selected (i18n)
-						$out .= $this->depends->html->link(__('Filter Help'), url('/static/filters.en.html'), false, true, array('class'=>'help'), true);
+						$out .= $this->depends->html->link(__('Filter Help'), url('/static/filters.en.html'), false, '640x550', array('class'=>'help'), true);
 					} else {
 						$out .= mb_substr($name, 9);
 					}

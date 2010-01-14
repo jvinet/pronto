@@ -157,37 +157,52 @@ class SQL_Generator
 				// a string length of at least 2
 				$sql[]  = is_numeric($v) ? "$s='%s'" : "$s LIKE '%%s%'";
 				$args[] = $v;
-			} else if(substr($v, 0, 2) == '!=') {
-				// the "not-equals" operator
-				$sql[]  = "$s!='%s'";
-				$args[] = substr($v, 2);
 			} else {
-				// single-bounded range
+				// everything else: single-bounded range, eq, neq, like, not like
 				$chop = 0;
+				$like = false;
 				switch(substr($v, 0, 1)) {
-					case '=':
-						$s .= '='; $chop = 1;
+					case '=': // exactly equals to
+						$s .= '=';
+						$chop = 1;
 						break;
-					case '>':
-						switch($v{1}) {
-							case '=': $s .= '>='; $chop = 2; break;
-							default:  $s .= '>';  $chop = 1; break;
+					case '>': // greater than
+						if(substr($v, 1, 1) == '=') {
+							$s .= '>=';
+							$chop = 2;
+						} else {
+							$s .= '>';
+							$chop = 1;
 						}
 						break;
-					case '<':
-						switch($v{1}) {
-							case '=': $s .= '<='; $chop = 2; break;
-							default:  $s .= '<';  $chop = 1; break;
+					case '<': // less than
+						if(substr($v, 1, 1) == '=') { 
+							$s .= '<=';
+							$chop = 2;
+						} else {
+							$s .= '<';
+							$chop = 1;
 						}
 						break;
-					default:
+					case '!': // does not contain
+						if(substr($v, 1, 1) == '=') {
+							$s .= '!=';
+							$chop = 2;
+						} else {
+							$s .= ' NOT LIKE ';
+							$chop = 1;
+							$like = true;
+						}
+						break;
+					default:  // contains
 						$s .= ' LIKE ';
+						$like = true;
 				}
 				$v = substr($v, $chop);
-				if($chop || is_numeric($v)) {
-					$s .= "'%s'";
-				} else {
+				if($like) {
 					$s .= "'%%s%'";
+				} else {
+					$s .= "'%s'";
 				}
 				$sql[]  = $s;
 				$args[] = $v;
