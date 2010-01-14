@@ -157,6 +157,10 @@ class SQL_Generator
 				// a string length of at least 2
 				$sql[]  = is_numeric($v) ? "$s='%s'" : "$s LIKE '%%s%'";
 				$args[] = $v;
+			} else if(substr($v, 0, 2) == '!=') {
+				// the "not-equals" operator
+				$sql[]  = "$s!='%s'";
+				$args[] = substr($v, 2);
 			} else {
 				// single-bounded range
 				$chop = 0;

@@ -2,15 +2,8 @@
 	use the same behaviour when generating submit buttons, including
 	the spinner graphic and the relative positioning.
 
-- Let modules manage their own navigation config as they do with URL routes.
-
-- Create a robust logging facility for debugging and reporting.
-
 - Rewrite DB_Base to follow standard Pronto coding styles
 
 - Move towards a more agnostic-RDBMS approach:
 	- Make the CRUD generator work with other RDBMS
 
-- SECURITY: Use some authenticastion with the ajaxfilemanager tinymce
-	plugin.  At present, anyone can upload files to /img/content using
-	it.
