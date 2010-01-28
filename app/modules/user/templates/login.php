@@ -7,7 +7,7 @@
 		<?php if($return_url) echo $form->hidden('return_url', $return_url) ?>
 		<?php echo $form->text('email', 'email address', '', '', array('class'=>'text','onFocus'=>"this.value=''")) ?>
 		<?php echo $form->password('password', 'password', '', '', array('class'=>'text','onFocus'=>"this.value=''")) ?>
-		<?php echo $html->link($html->image('icons/openid_black.gif', 'Login with OpenID'), '#', '', false, array('id'=>'btn-openid','style'=>'float:left')) ?>
+		<?php if(USER_USE_OPENID === true) echo $html->link($html->image('icons/openid_black.gif', 'Login with OpenID'), '#', '', false, array('id'=>'btn-openid','style'=>'float:left')) ?>
 		<input type="submit" value="" class="login" />
 		<br class="spacer" />
 	<?php echo $form->close_form() ?>
@@ -22,6 +22,7 @@
 	<p class="bottom"></p>
 </div>
 
+<?php if(USER_USE_OPENID === true): ?>
 <script type="text/javascript">
 $(function(){
 	$('#btn-openid').click(function(){
@@ -34,6 +35,7 @@ $(function(){
 	});
 });
 </script>
+<?php endif ?>
 
 <?php
 if(isset($error)) {

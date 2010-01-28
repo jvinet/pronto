@@ -100,8 +100,7 @@ class Factory
 	function &model($name)
 	{
 		$o =& Registry::get("pronto:model:$name");
-		// JRV
-		//if($o) return $o;
+		if($o) return $o;
 
 		$filespec = array(DIR_FS_APP.DS.'models'.DS.'*.php');
 		if(defined('MODULES')) {

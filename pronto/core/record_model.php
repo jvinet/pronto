@@ -327,8 +327,11 @@ class RecordModel_Base
 	 * @param boolean $ignore_empty Ignore empty records.
 	 * @return array
 	 */
-	function load_all($ids, $ignore_empty=true)
+	function load_all($ids='', $ignore_empty=true)
 	{
+		if(!empty($ids)) {
+			$ids = $this->find()->get($this->pk);
+		}
 		$data = array();
 		foreach($ids as $id) {
 			$rec = $this->load($id);
