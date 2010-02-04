@@ -9,12 +9,12 @@
 	position: relative;
 	width: 324px;
 }
-.notice .close	{position: absolute; top: 12px; right: 12px; display: block; width: 18px; height: 17px; text-indent: -9999px; background: url(/img/purr/purrClose-trans.png) no-repeat 0 10px;}
+.notice .close	{position: absolute; top: 12px; right: 12px; display: block; width: 18px; height: 17px; text-indent: -9999px; background: url(../img/purr/purrClose-trans.png) no-repeat 0 10px;}
 
 .notice-body {
 	min-height: 50px;
 	padding: 22px 22px 0 22px;
-	background: url(/img/purr/purrTop-trans.png) no-repeat left top;
+	background: url(../img/purr/purrTop-trans.png) no-repeat left top;
 	color: #f9f9f9;
 }
 * html .notice-body { height: 50%; }
@@ -25,5 +25,5 @@
 .notice-bottom {
 	height: 22px;
 	clear: both;
-	background: url(/img/purr/purrBottom-trans.png) no-repeat left top;
+	background: url(../img/purr/purrBottom-trans.png) no-repeat left top;
 }

@@ -41,7 +41,7 @@
     line-height: 1.2;
     text-align: center;
     text-decoration: none;
-    background: url(/img/tab.gif) no-repeat;
+    background: url(../img/tab.gif) no-repeat;
 }
 .tabs-nav .tabs-selected a {
     padding-top: 7px;
@@ -72,7 +72,7 @@
 /* Uncomment this if you want a little spinner to be shown next to the tab title while an Ajax tab gets loaded
 .tabs-loading span {
     padding: 0 0 0 20px;
-    background: url(/img/loading.gif) no-repeat 0 50%;
+    background: url(../img/loading.gif) no-repeat 0 50%;
 }*/
 
 /*

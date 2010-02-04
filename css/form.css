@@ -62,7 +62,7 @@ input.submit, input.button, button {
 	border-left: 1px solid #ccc;
 	border-right: 1px solid #000;
 	border-bottom: 1px solid #000;
-	background: #feffff url(/img/input_bg.gif) repeat-x left top;
+	background: #feffff url(../img/input_bg.gif) repeat-x left top;
 }
 input.submit[disabled] {
 	color: #7091fe;

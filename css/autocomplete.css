@@ -35,7 +35,7 @@
 }
 
 .ac_loading {
-	background: white url(/img/spinner.gif) right center no-repeat;
+	background: white url(../img/spinner.gif) right center no-repeat;
 }
 
 .ac_odd {
@@ -53,7 +53,7 @@
 	margin: 0;
 	list-style-type: none;
 	border: 1px solid #fde47e;
-	background: #FFF url(/img/site/categories_bg.gif) repeat-x 0 bottom;
+	background: #FFF url(../img/site/categories_bg.gif) repeat-x 0 bottom;
 	padding: 10px;
 }
 .ac-sel a {

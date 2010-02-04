@@ -63,7 +63,7 @@ table.grid tr.label th {
 	vertical-align: top;
 	border-right: 1px solid #a7a7a7;
 	padding: 2px 3px;
-	background: #dadada url(/img/thead.gif) top left repeat-x;
+	background: #dadada url(../img/thead.gif) top left repeat-x;
 	color: #333;
 	white-space: nowrap;
 }
@@ -72,7 +72,7 @@ table.grid tr.filter th {
 	vertical-align: top;
 	border-right: 1px solid #a7a7a7;
 	padding: 2px 3px;
-	background: #dadada url(/img/thead.gif) top left repeat-x;
+	background: #dadada url(../img/thead.gif) top left repeat-x;
 	color: #333;
 	white-space: nowrap;
 }
@@ -90,11 +90,11 @@ table.grid input.submit {
 }
 table.grid input.spinner {
 	text-align: left;
-	background: #484848 url(/img/spinner-dark.gif) center right no-repeat;
+	background: #484848 url(../img/spinner-dark.gif) center right no-repeat;
 }
 table.grid tr th.hover,
 table.grid tr th.selected {
-	background: #9fdcff url(/img/thead-hl.gif) top left repeat-x;
+	background: #9fdcff url(../img/thead-hl.gif) top left repeat-x;
 	cursor: pointer;
 }
 table.grid tr th.hover a,

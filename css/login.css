@@ -8,7 +8,7 @@ div.login {
 div.login h2 {
 	width: 214px;
 	height: 57px;
-	background: url(/img/login/member_login.gif) 0 0 no-repeat;
+	background: url(../img/login/member_login.gif) 0 0 no-repeat;
 	padding: 0 0 0 50px;
 	font: bold 24px/57px Arial, Helvetica, sans-serif;
 	font-variant: small-caps;
@@ -17,7 +17,7 @@ div.login h2 {
 	background-color: inherit;
 }
 div.login form {
-	background: url(/img/login/memberlogin_bg.gif) 0 0 repeat-y;
+	background: url(../img/login/memberlogin_bg.gif) 0 0 repeat-y;
 	width: 228px;
 	padding: 0 18px;
 	margin: 0;
@@ -36,7 +36,7 @@ div.login form input.text {
 	padding: 0 0 0 5px;
 }
 div.login form input.login {
-	background: url(/img/login/btn_login.gif) 0 0 no-repeat;
+	background: url(../img/login/btn_login.gif) 0 0 no-repeat;
 	width: 53px;
 	height: 13px;
 	border: none;
@@ -44,7 +44,7 @@ div.login form input.login {
 	float: right;
 }
 div.login p.bottom {
-	background: url(/img/login/memberlogin_bot.gif) bottom left no-repeat;
+	background: url(../img/login/memberlogin_bot.gif) bottom left no-repeat;
 	width: 264px;
 	height: 25px;
 	margin: 0 0 5px 0;

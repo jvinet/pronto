@@ -329,9 +329,10 @@ class RecordModel_Base
 	 */
 	function load_all($ids='', $ignore_empty=true)
 	{
-		if(!empty($ids)) {
+		if(empty($ids)) {
 			$ids = $this->find()->get($this->pk);
 		}
+		assert_type($ids, 'array');
 		$data = array();
 		foreach($ids as $id) {
 			$rec = $this->load($id);

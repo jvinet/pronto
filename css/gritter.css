@@ -12,7 +12,7 @@
 	margin-bottom:-11px;
 }
 * html .gritter-close {
-	background:url(/img/gritter/gritter-close-ie6.gif);
+	background:url(../img/gritter/gritter-close-ie6.gif);
 	width:22px;
 	height:22px;
 	top:7px;
@@ -32,7 +32,7 @@
 	margin:0 0 10px 0;
 }
 .gritter-top {
-	background-image:url(/img/gritter/gritter-top.png);
+	background-image:url(../img/gritter/gritter-top.png);
 	background-repeat:no-repeat;
 	background-position:top left;
 	height:10px;
@@ -41,7 +41,7 @@
 	background-position:top right;
 }
 .gritter-bottom {
-	background-image:url(/img/gritter/gritter-bottom.png);
+	background-image:url(../img/gritter/gritter-bottom.png);
 	background-repeat:no-repeat;
 	background-position:top left;
 	height:8px;
@@ -52,7 +52,7 @@
 }
 .gritter-item {
 	display:block;
-	background-image:url(/img/gritter/gritter-bg-tile.png);
+	background-image:url(../img/gritter/gritter-bg-tile.png);
 	background-repeat:repeat-y;
 	background-position:top left;
 	color:#eee;
@@ -71,7 +71,7 @@
 	position:absolute;
 	top:5px;
 	right:3px;
-	background:url(/img/gritter/gritter-close.png);
+	background:url(../img/gritter/gritter-close.png);
 	cursor:pointer;
 	width:30px;
 	height:30px;

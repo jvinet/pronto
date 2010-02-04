@@ -74,7 +74,14 @@ class tpHtml extends Plugin
 		if($path == '') $path = $key;
 		// try to figure out what sort of path/URL we were passed
 		if(strpos($path, '://') === false && substr($path, 0, 1) != '/') {
-			$path = $this->url('/css.php?c='.$path, true);
+			// if the proxy script exists, use that; otherwise, use
+			// the .css file directly
+			if(file_exists(DIR_FS_BASE.DS.'css.php')) {
+				// XXX: deprecated
+				$path = $this->url('/css.php?c='.$path, true);
+			} else {
+				$path = $this->url("/css/$path.css", true);
+			}
 		}
 		$this->web->queue_css_load($key, $path);
 	}
@@ -90,7 +97,14 @@ class tpHtml extends Plugin
 	{
 		// try to figure out what sort of path/URL we were passed
 		if(strpos($path, '://') === false && substr($path, 0, 1) != '/') {
-			$path = $this->url('/css.php?c='.$path, true);
+			// if the proxy script exists, use that; otherwise, use
+			// the .css file directly
+			if(file_exists(DIR_FS_BASE.DS.'css.php')) {
+				// XXX: deprecated
+				$path = $this->url('/css.php?c='.$path, true);
+			} else {
+				$path = $this->url("/css/$path.css", true);
+			}
 		}
 		return '<link rel="stylesheet" type="text/css" href="'.$path.'" />'."\n";
 	}
