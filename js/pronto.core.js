@@ -73,7 +73,7 @@ Pronto = function(web_root) {
 			var f = document.createElement("link");
 			f.setAttribute("rel", "stylesheet");
 			f.setAttribute("type", "text/css");
-			f.setAttribute("href", this.url("/css.php?c="+filename));
+			f.setAttribute("href", this.url("/css/"+filename+".css"));
 			document.getElementsByTagName("head").item(0).appendChild(f);
 
 			this.CSS_LOADED.push(filename);
