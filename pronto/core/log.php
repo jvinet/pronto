@@ -150,11 +150,15 @@ function l() {
 	if(count($args) == 1) {
 		$facility = 'app';
 		$priority = 'info';
-		$message = $args[0];
+		$message  = $args[0];
 	} else if(count($args) == 2) {
 		$facility = 'app';
 		$priority = $args[0];
-		$message = $args[1];
+		$message  = $args[1];
+	} else if(count($args) == 3) {
+		$facility = $args[0];
+		$priority = $args[1];
+		$message  = $args[2];
 	} else {
 		$facility = $args[0];
 		$priority = $args[1];
