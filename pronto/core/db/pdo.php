@@ -54,6 +54,12 @@ class DB_PDO extends DB_Base
 		if($this->driver == 'mysql') {
 			return $this->get_all_pair("EXPLAIN \"$table\"");
 		}
+		if($this->driver == 'sqlite') {
+			$defn = array();
+			$a = $this->get_all("PRAGMA table_info(\"$table\")");
+			foreach($a as $v) $defn[$v['name']] = $v['type'];
+			return $defn;
+		}
 
 		$defn = array();
 		$q = $this->run_query("SELECT * FROM \"$table\" LIMIT 1");
