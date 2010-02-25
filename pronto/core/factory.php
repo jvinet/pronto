@@ -168,7 +168,7 @@ class Factory
 				break;
 		}
 		$store =& Registry::get($regname);
-		if(!$store) $story = new stdClass;
+		if(!$store) $store = new stdClass;
 
 		// check if plugin already exists
 		if(isset($store->$name)) return $store->$name;

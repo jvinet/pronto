@@ -19,3 +19,6 @@
 	</ul>
 </p>
 
+<?php $h = $this->import_helper('dummy') ?>
+<?php debug($h, false) ?>
+<?php debug($this, false) ?>
