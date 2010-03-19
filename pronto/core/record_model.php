@@ -138,6 +138,7 @@ class RecordModel_Base
 			if(isset($this->depends->$name)) continue;
 			$this->depends->$name =& Factory::model($name);
 		}
+		return $last;
 	}
 
 	/**
@@ -224,6 +225,14 @@ class RecordModel_Base
 	function find_arr($q, $args=array())
 	{
 		return new RecordSelector($q, $args, $this);
+	}
+
+	/**
+	 * Return a selector that points to a specific ID.
+	 */
+	function id($id)
+	{
+		return $this->find()->eq($this->pk, $id);
 	}
 
 	/*********************************************************************
