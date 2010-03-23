@@ -282,6 +282,19 @@ class Page_Base
 	}
 
 	/**
+	 * Decode JSON from a GET/POST variable and return it.
+	 *
+	 * @param string $varname The GET/POST variable name that will contain
+	 *                        the JSON data.  Default is 'json'.
+	 * @return mixed
+	 */
+	function load_json($varname='json')
+	{
+		$json = $this->param($varname, '{}');
+		return json_decode($json, true);
+	}
+
+	/**
 	 * Return an array of arguments from the request path, ignoring
 	 * the first $shift elements
 	 *

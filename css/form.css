@@ -57,7 +57,7 @@ input.image {
 input.image:focus {
 	background: none;
 }
-input.submit, input.button, button {
+input.submit, input.button, input[type=submit], input[type=button], button {
 	border-top: 1px solid #ccc;
 	border-left: 1px solid #ccc;
 	border-right: 1px solid #000;
