@@ -17,7 +17,6 @@ class DB_Base
 	var $error;
 	var $insert_id;
 	var $echo = false;
-	var $debug = false;
 	var $profile = false;
 	var $profile_data = array();
 

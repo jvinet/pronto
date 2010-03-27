@@ -132,13 +132,14 @@ class RecordModel_Base
 	 *
 	 * @param string $model_name
 	 */
-	function depend($model)
+	function &depend($model)
 	{
 		foreach(func_get_args() as $name) {
 			if(isset($this->depends->$name)) continue;
 			$this->depends->$name =& Factory::model($name);
 		}
-		return $last;
+		// return a reference to the last model loaded
+		return $this->depends->$name;
 	}
 
 	/**
