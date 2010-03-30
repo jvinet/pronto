@@ -600,7 +600,7 @@ class Web {
 		if(isset($jsvars['redirect_url'])) {
 			// we're heading to a new URL, so don't process flash messages yet
 			$json['exec'] = 'window.location.href="'.$jsvars['redirect_url'].'";';
-		} else if(isset($_SESSION['_FLASH_MESSAGE'])) {
+		} else if(isset($_SESSION['_FLASH_MESSAGE']) && !isset($jsvars['reload'])) {
 			$json['flash'] = $_SESSION['_FLASH_MESSAGE'];
 			unset($_SESSION['_FLASH_MESSAGE']);
 		}

@@ -14,6 +14,10 @@ class pUser_Admin extends Page_CRUD
 		$this->set_layout('layout.admin.php');
 
 		$this->models->user->context = 'ADMIN';
+
+		// we need to reload the grid page after a successful edit,
+		// so the new values will show up.
+		$this->ajax_reload_parent = true;
 	}
 
 	/**********************************************************************
