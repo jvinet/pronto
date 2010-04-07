@@ -337,9 +337,9 @@ class RecordModel_Base
 	 * @param boolean $ignore_empty Ignore empty records.
 	 * @return array
 	 */
-	function load_all($ids='', $ignore_empty=true)
+	function load_all($ids=null, $ignore_empty=true)
 	{
-		if(empty($ids)) {
+		if(is_null($ids)) {
 			$ids = $this->find()->get($this->pk);
 		}
 		assert_type($ids, 'array');

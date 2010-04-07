@@ -55,9 +55,9 @@ class mUser extends RecordModel
 	function save_record($data)
 	{
 		if($data['id']) {
-			$this->update($data);
+			return $this->update($data);
 		} else {
-			$this->insert($data);
+			return $this->insert($data);
 		}
 	}
 
