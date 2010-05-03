@@ -527,7 +527,7 @@ EOT;
 			'theme_advanced_resizing' => true,
 			'theme_advanced_resize_horizontal' => true,
 			'apply_source_formatting' => true,
-			'force_br_newlines'       => true,
+			'force_br_newlines'       => false,
 			'force_p_newlines'        => false,	
 
 			'content_css' => url('/css.php?c=htmlarea')
@@ -1259,14 +1259,6 @@ EOT;
 					$this->_getparam($elem, 'value', ''),
 					$this->_getparam($elem, 'rows', 10),
 					$this->_getparam($elem, 'cols', 50),
-					$attribs);
-				break;
-			case 'richtextarea':
-				$out .= $this->richtextarea($name,
-					$this->_getparam($elem, 'value', ''),
-					$this->_getparam($elem, 'height', 500),
-					$this->_getparam($elem, 'width', 600),
-					$this->_getparam($elem, 'toolbar', ''),
 					$attribs);
 				break;
 			case 'htmlarea':

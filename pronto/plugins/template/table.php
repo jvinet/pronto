@@ -6,8 +6,8 @@
  *
  * Description: Template plugin for generating "smart" and "dumb" tables.
  *              Dumb tables are simply a set of headers and rows of data.
- *              Smart tables have filters, sortable columns, pagination, and
- *              totals.
+ *              Smart tables (aka "grids") have filters, sortable columns,
+ *              pagination, and totals.
  *
  **/
 class tpTable extends Plugin
