@@ -33,6 +33,8 @@ class Cache_File extends Cache
 
 	function set($key, $var, $expire=0)
 	{
+		parent::set($key, $var, $expire);
+
 		$key = $this->_mangle_key($key);
 		$fn  = $this->cache_dir.DS.$key;
 
@@ -77,6 +79,7 @@ class Cache_File extends Cache
 
 	function delete($key)
 	{
+		parent::delete($key);
 		$key = $this->_mangle_key($key);
 		$fn  = $this->cache_dir.DS.$key;
 
@@ -88,6 +91,7 @@ class Cache_File extends Cache
 	 */
 	function flush()
 	{
+		parent::flush();
 		foreach(glob($this->cache_dir.DS.'*') as $fn) {
 			if(is_file($fn)) @unlink($fn);
 		}

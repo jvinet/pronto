@@ -35,6 +35,7 @@ class Cache_SHM extends Cache
 
 	function set($key, $var, $expire=0)
 	{
+		parent::set($key, $var, $expire);
 		$key = SITE_NAME."|$key";
 		// hash the string key into a unique integer
 		$varkey = $this->_hash_key($key);
@@ -68,6 +69,7 @@ class Cache_SHM extends Cache
 
 	function delete($key)
 	{
+		parent::delete($key);
 		$key = SITE_NAME."|$key";
 		$varkey = $this->_hash_key($key);
 		return @shm_remove_var($this->shmid, $varkey);
@@ -78,6 +80,7 @@ class Cache_SHM extends Cache
 	 */
 	function flush()
 	{
+		parent::flush();
 		// remove and reconnect to the SHM block
 		shm_remove($this->shmid);
 		$this->shmid = shm_attach($this->shmkey, $this->memsize, 0600);

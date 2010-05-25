@@ -39,6 +39,7 @@ class Cache_MemCache extends Cache
 
 	function set($key, $var, $expire=0)
 	{
+		parent::set($key, $var, $expire);
 		$key = SITE_NAME."|$key";
 		return $this->active ? $this->memcache->set($key, $var, 0, $expire) : false;
 	}
@@ -54,6 +55,7 @@ class Cache_MemCache extends Cache
 	function delete($key)
 	{
 		if(!$this->active) return false;
+		parent::delete($key);
 		$key = SITE_NAME."|$key";
 		return $this->memcache->delete($key);
 	}
@@ -61,6 +63,7 @@ class Cache_MemCache extends Cache
 	function flush()
 	{
 		if(!$this->active) return false;
+		parent::flush();
 		return $this->memcache->flush();
 	}
 

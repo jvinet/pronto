@@ -421,7 +421,8 @@ class Page_CRUD extends Page
 		if(!isset($this->model->files[$key])) $this->web->notfound();
 
 		// build the filename
-		$data = $this->model->get_or_404($id);
+		$data = $this->model->load($id);
+		if(!$id) $this->web->notfound();
 		$filename = $this->model->files[$key]['filename'];
 		foreach($data as $k=>$v) {
 			if(is_array($v)) continue;

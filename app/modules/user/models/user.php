@@ -2,7 +2,6 @@
 
 class mUser extends RecordModel
 {
-	var $default_sort = 'last_name ASC';
 	var $enable_cache = true;
 
 	function validate($data)

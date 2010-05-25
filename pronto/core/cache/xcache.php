@@ -19,6 +19,7 @@ class Cache_XCache extends Cache
 
 	function set($key, $var, $expire=0)
 	{
+		parent::set($key, $var, $expire);
 		$key = SITE_NAME."|$key";
 		return xcache_set($key, $var, $expire);
 	}
@@ -32,12 +33,14 @@ class Cache_XCache extends Cache
 
 	function delete($key)
 	{
+		parent::delete($key);
 		$key = SITE_NAME."|$key";
 		return xcache_unset($key);
 	}
 
 	function flush()
 	{
+		parent::flush();
 		// TODO
 	}
 

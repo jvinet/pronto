@@ -9,11 +9,15 @@
  **/
 class Cache
 {
+	// A list of all keys stored in the cache
+	var $manifest
+
 	/**
 	 * Constructor
 	 */
 	function Cache()
 	{
+		$this->manifest = array();
 	}
 
 	/**
@@ -23,6 +27,7 @@ class Cache
 	 */
 	function set($key, $var, $expire=0)
 	{
+		$this->manifest[$key] = true;
 	}
 
 	function &get($key)
@@ -69,6 +74,18 @@ class Cache
 
 	function delete($key)
 	{
+		unset($this->manifest[$key]);
+	}
+
+	/**
+	 * Delete all entries that have cache keys matched by this regexp.
+	 */
+	function delete_by_regex($re)
+	{
+		$matches = preg_grep($re, array_keys($this->manifest));
+		foreach($matches as $key) {
+			$this->delete($key);
+		}
 	}
 
 	/**
@@ -76,6 +93,7 @@ class Cache
 	 */
 	function flush()
 	{
+		$this->manifest = array();
 	}
 
 	/**

@@ -45,6 +45,12 @@ class tpNavigation extends Plugin
 		$this->depend('html');
 	}
 
+	/**
+	 * Render a menu in a standard <ul> element.
+	 *
+	 * @param mixed $config The configuration (array). If false, then
+	 *                      read the configuration from $config_file.
+	 */
 	function menu($config=false, $config_file='navigation.php')
 	{
 		if(!$config) {

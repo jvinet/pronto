@@ -28,7 +28,7 @@
 			<?php echo date('l F d, Y') ?> <span class="dark">|</span>
 			<?php echo date('g:i a') ?> <span class="dark">|</span>
 			<?php if(ACCESS_ID): ?>
-				<?php _e('Logged in as %s', "<b>{$_SESSION['USER']['email']}</b>") ?></b> <span class="dark">|</span>
+				<?php _e('Logged in as %s', "<b>{$_SESSION['USER']['email']}</b>") ?> <span class="dark">|</span>
 				<?php echo $html->link(__('Logout'), url('/logout')) ?>
 			<?php else: ?>
 				<?php _e('Not logged in') ?> <span class="dark">|</span>

@@ -19,6 +19,7 @@ class Cache_APC extends Cache
 
 	function set($key, $var, $expire=0)
 	{
+		parent::set($key, $var, $expire);
 		$key = SITE_NAME."|$key";
 		return apc_add($key, $var, $expire);
 	}
@@ -32,12 +33,14 @@ class Cache_APC extends Cache
 
 	function delete($key)
 	{
+		parent::delete($key);
 		$key = SITE_NAME."|$key";
 		return apc_delete($key);
 	}
 
 	function flush()
 	{
+		parent::flush();
 		apc_clear_cache('user');
 	}
 
