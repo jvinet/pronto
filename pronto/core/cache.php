@@ -10,7 +10,7 @@
 class Cache
 {
 	// A list of all keys stored in the cache
-	var $manifest
+	var $manifest;
 
 	/**
 	 * Constructor
