@@ -43,7 +43,12 @@ class Page_Base
 		$this->set_layout('layout.php');
 
 		// check if we're in AJAX mode or not
-		$this->set_ajax(!!$this->param('_ajax', $this->web->ajax));
+		switch(true) {
+			case strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest':
+			case !!$this->param('_ajax', $this->web->ajax): $ajax = true; break;
+			default: $ajax = false;
+		}
+		$this->set_ajax($ajax);
 		$this->template->set('_ajax', $this->ajax);
 
 		// if form data/errors are present in the session, pass them to
