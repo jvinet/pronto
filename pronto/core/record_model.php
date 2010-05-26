@@ -192,7 +192,7 @@ class RecordModel_Base
 		if(!is_array($id)) $id = array($id);
 		foreach($id as $i) {
 			if($this->enable_cache && $this->cache) {
-				$key = 'model_'.get_class($this)."_{$this->pk}_$i";
+				$key = 'model:'.get_class($this).":{$this->pk}:$i";
 				$this->cache->delete($key);
 			}
 		}
@@ -319,7 +319,7 @@ class RecordModel_Base
 	function load($id)
 	{
 		if($this->enable_cache && $this->cache) {
-			$key = 'model_'.get_class($this)."_{$this->pk}_$id";
+			$key = 'model:'.get_class($this).":{$this->pk}:$id";
 			$rec =& $this->cache->get($key);
 			if(!$rec) {
 				$rec = $this->load_record($id);
