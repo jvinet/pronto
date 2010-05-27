@@ -282,7 +282,7 @@ class Model_Base
 	{
 		if($this->cache) {
 			$re = '^model:'.get_class($this).':.*$';
-			$this->delete_by_regex("/$re/");
+			$this->cache->delete_by_regex("/$re/");
 		}
 	}
 
