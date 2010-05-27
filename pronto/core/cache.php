@@ -88,7 +88,10 @@ class Cache
 	 */
 	function delete_by_regex($re)
 	{
-		$matches = preg_grep($re, array_keys($this->manifest));
+		$mkey = 'pronto:cache:manifest';
+		$manifest = $this->get_or_set($mkey, array());
+
+		$matches = preg_grep($re, array_keys($manifest));
 		foreach($matches as $key) {
 			$this->delete($key);
 		}
