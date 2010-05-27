@@ -23,6 +23,8 @@ class Cache
 	 */
 	function set($key, $var, $expire=0)
 	{
+		if(!defined('CACHE_MANIFEST') || CACHE_MANIFEST !== true) return;
+
 		$mkey = 'pronto:cache:manifest';
 		if($key != $mkey) {
 			$manifest = $this->get_or_set($mkey, array());
@@ -75,6 +77,8 @@ class Cache
 
 	function delete($key)
 	{
+		if(!defined('CACHE_MANIFEST') || CACHE_MANIFEST !== true) return;
+
 		$mkey = 'pronto:cache:manifest';
 		if($key != $mkey) {
 			$manifest = $this->get_or_set($mkey, array());
@@ -88,6 +92,9 @@ class Cache
 	 */
 	function delete_by_regex($re)
 	{
+		// can't do this w/o the manifest
+		if(!defined('CACHE_MANIFEST') || CACHE_MANIFEST !== true) return;
+
 		$mkey = 'pronto:cache:manifest';
 		$manifest = $this->get_or_set($mkey, array());
 
@@ -102,6 +109,7 @@ class Cache
 	 */
 	function flush()
 	{
+		if(!defined('CACHE_MANIFEST') || CACHE_MANIFEST !== true) return;
 		$this->delete('pronto:cache:manifest');
 	}
 

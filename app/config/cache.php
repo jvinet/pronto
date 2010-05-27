@@ -19,6 +19,20 @@
 define('USE_CACHE',      false);
 define('CACHE_DRIVER',  'file');
 
+/**
+ * Enable the cache manifest, which is a stored list of all keys in the
+ * cache. If the manifest is enabled, you can use the Cache::delete_by_regex()
+ * and RecordModel::invalidate_all() functions, which can be handy for
+ * more powerful cache management.
+ *
+ * However, there are serious side effects.  There is a performance hit
+ * involved in maintaining the manifest, and many cache systems may
+ * expire/remove the manifest without telling you (eg, memcached).
+ *
+ * Carefully consider this before enabling it.
+ */
+define('CACHE_MANIFEST', false);
+
 
 /***********************************************************************
  * DRIVER SPECIFIC SETTINGS
