@@ -276,6 +276,17 @@ class Model_Base
 	}
 
 	/**
+	 * Remove all cache entries for this data entity.
+	 */
+	function invalidate_all()
+	{
+		if($this->cache) {
+			$re = '^model:'.get_class($this).':.*$';
+			$this->delete_by_regex("/$re/");
+		}
+	}
+
+	/**
 	 * Return a full record for this entity, looked up by PK.  Normally
 	 * you will want to override this method to do any additional work on
 	 * the record before returning it to the caller.

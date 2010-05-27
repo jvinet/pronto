@@ -199,6 +199,17 @@ class RecordModel_Base
 	}
 
 	/**
+	 * Remove all cache entries for this data entity.
+	 */
+	function invalidate_all()
+	{
+		if($this->cache) {
+			$re = '^model:'.get_class($this).':.*$';
+			$this->delete_by_regex("/$re/");
+		}
+	}
+
+	/**
 	 * Build a result set matching the sub-query provided.  This will
 	 * return an object through which some basic data manipulation
 	 * primitives can be used (get, set, load, delete)
