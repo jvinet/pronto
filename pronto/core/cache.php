@@ -9,15 +9,11 @@
  **/
 class Cache
 {
-	// A list of all keys stored in the cache
-	var $manifest;
-
 	/**
 	 * Constructor
 	 */
 	function Cache()
 	{
-		$this->manifest = array();
 	}
 
 	/**
@@ -27,7 +23,12 @@ class Cache
 	 */
 	function set($key, $var, $expire=0)
 	{
-		$this->manifest[$key] = true;
+		$mkey = 'pronto:cache:manifest';
+		if($key != $mkey) {
+			$manifest = $this->get_or_set($mkey, array());
+			$manifest[$key] = true;
+			$this->set($mkey, $manifest);
+		}
 	}
 
 	function &get($key)
@@ -74,7 +75,12 @@ class Cache
 
 	function delete($key)
 	{
-		unset($this->manifest[$key]);
+		$mkey = 'pronto:cache:manifest';
+		if($key != $mkey) {
+			$manifest = $this->get_or_set($mkey, array());
+			unset($manifest[$key]);
+			$this->set($mkey, $manifest);
+		}
 	}
 
 	/**
@@ -93,7 +99,7 @@ class Cache
 	 */
 	function flush()
 	{
-		$this->manifest = array();
+		$this->delete('pronto:cache:manifest');
 	}
 
 	/**
