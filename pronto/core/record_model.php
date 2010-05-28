@@ -200,6 +200,8 @@ class RecordModel_Base
 
 	/**
 	 * Remove all cache entries for this data entity.
+	 *
+	 * This method requires that the CACHE_MANIFEST setting is enabled.
 	 */
 	function invalidate_all()
 	{

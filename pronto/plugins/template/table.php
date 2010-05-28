@@ -137,7 +137,7 @@ class tpTable extends Plugin
 
 		// grid assets
 		$this->depends->html->css_load('grid');
-		$this->depends->html->js_load('grid');
+		$this->depends->html->js_load('pronto.grid');
 
 		// setup AJAX routines if necessary
 		if($this->_opt_isset($options, 'ajax')) {
@@ -339,7 +339,7 @@ class tpTable extends Plugin
 		foreach($params['data'] as $row) {
 			$tr_dom_id = 'tr'.$this->guid++;
 			$out .= '<tr id="'.$tr_dom_id.'"';
-			$class = array();
+			$class = array('grid-row');
 			if(++$rowct % 2 != 1) $class[] = 'altrow';
 			if(isset($params['rowclassfn'])) {
 				$class[] = $params['rowclassfn']($row);
@@ -393,7 +393,7 @@ class tpTable extends Plugin
 					if($this->_getrowdata($row, "_m_$mname")) $out .= ' checked="checked"';
 					$out .= '></td>'."\n";
 				} else {
-					$out .= '>';
+					$out .= ' class="grid-data">';
 					$data = $this->_getrowdata($row, $name);
 					if(isset($totals[$name])) {
 						$totals[$name] += $data;
