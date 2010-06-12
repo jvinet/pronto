@@ -332,23 +332,35 @@ class Web {
 					if($v['msg']) echo "<h4>{$v['loc']}</h4><pre>{$v['msg']}</pre>";
 				}
 			}
-			$db =& Registry::get('pronto:db:main');
-			if($db && $db->profile === true) {
-				echo '<h2>Summary</h2>';
-				echo '<table class="query_profile" cellspacing="0">';
-				foreach($db->profile_data as $i=>$a) {
-					$t = $a['time'].' ms';
-					echo '<tr><th>'.htmlspecialchars($a['query'])."</th><td>$t</td></tr>";
-				}
-				echo '<tr><th><b>Total Queries</b></th><td><b>'.count($db->profile_data).'</b></td></tr>';
-				$total = round((array_sum(explode(" ",microtime()))-$this->time_start)*1000, 3).' ms';
-				echo "<tr><th><b>Total Execution Time (PHP+SQL)</b></th><td><b>$total</b></td></tr>";
-				if(function_exists('memory_get_usage')) {
-					$mem = sprintf("%.2f", memory_get_usage()/1024);
-					echo "<tr><th><b>Memory Usage</b></th><td><b>$mem KB</b></td></tr>";
-				}
-				echo "</table>";
+			if(defined('DB_NAME')) {
+				$dbs = array('main');
+			} else {
+				$dbs = array();
+				include(DIR_FS_APP.DS.'config'.DS.'databases.php');
+				foreach($DATABASES as $key=>$dbcfg) $dbs[] = $key;
 			}
+			foreach($dbs as $dbname) {
+				$db =& Registry::get('pronto:db:'.$dbname);
+				if($db && $db->profile === true) {
+					echo "<h2>Database Queries for $dbname</h2>";
+					echo '<table class="query_profile" cellspacing="0">';
+					foreach($db->profile_data as $i=>$a) {
+						$t = $a['time'].' ms';
+						echo '<tr><th>'.htmlspecialchars($a['query'])."</th><td>$t</td></tr>";
+					}
+					echo '<tr><th><b>Total Queries</b></th><td><b>'.count($db->profile_data).'</b></td></tr>';
+					echo "</table>";
+				}
+			}
+			echo '<h2>Summary</h2>';
+			echo '<table class="query_profile" cellspacing="0">';
+			$total = round((array_sum(explode(" ",microtime()))-$this->time_start)*1000, 3).' ms';
+			echo "<tr><th><b>Total Execution Time (PHP+SQL)</b></th><td><b>$total</b></td></tr>";
+			if(function_exists('memory_get_usage')) {
+				$mem = sprintf("%.2f", memory_get_usage()/1024);
+				echo "<tr><th><b>Memory Usage</b></th><td><b>$mem KB</b></td></tr>";
+			}
+			echo "</table>";
 			echo '</div>';
 			echo '<div id="pronto_debug_bar">DEBUG</div>';
 		}
