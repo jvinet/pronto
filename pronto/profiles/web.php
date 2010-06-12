@@ -184,8 +184,18 @@ unset($p);
 $old = error_reporting(E_ALL & ~E_NOTICE);
 if(DEBUG === true) {
 	$web->enable_debug();
-	$db =& Registry::get('pronto:db:main');
-	if($db) $db->profile = true;
+
+	if(defined('DB_NAME')) {
+		$dbs = array('main');
+	} else {
+		$dbs = array();
+		include(DIR_FS_APP.DS.'config'.DS.'databases.php');
+		foreach($DATABASES as $key=>$dbcfg) $dbs[] = $key;
+	}
+	foreach($dbs as $dbname) {
+		$db =& Registry::get('pronto:db:'.$dbname);
+		if($db) $db->profile = true;
+	}
 }
 
 // Error handler for Debug and Production mode, defined in core/util.php.
