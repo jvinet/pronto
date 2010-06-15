@@ -54,8 +54,10 @@ class Page_Base
 		// if form data/errors are present in the session, pass them to
 		// the template and remove from the session.
 		if(isset($_SESSION['form_data'])) {
-			$this->template->set('data', $_SESSION['form_data']);
-			$this->template->set('errors', $_SESSION['form_errors']);
+			assert_type($_SESSION['form_data'], 'array');
+			assert_type($_SESSION['form_errors'], 'array');
+			foreach($_SESSION['form_data'] as $k=>$v) $this->template->set($k, $v);
+			foreach($_SESSION['form_errors'] as $k=>$v) $this->template->set($k, $v);
 			unset($_SESSION['form_data'], $_SESSION['form_errors']);
 		}
 
@@ -166,17 +168,25 @@ class Page_Base
 	 * Used by form handlers to redirect back to the calling form after a
 	 * failed validation or other errors.
 	 *
-	 * @param string $url URL to redirect to (leave blank to use referrer)
-	 * @param array $data Form data
-	 * @param array $errors Form errors
+	 * @param string $url    URL to redirect to (leave blank to use referrer)
+	 * @param array $data    Form data array
+	 * @param array $errors  Form errors array
+	 * @param array $name    The unique names used for the form data and errors.
+	 *                       These are used when passing the data back to the
+	 *                       template. Use this if you're handling multiple
+	 *                       forms on one page. The first element is the name
+	 *                       of the form data array, the second is the name
+	 *                       of the form errors array.
 	 */
-	function return_to_form($url, $data, $errors=array()) {
+	function return_to_form($url, $data, $errors=array(), $name=array('data','errors')) {
 		if($this->ajax) {
-			$vars = array('errors' => $errors);
+			$vars = array($name[1] => $errors);
 			$this->ajax_render('', $vars);
 		} else {
-			$_SESSION['form_data']   = $data;
-			$_SESSION['form_errors'] = $errors;
+			assert_type($_SESSION['form_data'], 'array');
+			assert_type($_SESSION['form_errors'], 'array');
+			$_SESSION['form_data'][$name[0]]   = $data;
+			$_SESSION['form_errors'][$name[1]] = $errors;
 			if($url) {
 				$this->redirect($url);
 			} else {
