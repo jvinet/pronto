@@ -409,8 +409,8 @@ class Page_Base
 	 *                     (exclude the 'p' prefix)
 	 * @param string $element Name of the element to fetch
 	 * @param array $args Array of arguments to be passed to the element method
-	 * @param boolean $merge_vars If true, merge template variables from the
-	 *                            the rendered element into the current page's
+	 * @param boolean $merge_vars If true, merge template variables to/from the
+	 *                            the rendered element from/to the current page's
 	 *                            scope.
 	 * @return string Rendered content from the page element method
 	 */
@@ -420,6 +420,13 @@ class Page_Base
 		if(!is_object($page)) {
 			trigger_error("$pagename is not a valid Page name");
 		}
+
+		// can't merge vars if we're called as a class (eg, Page::render_element())
+		if($this && $merge_vars) {
+			// merge in template variables from the parent controller
+			foreach($this->template->variables as $k=>$v) $page->template->set($k, $v);
+		}
+
 		if(method_exists($page, '__init__')) {
 			call_user_func(array(&$page, '__init__'));
 		}
@@ -428,7 +435,7 @@ class Page_Base
 		// can't merge vars if we're called as a class (eg, Page::render_element())
 		if($this && $merge_vars) {
 			// merge in template variables from the rendered element
-			foreach($page->template->variables as $k=>$v) $this->tset($k, $v);
+			foreach($page->template->variables as $k=>$v) $this->template->set($k, $v);
 		}
 
 		return $content;
