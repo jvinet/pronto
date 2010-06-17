@@ -136,7 +136,8 @@ class tpHtml extends Plugin
 	{
 		// try to figure out what sort of path/URL we were passed
 		if(strpos($path, '://') === false && substr($path, 0, 1) != '/') {
-			$path = $this->url('/img/'.$path.'.ico', true);
+			$path = $this->url('/img/'.$path, true);
+			if(!preg_match('/\.[A-z0-9]{2,4}$/', $path)) $path .= '.ico';
 		}
 		return '<link rel="shortcut icon" href="'.$path.'" type="image/x-icon" />'."\n";
 	}
