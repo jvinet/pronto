@@ -300,6 +300,11 @@ function pronto_error($errno, $message, $file, $line, $context=null, $backtrace=
 		$email = defined('TECH_EMAIL') ? TECH_EMAIL : ADMIN_EMAIL;
 		@mail($email, SITE_NAME.": Error", $content);
 
+		// Log the error
+		if(function_exists('l')) {
+			l('app', 'error', 'FATAL ERROR: '.$content);
+		}
+
 		if(is_object($web)) {
 			// call Web's error handler, which usually renders an error page to
 			// the end user.
