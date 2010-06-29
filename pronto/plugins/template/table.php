@@ -116,6 +116,7 @@ class tpTable extends Plugin
 	 *       - date_format    :: if field is a date, specify the format string to be passed to date()
 	 *       - display_map    :: if the values of a column map directly to certain display values, assign the map array to 'display_map'
 	 *       - display_func   :: a function to run on the entire row, handy for output that isn't necessarily bound to a specific column from the result set
+	 *       - value_func
 	 *       - expr           :: if column key is not a real db column, specify real one here
 	 *   - data array
 	 */
@@ -413,6 +414,9 @@ class tpTable extends Plugin
 							$f = create_function('$g,$d', $f);
 						}
 						$data = $f($cb_vars, $row);
+					} else if(isset($column['value_func'])) {
+						$f = $column['value_func'];
+						$data = $f($cb_vars, $data);
 					} else if(isset($column['format'])) {
 						$data = sprintf($column['format'], $data);
 					} else if(isset($column['date_format'])) {
