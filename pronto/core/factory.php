@@ -69,8 +69,9 @@ class Factory
 	 */
 	function &page($name)
 	{
-		$o =& Registry::get("pronto:page:$name");
-		// JRV
+		// don't re-use the same object -- they may store state that shouldn't
+		// be shared
+		//$o =& Registry::get("pronto:page:$name");
 		//if($o) return $o;
 
 		$filespec = array(DIR_FS_APP.DS.'pages'.DS.'*.php');

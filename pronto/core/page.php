@@ -405,8 +405,7 @@ class Page_Base
 	 * This method can be called through the Page class directly.
 	 * Example: Page::render_element('MyPage', 'MyElement');
 	 *
-	 * @param string $pagename Name of the page class to use
-	 *                     (exclude the 'p' prefix)
+	 * @param string $pagename Name of the page class to use (exclude the 'p' prefix)
 	 * @param string $element Name of the element to fetch
 	 * @param array $args Array of arguments to be passed to the element method
 	 * @param boolean $merge_vars If true, merge template variables to/from the

@@ -211,6 +211,17 @@ class RecordSelector
 	}
 
 	/**
+	 * For each record in the set, run a callback function.
+	 * PHP 5.3.x or higher required.
+	 */
+	function each($fn)
+	{
+		while($row = $this->load_one()) {
+			$fn($row);
+		}
+	}
+
+	/**
 	 * Delete one or more records.
 	 */
 	function delete()
