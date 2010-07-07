@@ -114,9 +114,9 @@ class tpTable extends Plugin
 	 *       - attribs        :: attributes array, passed to the form-field generator function
 	 *       - format         :: a sprintf string to pass the data through before displaying it
 	 *       - date_format    :: if field is a date, specify the format string to be passed to date()
-	 *       - display_map    :: if the values of a column map directly to certain display values, assign the map array to 'display_map'
-	 *       - display_func   :: a function to run on the entire row, handy for output that isn't necessarily bound to a specific column from the result set
+	 *       - row_func       :: a function to run on the entire row, handy for output that isn't necessarily bound to a specific column from the result set
 	 *       - value_func
+	 *       - value_map      :: if the values of a column map directly to certain display values, assign the map array to 'value_map'
 	 *       - expr           :: if column key is not a real db column, specify real one here
 	 *   - data array
 	 */
@@ -402,11 +402,18 @@ class tpTable extends Plugin
 					/*
 					 * Mangle row data if necessary
 					 */
-					if(isset($column['display_map'][$data])) {
-						$data = $column['display_map'][$data];
-					} else if(isset($column['cb_fn']) || isset($column['display_func'])) {
-						// 'cb_fn' is the old one, left for compatibility
-						$f = isset($column['display_func']) ? $column['display_func'] : $column['cb_fn'];
+					if(isset($column['value_map'][$data]) || isset($column['display_map'][$data])) {
+						// 'display_map' is deprecated
+						// 'value_map' is preferred
+						$data = isset($column['value_map'][$data]) ? $column['value_map'][$data] : $column['display_map'][$data];
+					} else if(isset($column['cb_fn']) || isset($column['display_func']) || isset($column['row_func'])) {
+						// 'cb_fn' and 'display_func' are deprecated
+						// 'row_func' is preferred
+						switch(true) {
+							case isset($column['row_func']):     $f = $column['row_func']; break;
+							case isset($column['display_func']): $f = $column['display_func']; break;
+							default:                             $f = $column['cb_fn']; break;
+						}
 						if(!function_exists($f)) {
 							// it's not a function, so create one
 							// $g is an array of all global callback vars as defined in cb_vars
