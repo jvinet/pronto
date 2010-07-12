@@ -56,7 +56,8 @@ class tpHtml extends Plugin
 		if($path == '') $path = $key;
 		// try to figure out what sort of path/URL we were passed
 		if(strpos($path, '://') === false && substr($path, 0, 1) != '/') {
-			$path = $this->url('/js/'.$path.'.js', true);
+			if(substr($path, -3) != '.js') $path .= '.js';
+			$path = $this->url('/js/'.$path, true);
 		}
 		$this->web->queue_js_load($key, $path);
 	}
@@ -80,7 +81,8 @@ class tpHtml extends Plugin
 				// XXX: deprecated
 				$path = $this->url('/css.php?c='.$path, true);
 			} else {
-				$path = $this->url("/css/$path.css", true);
+				if(substr($path, -4) != '.css') $path .= '.css';
+				$path = $this->url("/css/$path", true);
 			}
 		}
 		$this->web->queue_css_load($key, $path);
@@ -103,7 +105,8 @@ class tpHtml extends Plugin
 				// XXX: deprecated
 				$path = $this->url('/css.php?c='.$path, true);
 			} else {
-				$path = $this->url("/css/$path.css", true);
+				if(substr($path, -4) != '.css') $path .= '.css';
+				$path = $this->url("/css/$path", true);
 			}
 		}
 		return '<link rel="stylesheet" type="text/css" href="'.$path.'" />'."\n";
@@ -120,7 +123,8 @@ class tpHtml extends Plugin
 	{
 		// try to figure out what sort of path/URL we were passed
 		if(strpos($path, '://') === false && substr($path, 0, 1) != '/') {
-			$path = $this->url('/js/'.$path.'.js', true);
+			if(substr($path, -3) != '.js') $path .= '.js';
+			$path = $this->url('/js/'.$path, true);
 		}
 		return '<script type="text/javascript" src="'.$path.'"></script>'."\n";
 	}
@@ -138,8 +142,10 @@ class tpHtml extends Plugin
 		if(strpos($path, '://') === false && substr($path, 0, 1) != '/') {
 			$type = '';
 			$path = $this->url('/img/'.$path, true);
+			// if no extension was supplied, it's probably the default .ico type
 			if(!preg_match('/\.[A-z0-9]{2,4}$/', $path)) {
-				$type = 'image/x-icon ';
+				$path .= '.ico';
+				$type  = 'image/x-icon ';
 			}
 		}
 		return '<link rel="shortcut icon" href="'.$path.'" '.$type.'/>'."\n";
