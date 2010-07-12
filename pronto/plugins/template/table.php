@@ -102,6 +102,7 @@ class tpTable extends Plugin
 	 *                      eg, 'totals' => array('amount' => array('format'=>'%.2f'))
 	 *   - cb_vars array :: array of variables that get passed to callback functions (used for special display logic)
 	 *   - rowclassfn    :: function to call with row data - use this to pass back an additional tr class
+	 *   - tr_attribs    :: attributes array (or callback function) used for the table row
 	 *   - columns array
 	 *     - key = index into data array
 	 *     - val = array
@@ -111,7 +112,8 @@ class tpTable extends Plugin
 	 *       - flength        :: length of filter field (for text fields only)
 	 *       - options        :: options array for type==select
 	 *       - options_nokeys :: same as above, but use values in <option> fields instead of keys
-	 *       - attribs        :: attributes array, passed to the form-field generator function
+	 *       - filter_attribs :: attributes array (or callback function) passed to the form-field generator function for the filter field
+	 *       - td_attribs     :: attributes array (or callback function) used for the table cell (variable substitution allowed)
 	 *       - format         :: a sprintf string to pass the data through before displaying it
 	 *       - date_format    :: if field is a date, specify the format string to be passed to date()
 	 *       - row_func       :: a function to run on the entire row, handy for output that isn't necessarily bound to a specific column from the result set
@@ -291,7 +293,12 @@ class tpTable extends Plugin
 					$opts = array(''=>'');
 					if(is_array($column['options'])) foreach($column['options'] as $k=>$v) $opts[$k] = $v;
 					if(is_array($column['options_nokeys'])) foreach($column['options_nokeys'] as $v) $opts[$v] = $v;
-					$attribs = isset($column['attribs']) ? $column['attribs'] : array();
+					switch(true) {
+						case isset($column['filter_attribs']): $attribs = $column['filter_attribs']; break;
+						// backwards compatibility (deprecated)
+						case isset($column['attribs']):        $attribs = $column['attribs']; break;
+						default:                               $attribs = array();
+					}
 					switch($column['type']) {
 						case 'select': $elem = $this->depends->form->select($expr, $_GET[$expr], $opts, '', false, $attribs); break;
 						case 'date':   $elem = $this->depends->form->date($expr, $_GET[$expr], '%Y-%m-%d', $attribs); break;
@@ -338,6 +345,7 @@ class tpTable extends Plugin
 		}
 
 		foreach($params['data'] as $row) {
+			// <tr>
 			$tr_dom_id = 'tr'.$this->guid++;
 			$out .= '<tr id="'.$tr_dom_id.'"';
 			$class = array('grid-row');
@@ -346,7 +354,11 @@ class tpTable extends Plugin
 				$class[] = $params['rowclassfn']($row);
 			}
 			$out .= ' class="'.implode(' ',$class).'"';
-			//$out .= ' onMouseOver="$(this).addClass(\'highlight\')" onMouseOut="$(this).removeClass(\'highlight\')" onClick="$(\'#'.$guid.' tr\').removeClass(\'selected\');$(this).addClass(\'selected\');';
+			$attr = is_array($params['tr_attribs']) ? $params['tr_attribs'] : array();
+			if(!empty($params['tr_attribs']) && !is_array($params['tr_attribs'])) {
+				$attr = $params['tr_attribs']();
+			}
+			foreach($attr as $k=>$v) $out .= " $k=\"$v\"";
 			if($params['rowclick']) {
 				$subs = array();
 				preg_match_all('|<([A-z0-9\._-]+)>|U', $params['rowclick'], $subs);
@@ -364,11 +376,18 @@ class tpTable extends Plugin
 			$js .= "$('#{$guid} tr').mouseout(function(){ $(this).removeClass('highlight'); });";
 			$this->depends->html->js_run("tpTable:$guid:highlight", $js);
 
+			// <td>
 			foreach($params['columns'] as $name=>$column) {
 				$out .= '<td';
 				if(isset($column['align'])) {
 					$out .= ' align="'.$column['align'].'"';
 				}
+				$attr = is_array($column['td_attribs']) ? $column['td_attribs'] : array();
+				if(!empty($column['td_attribs']) && !is_array($column['td_attribs'])) {
+					$attr = $column['td_attribs']();
+				}
+				foreach($attr as $k=>$v) $out .= $this->_do_subs(" $k=\"$v\"", $row, $data_id);
+
 				if(preg_match('|^_OPTIONS_|', $name)) {
 					$out .= ' class="options">';
 					foreach($column as $opt) {
@@ -376,14 +395,7 @@ class tpTable extends Plugin
 							$out .= $opt($cb_vars, $row);
 						} else {
 							// perform substitutions in URL
-							$lnk = str_replace('_ID_', $this->_getrowdata($row, $data_id), $opt).' ';
-
-							$subs = array();
-							preg_match_all('|<([A-z0-9\._-]+)>|U', $lnk, $subs);
-							if(is_array($subs[1])) foreach($subs[1] as $s) {
-								$lnk = str_replace("<$s>", $this->_getrowdata($row, $s), $lnk);
-							}
-							$out .= $lnk;
+							$out .= $this->_do_subs($opt, $row, $data_id);
 						}
 					}
 				} else if(preg_match('|^_MULTI_|', $name)) {
@@ -548,6 +560,21 @@ class tpTable extends Plugin
 
 		$out .= "</table>\n";
 		return $out;
+	}
+
+	// perform key/val substitutions from the data into a target string
+	function _do_subs($str, $row, $data_id)
+	{
+		// old/deprecated
+		$str = str_replace('_ID_', $this->_getrowdata($row, $data_id), $str).' ';
+
+		// new
+		$subs = array();
+		preg_match_all('|<([A-z0-9\._-]+)>|U', $str, $subs);
+		if(is_array($subs[1])) foreach($subs[1] as $s) {
+			$str = str_replace("<$s>", $this->_getrowdata($row, $s), $str);
+		}
+		return $str;
 	}
 
 	function _getrowdata($row, $idx)
