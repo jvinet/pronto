@@ -305,10 +305,13 @@ function pronto_error($errno, $message, $file, $line, $context=null, $backtrace=
 			l('app', 'error', 'FATAL ERROR: '.$content);
 		}
 
+		$web =& Registry::get('pronto:web');
 		if(is_object($web)) {
 			// call Web's error handler, which usually renders an error page to
 			// the end user.
 			$web->internalerror();
+		} else if(function_exists('internalerror')) {
+			internalerror();
 		}
 	}
 	die;

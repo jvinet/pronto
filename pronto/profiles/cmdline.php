@@ -26,6 +26,14 @@ require_once(DIR_FS_PRONTO.DS.'core'.DS.'i18n.php');
 require_once(DIR_FS_PRONTO.DS.'core'.DS.'cache.php');
 require_once(DIR_FS_PRONTO.DS.'core'.DS.'util.php');
 
+// Error handler for Debug and Production mode, defined in core/util.php.
+// To override it, define your own pronto_error() function in
+// app/profiles/web.php or somewhere else that is included before this file.
+set_error_handler('pronto_error');
+if(phpversion() >= 5) {
+	set_exception_handler('pronto_exception');
+}
+
 // URL route config
 require_once(DIR_FS_APP.DS.'config'.DS.'urls.php');
 Registry::set('pronto:urls', $URLS);
