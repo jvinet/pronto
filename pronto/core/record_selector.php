@@ -222,6 +222,17 @@ class RecordSelector
 	}
 
 	/**
+	 * Invalidate cache entries for all matching records.
+	 */
+	function invalidate()
+	{
+		if($this->model->enable_cache && $this->model->cache) {
+			$ids = $this->_get_ids();
+			foreach($ids as $id) $this->model->invalidate($id);
+		}
+	}
+
+	/**
 	 * Delete one or more records.
 	 */
 	function delete()
@@ -251,11 +262,7 @@ class RecordSelector
 		} else {
 			$q = $this->model->db->query("UPDATE {$this->model->table} SET \"$key\"='%s'".$this->_build_clause(), array($val));
 		}
-		// invalidate cache entries
-		if($this->model->enable_cache && $this->model->cache) {
-			$ids = $this->_get_ids();
-			foreach($ids as $id) $this->model->invalidate($id);
-		}
+		$this->invalidate();
 		return $this->model->db->execute($q);
 	}
 
