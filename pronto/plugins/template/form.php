@@ -530,18 +530,18 @@ EOT;
 			'force_br_newlines'       => false,
 			'force_p_newlines'        => false,	
 
-			'content_css' => url('/css.php?c=htmlarea')
+			'content_css' => url('/css/htmlarea.css')
 		);
 
 		// if no $mceinit specified, fall back to a default one set by htmlarea_preload()
 		if($mceinit === '' && isset($this->_mce_init)) $mceinit = $this->_mce_init;
 
 		// if $mceinit['content_css'] is an array of files, then convert the
-		// local ones to go through css.php
+		// local ones to use the URL base.
 		if(is_array($mceinit) && is_array($mceinit['content_css'])) {
 			$css_arr = array();
 			foreach($mceinit['content_css'] as $c) {
-				$css_arr[] = (!preg_match('|^http[s]?://|', $c) && !preg_match('|^/|', $c)) ? url("/css.php?c=$c") : $c;
+				$css_arr[] = (!preg_match('|^http[s]?://|', $c) && !preg_match('|^/|', $c)) ? url("/css/$c.css") : $c;
 			}
 			$mceinit['content_css'] = implode(',', $css_arr);
 		}
