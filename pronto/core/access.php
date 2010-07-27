@@ -56,12 +56,22 @@ class Access
 		if($clear_sess) $_SESSION['_ACCESS']['id'] = $this->access_id;
 	}
 
+	/**
+	 * Set one access key.
+	 * If in 'roles' mode, this will be the name of a role.
+	 * If in 'discrete' mode, this will be the name of an access key.
+	 */
 	function set_key($key)
 	{
 		if(empty($key) || !isset($GLOBALS['ACCESS_KEYS'][$key])) return;
 		if(ACCESS_MODEL === "roles") {
 			foreach($GLOBALS['ACCESS_KEYS'][$key] as $k) {
-				$this->access_keys[] = $k;
+				if(substr($k, 0, 1) == '@') {
+					// This key references another role - pull in all keys from that role
+					$this->set_key(substr($k, 1));
+				} else {
+					$this->access_keys[] = $k;
+				}
 			}
 		} else if(ACCESS_MODEL === "discrete") {
 			$this->access_keys[] = $key;
@@ -70,6 +80,11 @@ class Access
 		$_SESSION['_ACCESS']['keys'] = $this->access_keys;
 	}
 
+	/**
+	 * Set one or more access keys.
+	 * If in 'roles' mode, this will be the name of one or more roles.
+	 * If in 'discrete' mode, this will be the name of one or more keys.
+	 */
 	function set_keys($keys)
 	{
 		if(!is_array($keys)) $keys = explode(',', $keys);

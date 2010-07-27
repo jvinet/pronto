@@ -25,9 +25,17 @@ define('ACCESS_MODEL', 'roles');
  * "Administrator" group includes access keys for both USER and ADMIN-level
  * functions.
  *
- * NOTE: It is possible to assign a user to more than role if your
+ * TIP: It is possible to assign a user to more than role if your
  * application requires this.  Simply use a "multiselect" widget instead of
  * a regular select, so the interface allows multiple selections.
+ *
+ * TIP: One role can inherit access keys from another role.  Just name the
+ *      access key the same name as another role and prefix it with an '@'.
+ *      Example:
+ *        $ACCESS_KEYS = array(
+ *          'Free'    => array('USER'),
+ *          'Premium' => array('@Free', 'FEATURE_1', 'FEATURE_2')
+ *        );
  */
 $ACCESS_KEYS = array(
 	'User'          => array('USER'),
