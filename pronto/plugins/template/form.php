@@ -193,7 +193,7 @@ class tpForm extends Plugin
 	{
 		list($name,$value) = $this->_escape($name,$value);
 		$id   = $this->dom_id($name);
-		$out  = '<input type="submit" name="'.$name.'" value="'.$value.'" class="submit" align="absmiddle"';
+		$out  = '<input type="submit" name="'.$name.'" value="'.$value.'" align="absmiddle"';
 		$out .= $this->depends->html->_attribs(array_merge(array('id'=>$id), $attribs));
 		$out .= ' />';
 		return $out;
