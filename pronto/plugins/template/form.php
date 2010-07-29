@@ -996,7 +996,7 @@ EOT;
 				if(empty($elem['prompt'])) $elem['prompt'] = '&nbsp;';
 				$subvars['label'] = '<label for="'.$name.'">'.$elem['prompt'].'</label>';
 				$subvars['element'] = $this->_show_element($name, $elem, $attribs);
-				if(isset($elem['error'])) {
+				if(!empty($elem['error'])) {
 					$subvars['error'] = '<br /><p class="error">'.$elem['error'].'</p>';
 				}
 
@@ -1350,7 +1350,9 @@ EOT;
 			return $err;
 		}
 		if(isset($this->errors[$name])) {
-			$err = '<br /><p class="error">'.$this->errors[$name].'</p>';
+			if(!empty($this->errors[$name])) {
+				$err = '<br /><p class="error">'.$this->errors[$name].'</p>';
+			}
 			$attribs['class'] .= (empty($attribs['class']) ? 'error' : ' error');
 		}
 		return $err;
