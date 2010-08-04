@@ -839,7 +839,9 @@ EOT;
 	 *       - value  :: value of element
 	 *       - error  :: error message associated with element
 	 *       - help   :: context-specific help message
-	 *       - extra  :: extra content (HTML) to be added beside the element
+	 *       - extra  :: extra content (HTML) to be added after the element
+	 *       - after  :: content (HTML) to be added after the element
+	 *       - before :: content (HTML) to be added before the element
 	 *       - type-specific parameters (size, maxlength, rows, cols, etc)
 	 *       - attribs array :: additional html attributes
 	 */
@@ -1184,6 +1186,9 @@ EOT;
 	function _show_element($name, $elem, $attribs)
 	{
 		$out = '';
+		if($elem['before']) {
+			$out .= " {$elem['before']}";
+		}
 		switch($elem['type']) {
 		/* SPECIAL/CUSTOM FORM ELEMENTS
 			Separator: No output, just a blank line for some vertical spacing.
@@ -1301,6 +1306,9 @@ EOT;
 		}
 		if($elem['extra']) {
 			$out .= " {$elem['extra']}";
+		}
+		if($elem['after']) {
+			$out .= " {$elem['after']}";
 		}
 		return $out;
 	}

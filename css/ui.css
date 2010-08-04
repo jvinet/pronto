@@ -152,6 +152,7 @@ div.success {
 }
 div.success ul, div.error ul {
 	margin: 0 0 0 10px;
+	padding: 0 0 0 10px;
 	list-style-type: disc;
 	font-size: 8pt;
 }
