@@ -320,6 +320,7 @@ class RecordSelector
 		if(func_num_args() < 2) return false;
 		$args = func_get_args();
 		$rows = call_user_func_array(array($this,'get'), $args);
+		if($rows === false) return array();
 		if(!isset($rows[0])) $rows = array($rows);
 
 		$ret = array();
