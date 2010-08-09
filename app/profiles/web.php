@@ -15,4 +15,8 @@ require_once(dirname(__FILE__).'/../config/access.php');
 // By default, use the regular Pronto web profile...
 require(DIR_FS_PRONTO.DS.'profiles'.DS.'web.php');
 
+// Dispatch the request
+$urls = Registry::get('pronto:urls');
+$web->run($urls);
+
 ?>

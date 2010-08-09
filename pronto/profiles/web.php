@@ -206,10 +206,12 @@ if(DEBUG === true) {
 	}
 }
 
-/************************************************************************
- * FINALLY, DISPATCH THE REQUEST
- ************************************************************************/
-$urls = Registry::get('pronto:urls');
-$web->run($urls);
+/**
+ * To actually dispatch the request, make sure the following
+ * two lines are in your app's web profile (app/profiles/web.php)
+ */
+
+//$urls = Registry::get('pronto:urls');
+//$web->run($urls);
 
 ?>
