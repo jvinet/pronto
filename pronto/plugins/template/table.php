@@ -97,7 +97,7 @@ class tpTable extends Plugin
 	 *   - curpage       :: the current page number
 	 *   - rowclick      :: action URL to go to if a table row is clicked
 	 *   - perpage_opts  :: array of rows-per-page options for pagination control
-	 *   - options array :: override default table behavior ('noheaders','nosorting','nofilters','nofilterbutton''nototals','nopagination')
+	 *   - options array :: override default table behavior ('noheaders','nosorting','nofilters','nofilterbutton''nototals','nopagination','forcepagination')
 	 *   - totals array  :: array of data row indices that we should tally/display
 	 *                      eg, 'totals' => array('amount' => array('format'=>'%.2f'))
 	 *   - cb_vars array :: array of variables that get passed to callback functions (used for special display logic)
@@ -509,7 +509,7 @@ class tpTable extends Plugin
 			$numpages = (int)($params['rows'] / $params['perpage']);
 			if($params['rows'] % $params['perpage']) $numpages++;
 		}
-		if(!$this->_opt_isset($options, 'nopagination') && $numpages > 1) {
+		if(!$this->_opt_isset($options, 'nopagination') && ($numpages > 1 || $this->_opt_isset($options, 'forcepagination'))) {
 			$cp = $params['curpage'];
 			$pp = $params['perpage'];
 			$out .= "<tr class=\"pagination\">\n";
