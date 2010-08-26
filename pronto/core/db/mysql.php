@@ -13,11 +13,26 @@ class DB_MySQL extends DB_Base
 	function DB_MySQL($conn, $persistent) {
 		$this->safesql = new SafeSQL_MySQL;
 		$this->type = 'mysql';
+		$this->params = $conn;
+		$this->params['persistent'] = $persistent;
+
+		// Connections are now lazy -- a DB connection is not made until
+		// we actually have to perform a query.
 		
-		if($persistent) {
-			$this->conn = mysql_pconnect($conn['host'], $conn['user'], $conn['pass']);
+		return true;
+	}
+
+	function _catch($msg="") {
+		if(!$this->error = mysql_error()) return true;
+		$this->error($msg."<br>{$this->query}\n {$this->error}");
+	}
+
+	function connect() {
+		$p = $this->params;
+		if($p['persistent']) {
+			$this->conn = mysql_pconnect($p['host'], $p['user'], $p['pass']);
 		} else {
-			$this->conn = mysql_connect($conn['host'], $conn['user'], $conn['pass']);
+			$this->conn = mysql_connect($p['host'], $p['user'], $p['pass']);
 		}
 
 		if(!$this->conn) {
@@ -31,13 +46,8 @@ class DB_MySQL extends DB_Base
 			$this->run_query("SET SESSION sql_mode='ANSI'");
 		}
 
-		$this->select($conn['name']);
+		$this->select($p['name']);
 		return true;
-	}
-
-	function _catch($msg="") {
-		if(!$this->error = mysql_error()) return true;
-		$this->error($msg."<br>{$this->query}\n {$this->error}");
 	}
 
 	function select($db) {
@@ -49,6 +59,9 @@ class DB_MySQL extends DB_Base
 	}
 
 	function run_query($sql) {
+		if(!$this->conn) {
+			$this->connect();
+		}
 		return mysql_query($sql, $this->conn);
 	}
 

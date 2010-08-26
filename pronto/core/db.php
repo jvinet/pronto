@@ -11,13 +11,14 @@ require_once(DIR_FS_PRONTO.DS.'extlib'.DS.'safesql.php');
 
 class DB_Base
 {
-	var $conn;
+	var $params;      // connection parameters
+	var $conn = null; // connection
 	var $query;
 	var $result;
 	var $error;
 	var $insert_id;
-	var $echo = false;
-	var $profile = false;
+	var $echo = false;            // echo all queries to the browser (for debugging)
+	var $profile = false;         // profile query performance
 	var $profile_data = array();
 
 	/**
