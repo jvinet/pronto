@@ -18,8 +18,6 @@ class DB_MySQL extends DB_Base
 
 		// Connections are now lazy -- a DB connection is not made until
 		// we actually have to perform a query.
-		
-		return true;
 	}
 
 	function _catch($msg="") {

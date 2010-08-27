@@ -15,15 +15,11 @@ class DB_SQLite3 extends DB_Base
 	function DB_SQLite3($conn, $persistent) {
 		$this->safesql = new SafeSQL_ANSI;
 		$this->type = 'sqlite3';
+		$this->params = $conn;
+		$this->params['persistent'] = $persistent;
 		
-		$this->conn = new SQLite3($conn['file']);
-
-		if(!$this->conn) {
-			$this->_catch("Unable to connect to the database!");
-			return false;
-		}
-
-		return true;
+		// Connections are now lazy -- a DB connection is not made until
+		// we actually have to perform a query.
 	}
 
 	function _catch($msg="") {
@@ -31,11 +27,25 @@ class DB_SQLite3 extends DB_Base
 		$this->error($msg."<br>{$this->query}\n {$this->error}");
 	}
 
+	function connect()
+	{
+		$this->conn = new SQLite3($this->params['file']);
+
+		if(!$this->conn) {
+			$this->_catch("Unable to connect to the database!");
+			return false;
+		}
+		return true;
+	}
+
 	function get_table_defn($table) {
 		return false;
 	}
 
 	function run_query($sql) {
+		if(!$this->conn) {
+			$this->connect();
+		}
 		return $this->conn->query($sql);
 	}
 

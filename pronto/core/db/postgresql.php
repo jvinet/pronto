@@ -15,14 +15,28 @@ class DB_PostgreSQL extends DB_Base
 	function DB_PostgreSQL($conn, $persistent) {
 		$this->safesql = new SafeSQL_ANSI;
 		$this->type = 'postgresql';
-		
-		$connstr = "dbname={$conn['name']}";
-		if($conn['user']) $connstr .= " user={$conn['user']}";
-		if($conn['pass']) $connstr .= " password={$conn['pass']}";
-		if($conn['host']) $connstr .= " host={$conn['host']}";
-		if($conn['port']) $connstr .= " port={$conn['port']}";
+		$this->params = $conn;
+		$this->params['persistent'] = $persistent;
 
-		if($persistent) {
+		// Connections are now lazy -- a DB connection is not made until
+		// we actually have to perform a query.
+	}
+
+	function _catch($msg="") {
+		if(!$this->error = pg_last_error()) return true;
+		$this->error($msg."<br>{$this->query} \n {$this->error}");
+	}
+
+	function connect() {
+		$p = $this->params;
+
+		$connstr = "dbname={$p['name']}";
+		if($p['user']) $connstr .= " user={$p['user']}";
+		if($p['pass']) $connstr .= " password={$p['pass']}";
+		if($p['host']) $connstr .= " host={$p['host']}";
+		if($p['port']) $connstr .= " port={$p['port']}";
+
+		if($p['persistent']) {
 			$this->conn = pg_pconnect($connstr);
 		} else {
 			$this->conn = pg_connect($connstr);
@@ -34,11 +48,6 @@ class DB_PostgreSQL extends DB_Base
 		};
 
 		return true;
-	}
-
-	function _catch($msg="") {
-		if(!$this->error = pg_last_error()) return true;
-		$this->error($msg."<br>{$this->query} \n {$this->error}");
 	}
 
 	function get_table_defn($table) {
@@ -55,6 +64,9 @@ class DB_PostgreSQL extends DB_Base
 	}
 
 	function run_query($sql) {
+		if(!$this->conn) {
+			$this->connect();
+		}
 		return pg_query($this->conn, $sql);
 	}
 

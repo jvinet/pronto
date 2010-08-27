@@ -13,19 +13,27 @@ class DB_MSSQL extends DB_Base
 	function DB_MSSQL($conn, $persistent) {
 		$this->safesql = new SafeSQL_ANSI;
 		$this->type = 'mssql';
+		$this->params = $conn;
+		$this->params['persistent'] = $persistent;
 
-		$this->conn = mssql_connect($conn['host'], $conn['user'], $conn['pass']);
-		if(!$this->conn) {
-			$this->_catch("Unable to connect to the database!");
-			return false;
-		}
-		$this->select($conn['name']);
-		return true;
+		// Connections are now lazy -- a DB connection is not made until
+		// we actually have to perform a query.
 	}
 
 	function _catch($msg="") {
 		if(!$this->error = mssql_get_last_message()) return true;
 		$this->error($msg."<br>{$this->query} \n {$this->error}");
+	}
+
+	function connect()
+	{
+		$this->conn = mssql_connect($this->params['host'], $this->params['user'], $this->params['pass']);
+		if(!$this->conn) {
+			$this->_catch("Unable to connect to the database!");
+			return false;
+		}
+		$this->select($this->params['name']);
+		return true;
 	}
 
 	function select($db) {
@@ -37,6 +45,9 @@ class DB_MSSQL extends DB_Base
 	}
 
 	function run_query($sql) {
+		if(!$this->conn) {
+			$this->connect();
+		}
 		return mssql_query($sql, $this->conn);
 	}
 

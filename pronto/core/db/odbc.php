@@ -13,18 +13,26 @@ class DB_ODBC extends DB_Base
 	function DB_ODBC($conn, $persistent) {
 		$this->safesql = new SafeSQL_ANSI;
 		$this->type = 'odbc';
+		$this->params = $conn;
+		$this->params['persistent'] = $persistent;
 
-		$this->conn = odbc_connect("DRIVER=FreeTDS;SERVER=".$conn['host'].";DATABASE=".$conn['name'], $conn['user'], $conn['pass']);
-		if(!$this->conn) {
-			$this->_catch("Unable to connect to the database!");
-			return false;
-	 	}
-		return true;
+		// Connections are now lazy -- a DB connection is not made until
+		// we actually have to perform a query.
 	}
 
 	function _catch($msg="") {
 		if(!$this->error = odbc_errormsg($this->conn)) return true;
 		$this->error($msg."<br>{$this->query} \n {$this->error}");
+	}
+
+	function connect() {
+		$p = $this->params;
+		$this->conn = odbc_connect("DRIVER=FreeTDS;SERVER=".$p['host'].";DATABASE=".$p['name'], $p['user'], $p['pass']);
+		if(!$this->conn) {
+			$this->_catch("Unable to connect to the database!");
+			return false;
+	 	}
+		return true;
 	}
 
 	function select($db) {
@@ -35,6 +43,9 @@ class DB_ODBC extends DB_Base
 	}
 
 	function run_query($sql) {
+		if(!$this->conn) {
+			$this->connect();
+		}
 		return odbc_exec($sql, $this->conn);
 	}
 

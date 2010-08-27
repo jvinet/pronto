@@ -13,24 +13,31 @@ class DB_SQLite extends DB_Base
 	function DB_SQLite($conn, $persistent) {
 		$this->safesql = new SafeSQL_ANSI;
 		$this->type = 'sqlite';
+		$this->params = $conn;
+		$this->params['persistent'] = $persistent;
 		
-		if($persistent) {
-			$this->conn = sqlite_popen($conn['file']);
+		// Connections are now lazy -- a DB connection is not made until
+		// we actually have to perform a query.
+	}
+
+	function _catch($msg="") {
+		if(!$this->error = sqlite_error_string(sqlite_last_error($this->conn))) return true;
+		$this->error($msg."<br>{$this->query}\n {$this->error}");
+	}
+
+	function connect()
+	{
+		if($this->params['persistent']) {
+			$this->conn = sqlite_popen($this->params['file']);
 		} else {
-			$this->conn = sqlite_open($conn['file']);
+			$this->conn = sqlite_open($this->params['file']);
 		}
 
 		if(!$this->conn) {
 			$this->_catch("Unable to connect to the database!");
 			return false;
 		}
-
 		return true;
-	}
-
-	function _catch($msg="") {
-		if(!$this->error = sqlite_error_string(sqlite_last_error($this->conn))) return true;
-		$this->error($msg."<br>{$this->query}\n {$this->error}");
 	}
 
 	function get_table_defn($table) {
@@ -41,6 +48,9 @@ class DB_SQLite extends DB_Base
 	}
 
 	function run_query($sql) {
+		if(!$this->conn) {
+			$this->connect();
+		}
 		return sqlite_query($sql, $this->conn);
 	}
 

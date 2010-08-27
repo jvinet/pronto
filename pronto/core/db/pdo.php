@@ -15,10 +15,29 @@ class DB_PDO extends DB_Base
 	function DB_PDO($conn, $persistent) {
 		$this->safesql = new SafeSQL_ANSI;
 		$this->type = 'pdo';
-		
-		$att = array(PDO::ATTR_PERSISTENT => $persistent);
+		$this->params = $conn;
+		$this->params['persistent'] = $persistent;
+
+		// Connections are now lazy -- a DB connection is not made until
+		// we actually have to perform a query.
+	}
+
+	function _catch($msg="") {
+		if($this->conn) {
+			$this->error = $this->conn->errorInfo();
+			if(!$this->error) return true;
+			$this->error = $this->error[2];
+			$this->error($msg."<br>{$this->query}\n {$this->error}");
+		} else {
+			$this->error($msg);
+		}
+	}
+
+	function connect() {
+		$p = $this->params;
+		$att = array(PDO::ATTR_PERSISTENT => $p['persistent']);
 		try {
-			$this->conn = new PDO($conn['dsn'], $conn['user'], $conn['pass'], $att);
+			$this->conn = new PDO($p['dsn'], $p['user'], $p['pass'], $att);
 		} catch(PDOException $e) {
 			$this->_catch("Unable to connect to database: ".$e->getMessage());
 			return false;
@@ -37,17 +56,6 @@ class DB_PDO extends DB_Base
 		}
 
 		return true;
-	}
-
-	function _catch($msg="") {
-		if($this->conn) {
-			$this->error = $this->conn->errorInfo();
-			if(!$this->error) return true;
-			$this->error = $this->error[2];
-			$this->error($msg."<br>{$this->query}\n {$this->error}");
-		} else {
-			$this->error($msg);
-		}
 	}
 
 	function get_table_defn($table) {
@@ -71,6 +79,9 @@ class DB_PDO extends DB_Base
 	}
 
 	function run_query($sql) {
+		if(!$this->conn) {
+			$this->connect();
+		}
 		return $this->conn->query($sql);
 	}
 
