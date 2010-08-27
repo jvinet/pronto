@@ -63,6 +63,14 @@ class DB_Base
 	}
 
 	/**
+	 * Connect to the Database server.  This method should be overridden by
+	 * driver-specific sub-classes.
+	 */
+	function connect() {
+		return false;
+	}
+
+	/**
 	 * Generate a query string by substituting placeholders (eg, %i) with their
 	 * real values
 	 *
@@ -73,6 +81,7 @@ class DB_Base
 	 */
 	function &query($query_str, $query_arg="", $bypass=false) {
 		if($bypass == true) return($query_str);
+		if(!$this->conn) $this->connect();
 		return $this->safesql->query($query_str, $query_arg);
 	}
 
