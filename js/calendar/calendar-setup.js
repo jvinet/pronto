@@ -66,7 +66,7 @@ Calendar.setup = function (params) {
 	 * PRONTO: Fix the input field width if the trigger is inside a table cell
 	 */
 	var inp = $('#'+params.inputField);
-	var dad = inp.parent()[0].nodeName.toLowerCase();
+	var dad = inp.size() ? inp.parent()[0].nodeName.toLowerCase() : '';
 	if(dad == 'th' || dad == 'td') {
 		inp.css('width', inp.width()+'px');
 		inp.parent().css('width', (inp.width()+20+'px'));

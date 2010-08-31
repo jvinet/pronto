@@ -447,6 +447,15 @@ function assert_type(&$var, $type)
 }
 
 /**
+ * Check empty dates. This works just like the built-in empty() function,
+ * except it also counts "0000-00-00 00:00:00" as an empty date.
+ */
+function empty_date($d)
+{
+	return empty($d) || $d == '0000-00-00 00:00:00' || $d == '0000-00-00';
+}
+
+/**
  * Shortcut function for Web::has_access()
  */
 function a($key)
