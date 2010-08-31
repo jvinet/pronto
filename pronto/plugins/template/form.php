@@ -1041,7 +1041,7 @@ EOT;
 			// build a submit button ourselves.
 			if(isset($params['submit_html'])) {
 				$out .= $params['submit_html'];
-			} else {
+			} else if(!empty($submit)) {
 				$opts = array();
 				if(isset($options['spinner'])) {
 					$opts['onClick'] .= "$(this).prev('img.spinner').css('display','inline');";
