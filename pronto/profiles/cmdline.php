@@ -64,6 +64,7 @@ if(USE_CACHE === true && defined('CACHE_DRIVER')) {
 }
 $cache->gc();
 Registry::set('pronto:cache', $cache);
+unset($cache);
 
 /************************************************************************
  * MODULE INITIALIZATION
@@ -118,6 +119,8 @@ if(defined('DB_NAME')) {
 	// we leave $db set for scripts that expect it
 	unset($key, $dbcfg);
 }
+// TODO: this should be unset, left for back-compat for now...
+//unset($db);
 
 /************************************************************************
  * INTERNATIONALIZATION
@@ -126,6 +129,7 @@ $i18n = new I18N();
 $i18n->autoset_language('en');
 define('LANG', $i18n->get_language());
 Registry::set('pronto:i18n', $i18n);
+unset($i18n);
 
 /************************************************************************
  * PRELOAD PLUGINS
@@ -134,6 +138,7 @@ foreach(explode(' ', PLUGINS) as $p) {
 	if($p) Factory::plugin($p, 'page');
 }
 unset($p);
+// left in the symbol table for the cmdline script
 $plugins =& Registry::get('pronto:plugins');
 
 /************************************************************************
