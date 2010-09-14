@@ -19,9 +19,10 @@ class Cache_MemCache extends Cache
 	 */
 	function Cache_MemCache()
 	{
-		$this->Cache();
 		$this->memcache = new Memcache();
 		$this->active   = false;
+
+		$this->Cache();
 	}
 
 	function set_options($cfg=array())
