@@ -14,6 +14,14 @@ class Cache
 	 */
 	function Cache()
 	{
+		$this->set_options();
+	}
+
+	/**
+	 * Set options for this cache.
+	 */
+	function set_options()
+	{
 	}
 
 	/**

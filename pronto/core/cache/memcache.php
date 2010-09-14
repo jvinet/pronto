@@ -22,12 +22,19 @@ class Cache_MemCache extends Cache
 		$this->Cache();
 		$this->memcache = new Memcache();
 		$this->active   = false;
+	}
 
-		if(defined('CACHE_MEMCACHE_SERVERS')) {
-			foreach(explode(' ', CACHE_MEMCACHE_SERVERS) as $tuple) {
-				list($h,$p) = explode(':', $tuple);
-				$this->add_server($h, $p);
-			}
+	function set_options($cfg=array())
+	{
+		if(empty($cfg['servers']) && defined('CACHE_MEMCACHE_SERVERS')) {
+			$cfg['servers'] = CACHE_MEMCACHE_SERVERS;
+		}
+
+		if(empty($cfg['servers'])) return;
+
+		foreach(explode(' ', $cfg['servers']) as $tuple) {
+			list($h,$p) = explode(':', $tuple);
+			$this->add_server($h, $p);
 		}
 	}
 

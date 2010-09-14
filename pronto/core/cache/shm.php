@@ -33,6 +33,10 @@ class Cache_SHM extends Cache
 		$this->shmid = shm_attach($this->shmkey, $this->memsize, 0600);
 	}
 
+	function set_options($cfg=array())
+	{
+	}
+
 	function set($key, $var, $expire=0)
 	{
 		parent::set($key, $var, $expire);

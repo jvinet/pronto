@@ -21,14 +21,21 @@ class Cache_File extends Cache
 	function Cache_File()
 	{
 		$this->Cache();
+	}
 
-		if(!defined('CACHE_FILES_DIR')) {
-			// Yikes, we need a cache dir.
-			trigger_error("CACHE_FILES_DIR is not defined.  Set it in app/config/cache.php");
-			return;
+	function set_options($cfg=array())
+	{
+		if(!empty($cfg['cache_dir'])) {
+			$this->cache_dir = $cfg['cache_dir'];
+		} else {
+			if(!defined('CACHE_FILES_DIR')) {
+				// Yikes, we need a cache dir.
+				trigger_error("CACHE_FILES_DIR is not defined.  Set it in app/config/cache.php");
+				return;
+			}
+
+			$this->cache_dir = CACHE_FILES_DIR;
 		}
-
-		$this->cache_dir = CACHE_FILES_DIR;
 	}
 
 	function set($key, $var, $expire=0)

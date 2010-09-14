@@ -61,6 +61,29 @@ class Factory
 	}
 
 	/**
+	 * Return a new cache object
+	 *
+	 * @param array $config Connection parameters (host,user,pass,name)
+	 * @return object
+	 */
+	function &cache($type, $opts)
+	{
+		$cn = "Cache_$type";
+		require_once(DIR_FS_PRONTO.DS.'core'.DS.'cache.php');
+		require_once(DIR_FS_PRONTO.DS.'core'.DS.'cache'.DS.$type.'.php');
+
+		if(!class_exists($cn)) {
+			trigger_error("$cn class does not exist.");
+			return null;
+		}
+
+		$obj = new $cn();
+		$obj->set_options($opts);
+
+		return $obj;
+	}
+
+	/**
 	 * Return a new page controller object.
 	 * If an existing controller object already exists, it will be used.
 	 *
