@@ -65,7 +65,7 @@ class Cache_MemCache extends Cache
 		if(!$this->active) return false;
 		parent::delete($key);
 		$key = SITE_NAME."|$key";
-		return $this->memcache->delete($key);
+		return $this->memcache->delete($key, 0);
 	}
 
 	function flush()
