@@ -87,6 +87,7 @@ if(USE_CACHE === true && defined('CACHE_DRIVER')) {
 }
 $cache->gc();
 Registry::set('pronto:cache', $cache);
+Registry::set('pronto:cache:main', $cache);
 
 /************************************************************************
  * MODULE INITIALIZATION

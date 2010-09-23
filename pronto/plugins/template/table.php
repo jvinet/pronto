@@ -109,6 +109,7 @@ class tpTable extends Plugin
 	 *       - label          :: header text label
 	 *       - align          :: td alignment
 	 *       - type           :: filter input type (text/select/date/none)
+	 *       - nosort         :: set true to disable sorting on this column
 	 *       - flength        :: length of filter field (for text fields only)
 	 *       - options        :: options array for type==select
 	 *       - options_nokeys :: same as above, but use values in <option> fields instead of keys
