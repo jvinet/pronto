@@ -61,8 +61,12 @@ class Page_Base
 			unset($_SESSION['form_data'], $_SESSION['form_errors']);
 		}
 
-		// load in plugins
+		// load plugins
 		$this->plugins =& Registry::get('pronto:plugins');
+
+		if(method_exists($this, '__init__')) {
+			$this->__init__();
+		}
 	}
 
 	/**
@@ -426,9 +430,6 @@ class Page_Base
 			foreach($this->template->variables as $k=>$v) $page->template->set($k, $v);
 		}
 
-		if(method_exists($page, '__init__')) {
-			call_user_func(array(&$page, '__init__'));
-		}
 		$content = call_user_func_array(array(&$page, "ELEM_$element"), $args);
 
 		// can't merge vars if we're called as a class (eg, Page::render_element())

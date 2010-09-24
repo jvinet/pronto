@@ -271,10 +271,6 @@ class Web {
 		$this->controller =& $class;
 		$this->ajax = $this->controller->ajax;
 
-		// Run any initialization functions/methods
-		if(function_exists('pronto_init')) {
-			call_user_func('pronto_init');
-		}
 		if(method_exists($class, '__init__')) {
 			call_user_func(array(&$class, '__init__'));
 		}

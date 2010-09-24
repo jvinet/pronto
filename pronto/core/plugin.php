@@ -20,8 +20,12 @@ class Plugin_Base
 	{
 		// $web may actually be null if this is a page plugin loaded from
 		// the commandline execution profile.
-		$this->web     =& Registry::get('pronto:web');
-		$this->depends =  new stdClass;
+		$this->web =& Registry::get('pronto:web');
+		$this->depends = new stdClass;
+
+		if(method_exists($this, '__init__')) {
+			$this->__init__();
+		}
 	}
 
 	/**
