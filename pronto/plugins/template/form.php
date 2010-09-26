@@ -97,12 +97,12 @@ class tpForm extends Plugin
 	 *
 	 * @param string $text The text to display in the popup.
 	 * @param string $icon URL of the icon to use, relative to the /img
-	 *                     directory.  Default is icons/info.gif.
+	 *                     directory.  Default is icons/info.png.
 	 * @return string The resulting HTML.
 	 */
 	function tooltip($text, $icon='')
 	{
-		if(!$icon) $icon = 'icons/info.gif';
+		if(!$icon) $icon = 'icons/info.png';
 		$this->depends->html->js_load('jq_tooltip', 'jq/jquery.tooltip');
 		$this->depends->html->js_run('jq_tooltip', '$(\'img.helpicon\').Tooltip({showURL:false,delay:0});');
 		$this->depends->html->css_load('tooltip');
@@ -834,16 +834,16 @@ EOT;
 	 *     - <column name> :: array(colspan<int>, label_width<int|"auto">, width<int>)
 	 *   - elements array
 	 *     - <name> => array
-	 *       - prompt :: label to display beside form element
-	 *       - type   :: element type (see the _show_element() method for types)
-	 *       - value  :: value of element
-	 *       - error  :: error message associated with element
-	 *       - help   :: context-specific help message
-	 *       - extra  :: extra content (HTML) to be added after the element
-	 *       - after  :: content (HTML) to be added after the element
-	 *       - before :: content (HTML) to be added before the element
+	 *       - prompt     :: label to display beside form element
+	 *       - type       :: element type (see the _show_element() method for types)
+	 *       - value      :: value of element
+	 *       - error      :: error message associated with element
+	 *       - help       :: context-specific help message (popup)
+	 *       - help_image :: icon image to use for help popups
+	 *       - after      :: content (HTML) to be added after the element
+	 *       - before     :: content (HTML) to be added before the element
+	 *       - attribs    :: array of additional html attributes
 	 *       - type-specific parameters (size, maxlength, rows, cols, etc)
-	 *       - attribs array :: additional html attributes
 	 */
 	function build_form($params, $data=array(), $errors=array())
 	{
@@ -988,7 +988,8 @@ EOT;
 
 				// tooltip
 				if(isset($elem['help'])) {
-					$subvars['help'] = $this->tooltip($elem['help']);
+					$img = isset($elem['help_image']) ? $elem['help_image'] : '';
+					$subvars['help'] = $this->tooltip($elem['help'], $img);
 					if($elem_layout == 'toplabel') $subvars['help'] .= ' ';
 				} else if($elem_layout == 'leftlabel') {
 					$subvars['help'] = '&nbsp;';
