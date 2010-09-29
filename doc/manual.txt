@@ -89,8 +89,8 @@ that support the framework.
 - Input Validation
 - Cache Layer
 - Internationalization (I18N)
-- Registry for global object storage
-- Factory for creating new objects
+- Registry (global object storage)
+- Factory (create new objects)
 
 
 [[X3]]
@@ -475,7 +475,7 @@ did not include the variable (eg, `/user/hello/`).
 Validating GET/POST data
 ~~~~~~~~~~~~~~~~~~~~~~~~
 It's very important to validate all data coming in from the web browser,
-both to ensure data integrity and maintain security.
+both to ensure data integrity and to maintain security.
 
 Most validation is delegated to the data models, but there are times when
 it's necessary to validate some data that isn't destined for a data model.
@@ -510,11 +510,9 @@ class pUser extends Page
 	function POST_save()
 	{
 		$errors = array();
-		// We use the shortcut methods here, though we could
-		// alternately call them through $this->validator. Same thing.
-		$this->required($errors, array('name','address'));
-		$this->validate($errors, 'email', VALID_EMAIL, 'Invalid email address');
-		$this->validate($errors, 'age', VALID_NUMBER, 'Please provide a valid integer');
+		$this->validator->required($errors, array('name','address'));
+		$this->validator->validate($errors, 'email', VALID_EMAIL, 'Invalid email address');
+		$this->validator->validate($errors, 'age', VALID_NUMBER, 'Please provide a valid integer');
 	}
 }
 ?>
@@ -615,7 +613,7 @@ in the Template object itself.
 [php]
 source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 $form = $this->import_helper('form');
-?php echo $form->text('name') ?>
+<?php echo $form->text('name') ?>
 source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Templates are usually organized by page controller, since that's who
@@ -895,7 +893,7 @@ class mUser extends RecordModel
 		// get a full record...
 		$data = $this->db->get_item("SELECT * FROM users WHERE id=%i", array($id));
 		// this works too...
-		$data = $this->db->get_item_by_pk('users', 'id', $id);
+		$data = $this->db->get_item_by_pk('users', $id);
 		if($data) {
 			// update it with new data...
 			$data['last_login'] = date('Y-m-d');
@@ -954,7 +952,7 @@ class mUser extends RecordModel
 
 		// now fetch a different database object
 		$db2 =& Registry::get('pronto:db:myotherdb');
-		$data = $db2->get_item_by_pk('users', 'id', $id);
+		$data = $db2->get_item_by_pk('users', $id);
 	}
 }
 ?>
@@ -1090,13 +1088,13 @@ class mUser extends RecordModel
 		// sorted by the date they joined.
 		$s = $this->find("status='active'")->order('created_on')->limit(50);
 		// now use the selector to fetch all records, then delete them
-		$users = $s->load();
+		$users = $s->load_all();
 		$s->delete();
 
 		// now find all inactive users with a certain first name
 		$s = $this->find("status='inactive' AND first_name='%s'", $name);
 		// iterate through each, flagging them as we go
-		while($user = $s->one()) {
+		while($user = $s->load_one()) {
 			// do stuff with $user
 			// ...
 
@@ -1187,7 +1185,7 @@ class mUser extends RecordModel
 	{
 		// we employ lazy deletion...
 
-		// you don't to use a selector here, since this is *the* authoritative
+		// don't use a selector here, since this is *the* authoritative
 		// place where the real deletion happens.
 		$this->db->execute("UPDATE users SET status='deleted' WHERE id=%i", array($id));
 	}
@@ -1309,7 +1307,7 @@ class pPerson extends Page
 
 		// now use the object as any other model
 		$s = $m->find()->order('name');
-		while($user = $s->one()) {
+		while($user = $s->load_one()) {
 			echo "Person: " . $user['name'] . "<br />";
 		}
 
@@ -2587,7 +2585,7 @@ for, in this order:
 [cols="1,1*2"]
 |=========================================================================
 |`$_SESSION['LANGUAGE']`            |The application is responsible for setting this.  It is intended to be used by site visitors who likely have no user/preferences record in the DB.  Perhaps your application has a "Language" select dropdown that the visitor can choose from.
-|`$_SESSION['USER']['language']`    |When a user logs in, typically their record is stored in `$_SESSION[\'USER\']`.  If a `language` field is present, it would be found here.
+|`$_SESSION['USER']['language']`    |When a user logs in, typically their record is stored in `$_SESSION['USER']`.  If a `language` field is present, it would be found here.
 |`$_SERVER['HTTP_ACCEPT_LANGUAGE']` |If the visitor's browser provides an `Accept-Language` HTTP header, Pronto will look through it for languages that your application supports, and choose the first it finds.
 |=========================================================================
 
@@ -2773,13 +2771,16 @@ source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 <?php
 define('USE_CACHE',        true);
 define('CACHE_DRIVER',    'files');
-define('CACHE_FILES_DIR'  DIR_FS_CACHE.DS.'cache');
+define('CACHE_FILES_DIR'  DIR_FS_BASE.DS.'cache');
 ?>
 source~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Make sure you create the `cache` directory in the appropriate location.
 Also make sure that your web server has write permission to this
-directory, or you will see an error.
+directory, or you will see an error. You'll also want to make sure that
+a user cannot access files in your cache directory from their web browser.
+Either put the cache directory outside the web root, or protect it with
+an .htaccess file or similar ACL facility.
 
 [NOTE]
 The `files` cache driver is functional, but there are other
