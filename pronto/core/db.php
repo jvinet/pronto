@@ -472,9 +472,9 @@ class DB_Base
 		$sKeyWhere = join(' AND ', $aKeyWhere);
 
 		if($this->get_item('SELECT * FROM '.$sTable.' WHERE ('.$sKeyWhere.')', $aKeyArgs)) {
-			$this->update_row($sTable, $aRow, $sKeyWhere, $aKeyArgs);
+			return $this->update_row($sTable, $aRow, $sKeyWhere, $aKeyArgs);
 		} else {
-			$this->insert_row($sTable, array_merge($aKey, $aRow));
+			return $this->insert_row($sTable, array_merge($aKey, $aRow));
 		}
 	}
 

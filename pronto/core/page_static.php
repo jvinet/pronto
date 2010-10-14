@@ -24,8 +24,9 @@ class Page_Static extends Page
 		$this->template_dir = $dir;
 	}
 
-	function GET($path='',$s='')
+	function GET()
 	{
+		$path = implode('__', $this->path_args());
 		if(empty($path)) $path = 'index';
 		if(!preg_match('|^[A-z0-9+_-]+$|', $path)) {
 			$this->web->notfound();
