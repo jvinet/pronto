@@ -16,7 +16,6 @@ require_once(dirname(__FILE__).'/../config/access.php');
 require(DIR_FS_PRONTO.DS.'profiles'.DS.'web.php');
 
 // Dispatch the request
-$urls = Registry::get('pronto:urls');
-$web->run($urls);
+$web->run(Registry::get('pronto:urls'));
 
 ?>
