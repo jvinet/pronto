@@ -373,6 +373,13 @@ class Page_CRUD extends Page
 
 			echo json_encode($ret);
 		} else {
+			// Parse out the ORDER BY column name and send it as the
+			// default sort column/direction
+			if(isset($params['order'])) {
+				preg_match("/(?P<table_name>\w*\.)?(?P<column_name>\w*)( (?P<sort_dir>\w*))?/", $params['order'], $m);
+				$this->template->set('sort_col', $m['column_name']);
+				$this->template->set('sort_dir', $m['sort_dir'] ? $m['sort_dir'] : 'ASC');
+			}
 			$this->template->set('data',      $data);
 			$this->template->set('totalrows', $ttlrows);
 			$this->template->set('curpage',   $curpage);

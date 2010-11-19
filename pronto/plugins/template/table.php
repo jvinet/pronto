@@ -121,6 +121,7 @@ class tpTable extends Plugin
 	 *       - value_func
 	 *       - value_map      :: if the values of a column map directly to certain display values, assign the map array to 'value_map'
 	 *       - expr           :: if column key is not a real db column, specify real one here
+	 *       - sort_dir				:: set to (asc/desc) to make this the default sorted column
 	 *   - data array
 	 */
 	function build_grid($params)
@@ -228,12 +229,16 @@ class tpTable extends Plugin
 						$sortdir  = ($GET['s_f'] == $name && $GET['s_d'] == 'asc') ? 'desc' : 'asc';
 						$GET['s_f'] = $name;
 						$GET['s_d'] = $sortdir;
-						foreach($GET as $k=>$v) $qs[] = "$k=$v";
-						$qs = implode('&', $qs);
 						if($_GET['s_f'] == $name) {
 							$arrowimg = $_GET['s_d'] == 'desc' ? 'arrow_black_down.gif' : 'arrow_black_up.gif';
 							$out .= ' '.$this->depends->html->image('icons/'.$arrowimg, array('style'=>'float:right'));
-						}
+						} else if(!isset($_GET['s_f']) && !empty($params['sort_col']) && $params['sort_col'] == $name) {
+							$arrowimg = $params['sort_dir'] == 'asc' ? 'arrow_black_up.gif' : 'arrow_black_down.gif';
+							$out .= ' '.$this->depends->html->image('icons/'.$arrowimg, array('style'=>'float:right'));
+							$GET['s_d'] = $params['sort_dir'] == 'asc' ? 'desc' : 'asc';
+            }
+						foreach($GET as $k=>$v) $qs[] = "$k=$v";
+						$qs = implode('&', $qs);
 						$label = '<a href="'.$grid_url.'?'.$qs.'">'.$label.'</a>';
 					}
 					$out .= $label;
