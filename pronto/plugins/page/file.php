@@ -30,11 +30,24 @@ class ppFile extends Plugin
 	}
 
 	/**
-	 * Move an uploaded file to a new location
+	 * Move an uploaded file to a new location.
+	 *
+	 * @param string $key      The name the file form element
+	 * @param string $destpath The full path (and filename) where the file will be moved
 	 */
 	function move($key, $destpath)
 	{
 		return move_uploaded_file($_FILES[$key]['tmp_name'], $destpath);
+	}
+
+	/**
+	 * Return the file's original name, as uploaded by the user.
+	 *
+	 * @param string $key The name the file form element
+	 */
+	function original_name($key)
+	{
+		return $_FILES[$key]['name'];
 	}
 
 	/**

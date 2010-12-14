@@ -71,7 +71,7 @@ class mUser extends RecordModel
 			$data['openid'] = $_SESSION['openid_identity'];
 		}
 		// encrypt password
-		$data['password'] = sha1($data['password']);
+		$data['password'] = $this->hash_password($data['password']);
 
 		if($this->context != 'ADMIN') {
 			$data['access_keys']   = 'User';
@@ -95,7 +95,7 @@ class mUser extends RecordModel
 		$old = $this->fetch($data['id']);
 		// encrypt password, if exists
 		if(!$old['openid'] && $data['password']) {
-			$data['password'] = sha1($data['password']);
+			$data['password'] = $this->hash_password($data['password']);
 		} else {
 			unset($data['password']);
 		}
@@ -175,9 +175,17 @@ class mUser extends RecordModel
 	function authenticate_password($email, $password)
 	{
 		$user = $this->find("email='%s'", $email)->fetch();
-		if(!$user)                               return __('Invalid email/password');
-		if(empty($password))                     return __('Invalid email/password');
-		if($user['password'] != sha1($password)) return __('Invalid email/password');
+		if(!$user || empty($password)) return __('Invalid email/password');
+
+		// try to auto-detect the hashing algorithm used (for backwards compat)
+		//   - if it starts with a '$', we assume hash_password() made it
+		//   - otherwise, we'll assume plain old SHA1
+		if(substr($user['password'], 0, 1) == '$') {
+			$hash = $this->hash_password($password);
+		} else {
+			$hash = sha1($password);
+		}
+		if($user['password'] != $hash) return __('Invalid email/password');
 
 		return $this->authenticate($user);
 	}
@@ -203,8 +211,19 @@ class mUser extends RecordModel
 	 */
 	function set_password($id, $password)
 	{
-		$this->db->execute("UPDATE {$this->table} SET password=SHA1('%s') WHERE id=%i", array($password,$id));
+		$hash = $this->hash_password($password);
+		$this->db->execute("UPDATE {$this->table} SET password='%s' WHERE id=%i", array($hash, $id));
 		$this->invalidate($id);
+	}
+
+	function hash_password($password)
+	{
+		if(!defined('USER_HASH_SALT')) {
+			// this is pretty urgent - die a fiery death to alert the developer
+			trigger_error("Missing USER_HASH_SALT in user module configuration. This is required for secure password hashes.");
+			return;
+		}
+		return crypt($password, USER_HASH_SALT);
 	}
 
 	/**
@@ -223,7 +242,7 @@ class mUser extends RecordModel
 			$result .= $charset[$i % 2][array_rand($charset[$i % 2])];
 		}
 
-		$dirty_words = array('bix','bob','con','cum','fod','fuc','fud','fuk',
+		$dirty_words = array('bix','bob','con','cum','fag','fod','fuc','fud','fuk',
 			'gal','gat','gay','mal','mam','mar','mec','pat','peg','per','pic',
 			'pil','pit','put','rab','sex','tar','tes','tet','tol','vac','xup');
 		foreach($dirty_words as $dirty_word) {
