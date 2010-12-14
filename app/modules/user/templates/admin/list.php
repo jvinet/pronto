@@ -32,7 +32,7 @@ $(function(){
 
 <?php
 echo $table->build_grid(array(
-	'options'  => array('ajax'=>true),
+	//'options'  => array('ajax'=>true),
 	'columns'  => array(
 		'_OPTIONS_'   => array(
 			'edit'   => $html->link($html->image('icons/edit.gif', array('title'=>__('Edit Item'),'class'=>'ajax_action')), url('User_Admin','edit').'?id=<id>'),
