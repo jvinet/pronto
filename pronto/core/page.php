@@ -14,7 +14,6 @@ class Page_Base
 	var $web;
 	var $db;
 	var $validator;
-	var $sql;
 	var $models;
 	var $plugins;
 	var $ajax;
@@ -32,7 +31,6 @@ class Page_Base
 	{
 		$this->web     =& Registry::get('pronto:web');
 		$this->db      =& Registry::get('pronto:db:main');
-		$this->sql     =  new SQL_Generator($this); 
 		$this->models  =  new stdClass;
 		$this->plugins =  new stdClass;
 

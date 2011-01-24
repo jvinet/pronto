@@ -17,6 +17,7 @@ class Page_CRUD extends Page
 	var $model_name;
 	var $human_name;
 	var $model;
+	var $sql;
 
 	var $create_template;
 	var $edit_template;
@@ -45,6 +46,7 @@ class Page_CRUD extends Page
 	function Page_CRUD()
 	{
 		$this->Page();
+		$this->sql = new SQL_Generator($this); 
 	}
 
 	/**

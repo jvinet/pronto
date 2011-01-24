@@ -21,8 +21,8 @@ class SQL_Generator
 	 */
 	function SQL_Generator(&$page)
 	{
-		$this->db   =& Registry::get('pronto:db:main');
 		$this->page =& $page;
+		$this->db   =  $this->page->db;
 	}
 
 	/**
