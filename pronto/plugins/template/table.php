@@ -206,6 +206,22 @@ class tpTable extends Plugin
 					}
 					if(preg_match('|^_MULTI_|', $name)) $style[] = 'text-align:center';
 				}
+				// if 'attribs' was present, look for class/style declarations and mix them in with ours
+				if(is_array($column['attribs'])) {
+					if($column['attribs']['style']) {
+						foreach(explode(';', $column['attribs']['style']) as $s) $style[] = trim($s);
+					}
+					if($column['attribs']['class']) {
+						foreach(explode(' ', $column['attribs']['class']) as $s) $class[] = trim($s);
+					}
+					unset($column['attribs']['style'], $column['attribs']['class']);
+
+					// output the non style/class attribs normally
+					foreach($column['attribs'] as $k=>$v) {
+						$out .= " $k=\"$v\"";
+					}
+				}
+
 				$out .= ' class="'.implode(' ',$class).'"';
 				$out .= ' style="'.implode(';',$style).'">';
 				if(preg_match('|^_OPTIONS_|', $name)) {
