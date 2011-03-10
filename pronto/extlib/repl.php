@@ -138,7 +138,15 @@ class PHP_Repl
                 ini_set('html_errors', 'Off');
                 ini_set('display_errors', 'On');
 
-                $this->_print($_ = eval($this->cleanup($__code__)));
+								// if the line begins with '@' then don't output the return value
+                $p = true;
+                if(substr($__code__, 0, 1) == '@') {
+                    $p = false;
+                    $__code__ = substr($__code__, 1);
+                }
+                $__code__ = $this->cleanup($__code__);
+                $_ = eval($__code__);
+                if($p) $this->_print($_);
             } catch (Exception $e) {
                 echo ($_ = $e) . "\n";
             }
