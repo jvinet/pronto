@@ -21,7 +21,7 @@ class DB_MySQL extends DB_Base
 	}
 
 	function _catch($msg="") {
-		if(!$this->error = mysql_error()) return true;
+		if(!$this->error = mysql_error($this->conn)) return true;
 		$this->error($msg."<br>{$this->query}\n {$this->error}");
 	}
 
