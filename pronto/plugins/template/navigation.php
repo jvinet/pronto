@@ -62,6 +62,7 @@ class tpNavigation extends Plugin
 				foreach(explode(' ', MODULES) as $modname) {
 					$modpath = DIR_FS_APP.DS.'modules'.DS.$modname.DS.'config'.DS;
 					if(file_exists($modpath.$config_file)) {
+						$NAV_MENU = array();
 						require_once($modpath.$config_file);
 						$config += $NAV_MENU;
 						unset($NAV_MENU);
