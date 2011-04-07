@@ -51,6 +51,8 @@ class DB_PostgreSQL extends DB_Base
 	}
 
 	function ping() {
+		if(!$this->conn) return $this->connect();
+
 		return pg_ping($this->conn);
 	}
 
