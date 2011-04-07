@@ -65,8 +65,19 @@ class DB_Base
 	/**
 	 * Connect to the Database server.  This method should be overridden by
 	 * driver-specific sub-classes.
+	 *
+	 * WARNING: Doesn't work with all DB adapters (MySQL and Postgres only).
 	 */
-	function connect() {
+	function connect()
+	{
+		return false;
+	}
+
+	/**
+	 * Ping the database connection or attempt a reconnection if it is broken.
+	 */
+	function ping()
+	{
 		return false;
 	}
 
@@ -79,7 +90,8 @@ class DB_Base
 	 * @param bool $bypass If set, bypass variable substitution
 	 * @return string The resulting SQL string
 	 */
-	function &query($query_str, $query_arg="", $bypass=false) {
+	function &query($query_str, $query_arg="", $bypass=false)
+	{
 		if($bypass == true) return($query_str);
 		if(!$this->conn) $this->connect();
 		return $this->safesql->query($query_str, $query_arg);
@@ -93,7 +105,8 @@ class DB_Base
 	 * @param bool $bypass If set, bypass variable substitution
 	 * @return mixed The result identifier
 	 */
-	function &execute($query_str, $query_arg="", $bypass=false) {
+	function &execute($query_str, $query_arg="", $bypass=false)
+	{
 		$this->query = $bypass ? $query_str : $this->query($query_str, $query_arg);
 
 		if($this->profile !== false) {
@@ -138,7 +151,8 @@ class DB_Base
 	 * @param array $query_arg Query arguments
 	 * @return mixed
 	 */
-	function &get_item($query_str, $query_arg="") {
+	function &get_item($query_str, $query_arg="")
+	{
 		$q = $this->execute($query_str, $query_arg);
 		if(($item = $this->fetch_array($q, true))) {
 			return $item;
@@ -156,7 +170,8 @@ class DB_Base
 	 * @param string $pk_col Name of PK column in this table
 	 * @return mixed
 	 */
-	function get_item_by_pk($table, $pk, $pk_col='id') {
+	function get_item_by_pk($table, $pk, $pk_col='id')
+	{
 		return $this->get_item("SELECT * FROM $table WHERE \"$pk_col\"=%i LIMIT 1", array($pk));
 	}
 
@@ -168,7 +183,8 @@ class DB_Base
 	 * @param string $key If set, return only this column instead of the entire row
 	 * @return mixed
 	 */
-	function &get_all($query_str, $query_arg="", $key="") {
+	function &get_all($query_str, $query_arg="", $key="")
+	{
 		$result = $this->execute($query_str, $query_arg);
 		$list = array();
 		while($row = @$this->fetch_array($result)) {
@@ -191,7 +207,8 @@ class DB_Base
 	 *                      otherwise use the first one
 	 * @return mixed
 	 */
-	function &get_value($query_str, $query_arg="", $value="") {
+	function &get_value($query_str, $query_arg="", $value="")
+	{
 		if(empty($value)) {
 			if($item = $this->fetch_row($this->execute($query_str, $query_arg), true)) { 
 				return $item[0];
@@ -218,7 +235,8 @@ class DB_Base
 	 *                      otherwise use the first one
 	 * @return array
 	 */
-	function &get_values($query_str, $query_arg="", $value="") {
+	function &get_values($query_str, $query_arg="", $value="")
+	{
 		$result = $this->execute($query_str, $query_arg);
 		$values = array();
 		if(empty($value)) {
@@ -244,7 +262,8 @@ class DB_Base
 	 * @param array $query_arg Query arguments
 	 * @return mixed
 	 */
-	function &get_item_pair($query_str, $query_arg="") {
+	function &get_item_pair($query_str, $query_arg="")
+	{
 		if($item = $this->fetch_array($this->execute($query_str, $query_arg), true)) {
 			if(count($item) > 2) {
 				$key = array_shift($item);
@@ -274,7 +293,8 @@ class DB_Base
 	 * @param array $query_arg Query arguments
 	 * @return mixed
 	 */
-	function &get_all_pair($query_str, $query_arg="") {
+	function &get_all_pair($query_str, $query_arg="")
+	{
 		$result = $this->execute($query_str, $query_arg);
 		$list = array();
 		
@@ -303,7 +323,8 @@ class DB_Base
 	 * @param array $data
 	 * @param mixed $aFields
 	 */
-	function insert_all($table, $data, $aFields="", $mode='insert') {
+	function insert_all($table, $data, $aFields="", $mode='insert')
+	{
 		if(!$data) return;
 		$fields = array();
 		$values = array();
@@ -339,7 +360,8 @@ class DB_Base
 	 * @param array $data
 	 * @param mixed $aFields
 	 */
-	function replace_all($table, $data, $aFields="") {
+	function replace_all($table, $data, $aFields="")
+	{
 		return $this->insert_all($table, $data, $aFields, 'replace');
 	}
 
@@ -352,7 +374,8 @@ class DB_Base
 	 * @param string $where_arg
 	 * @param mixed $aUpdateFields
 	 */
-	function update_all($table, $data, $where="", $where_arg="", $aUpdateFields="") {
+	function update_all($table, $data, $where="", $where_arg="", $aUpdateFields="")
+	{
 		if(!$data) return;
 		if(!$where_arg) $where_arg = array();
 		if($where) $aWhere[] = $where;
@@ -392,7 +415,8 @@ class DB_Base
 	 * @param string $mode Set to "replace" to use REPLACE INTO instead of INSERT INTO
 	 * @return int Insert ID of new row
 	 */
-	function insert_row($sTable, $aRow, $mode='insert') {
+	function insert_row($sTable, $aRow, $mode='insert')
+	{
 		$mode = $mode == 'replace' ? 'REPLACE' : 'INSERT';
 		$fs = $this->get_table_defn($sTable);
 
@@ -421,7 +445,8 @@ class DB_Base
 	 * @param array $aRow
 	 * @return int Insert ID of new row
 	 */
-	function replace_row($sTable, $aRow) {
+	function replace_row($sTable, $aRow)
+	{
 		return $this->insert_row($sTable, $aRow, 'replace');
 	}
 
@@ -433,7 +458,8 @@ class DB_Base
 	 * @param string $sWhere WHERE clause to use for update
 	 * @param array $aWhereArgs Arguments to substitute into WHERE clause
 	 */
-	function update_row($sTable, $aRow, $sWhere, $aWhereArgs=array()) {
+	function update_row($sTable, $aRow, $sWhere, $aWhereArgs=array())
+	{
 		$fs = $this->get_table_defn($sTable);
 
 		$aFields = array();
@@ -462,7 +488,8 @@ class DB_Base
 	 *                    then an update_row() is called, otherwise insert_row()
 	 *                    is called.
 	 */
-	function insert_update_row($sTable, $aRow, $aKey) {
+	function insert_update_row($sTable, $aRow, $aKey)
+	{
 		$aKeyWhere = array();
 		$aKeyArgs = array();
 		foreach($aKey as $k=>$v) {
@@ -489,7 +516,8 @@ class DB_Base
 	 *                    then $sField will be incremented by one.  Otherwise, a row
 	 *                    will be inserted and $sField will be set to one.
 	 */
-	function increment_row($sTable, $sField, $aKey) {
+	function increment_row($sTable, $sField, $aKey)
+	{
 		$aKeyWhere = array();
 		$aKeyArgs = array();
 		foreach($aKey as $k=>$v) {

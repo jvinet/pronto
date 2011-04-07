@@ -482,6 +482,16 @@ class Page_Base
 	}
 
 	/**
+	 * Render JSON. Useful for generating responses to AJAX requests.
+	 * @param array $data Data that will be encoded into JSON and returned.
+	 */
+	function render_json($data)
+	{
+		$this->web->header('Content-Type', 'application/json');
+		echo json_encode($data);
+	}
+
+	/**
 	 * Convenience function to render a template for an AJAX call
 	 *
 	 * @param string $filename Template file to render

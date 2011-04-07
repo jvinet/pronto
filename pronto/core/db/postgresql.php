@@ -50,6 +50,10 @@ class DB_PostgreSQL extends DB_Base
 		return true;
 	}
 
+	function ping() {
+		return pg_ping($this->conn);
+	}
+
 	function get_table_defn($table) {
 		if(isset($this->table_defns[$table])) return $this->table_defns[$table];
 

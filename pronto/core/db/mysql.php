@@ -48,6 +48,10 @@ class DB_MySQL extends DB_Base
 		return true;
 	}
 
+	function ping() {
+		return mysql_ping($this->conn);
+	}
+
 	function select($db) {
 		mysql_select_db($db, $this->conn) or $this->_catch("Unable to connect to the database!");
 	}		
