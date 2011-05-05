@@ -145,7 +145,7 @@ Pronto.UI.Grid = function($table, url, cfg) {
 					$th.css('borderRight', '0');
 				}
 
-				if(!/^_OPTIONS_/.test(colname)) {
+				if(!/^\$options/.test(colname)) {
 					// highlight the sorted column, otherwise add mouseover/out events
 					// to highlight columns
 					if(self.state.sortby == colname) {
@@ -157,7 +157,7 @@ Pronto.UI.Grid = function($table, url, cfg) {
 						);
 					}
 					var label = '';
-					if(/^_MULTI_/.test(colname)) {
+					if(/^\$multi/.test(colname)) {
 						$th.css('textAlign', 'center');
 						label = colname.substr(7);
 					} else {
@@ -192,7 +192,7 @@ Pronto.UI.Grid = function($table, url, cfg) {
 					}
 					$th.append(label);
 				} else {
-					if(colname == '_OPTIONS_' && !self.cfg.options.nofilters && !self.cfg.options.nofilterbutton) {
+					if(colname == '$options' && !self.cfg.options.nofilters && !self.cfg.options.nofilterbutton) {
 						// Search Icon - click to show the search filters
 						var $a = $('<a href="#"><img src="'+pronto.url('/img/icons/magnifier.gif')+'" /></a>');
 						$a.click(function(){
@@ -244,7 +244,7 @@ Pronto.UI.Grid = function($table, url, cfg) {
 				}
 
 				// Multiselect column
-				if(/^_MULTI_/.test(colname)) {
+				if(/^\$multi/.test(colname)) {
 					$th.css('textAlign', 'center');
 					var mname = colname.substr(7).toLowerCase();
 					if(mname) mname += '_';
@@ -258,8 +258,8 @@ Pronto.UI.Grid = function($table, url, cfg) {
 				}
 
 				// Action/option column
-				if(/^_OPTIONS_/.test(colname)) {
-					if(colname == '_OPTIONS_' && !self.cfg.options.nofilters && !self.cfg.options.nofilterbutton) {
+				if(/^\$options/.test(colname)) {
+					if(colname == '$options' && !self.cfg.options.nofilters && !self.cfg.options.nofilterbutton) {
 						var $sbmt = $('<input type="submit" class="submit" value="Filter" />');
 						$sbmt.css('width', 'auto');
 						$sbmt.click(submit_search);
@@ -368,7 +368,7 @@ Pronto.UI.Grid = function($table, url, cfg) {
 		}
 
 		var multi_form = false;
-		$.each(self.cfg.columns, function(colname,col){ if(/^_MULTI_/.test(colname)) multi_form = true; });
+		$.each(self.cfg.columns, function(colname,col){ if(/^\$multi/.test(colname)) multi_form = true; });
 		if(multi_form) {
 			// TODO: start a new form for multiselect boxes
 		}
@@ -391,7 +391,7 @@ Pronto.UI.Grid = function($table, url, cfg) {
 				var $td = $('<td></td>');
 				if(col.align) $td.attr('align', col.align);
 
-				if(/^_OPTIONS_/.test(colname)) {
+				if(/^\$options/.test(colname)) {
 					$td.addClass('options');
 					$.each(col, function(_,opt){
 						// TODO: if(function_exists($opt)) ...
@@ -407,7 +407,7 @@ Pronto.UI.Grid = function($table, url, cfg) {
 						}
 						$td.append(final_link);
 					});
-				} else if(/^_MULTI_/.test(colname)) {
+				} else if(/^\$multi/.test(colname)) {
 					// TODO
 					var mname = colname.substr(7);
 					if(mname) mname = mname + '_';
@@ -501,13 +501,13 @@ Pronto.UI.Grid = function($table, url, cfg) {
 
 		// MULTI-SELECT ACTIONS
 		var multi_form = false;
-		$.each(self.cfg.columns, function(colname,col){ if(/^_MULTI_/.test(colname)) multi_form = true; });
+		$.each(self.cfg.columns, function(colname,col){ if(/^\$multi/.test(colname)) multi_form = true; });
 		if(self.data.records) {
 			if(multi_form) {
 				var $tr = $('<tr class="multi"></tr>');
 				$.each(self.cfg.columns, function(colname,col){
 					var $td = $('<td></td>');
-					if(/^_MULTI_/.test(colname)) {
+					if(/^\$multi/.test(colname)) {
 						$.each(col, function(action){ $td.append(action+"<br />"); });
 					}
 					$td.appendTo($tr);

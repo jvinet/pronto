@@ -1,13 +1,6 @@
 Pronto Exception at <?php echo "$file:$line" ?> 
 
--------------------------------------------------------------------------
-Exception making <?php echo $method ?> request at <?php echo $uri ?> 
 <?php echo $message ?> 
-
-PHP: <?php echo $file ?>, line <?php echo $line ?> 
-Web: <?php echo "$method $uri" ?> 
--------------------------------------------------------------------------
-
 
 <?php if($errno != E_USER_ERROR): ?>
 SOURCE:
@@ -40,32 +33,5 @@ BACKTRACE:
 		echo "Backtrace unavailable.\n";
 	}
 ?>
--------------------------------------------------------------------------
-
-
-REQUEST INFORMATION:
--------------------------------------------------------------------------<?php
-	foreach($data as $name=>$global) {
-		// skip $_ENV and CONSTANTS, as they can contain sensitive information
-		if(in_array($name, array('$_ENV','CONSTANTS'))) continue;
-
-		echo "\n{$name}:\t\t";
-		if(!empty($global)) {
-			// trim off the "Array (" and ")" portions from print_r()
-			$o = array_slice(explode("\n", print_r($global, true)), 2);
-			array_pop($o);
-			array_pop($o);
-			echo "\n".implode("\n", $o)."\n";
-		} else {
-			echo "No data.\n";
-		}
-	}
-?>
--------------------------------------------------------------------------
-
-
-OUTPUT:
--------------------------------------------------------------------------
-<?php echo $output ? $output : "Nothing sent to browser." ?> 
 -------------------------------------------------------------------------
 
