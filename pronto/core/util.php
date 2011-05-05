@@ -284,9 +284,11 @@ function pronto_error($errno, $message, $file, $line, $context=null, $backtrace=
 	ob_start();
 	if(DEBUG === true) {
 		// Display to screen/browser
-		if(is_object($web)) {
-			require(DIR_FS_PRONTO.DS.'core'.DS.'error'.DS.'html.php');
+		if(is_object($web) && (!defined('PROFILE') || PROFILE === 'web')) {
+			// include web info
+			require(DIR_FS_PRONTO.DS.'core'.DS.'error'.DS.'web.html.php');
 		} else {
+			// no web info
 			require(DIR_FS_PRONTO.DS.'core'.DS.'error'.DS.'text.php');
 		}
 		$content = ob_get_contents();
@@ -294,7 +296,13 @@ function pronto_error($errno, $message, $file, $line, $context=null, $backtrace=
 		echo "\n$content\n";
 	} else {
 		// Use text format and email results
-		require(DIR_FS_PRONTO.DS.'core'.DS.'error'.DS.'text.php');
+		if(!defined('PROFILE') || PROFILE === 'web') {
+			// include web info
+			require(DIR_FS_PRONTO.DS.'core'.DS.'error'.DS.'web.text.php');
+		} else {
+			// no web info
+			require(DIR_FS_PRONTO.DS.'core'.DS.'error'.DS.'text.php');
+		}
 		$content = ob_get_contents();
 		ob_end_clean();
 		$email = defined('TECH_EMAIL') ? TECH_EMAIL : ADMIN_EMAIL;
