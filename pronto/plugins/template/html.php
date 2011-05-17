@@ -24,7 +24,8 @@ class tpHtml extends Plugin
 	 * @param string $key A unique key for this code or HTML
 	 * @param string $val The code/HTML itself
 	 */
-	function head($key, $val) {
+	function head($key, $val='') {
+		if($val == '') $val = $key;
 		$this->web->queue_html_head($key, $val);
 	}
 
