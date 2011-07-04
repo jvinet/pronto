@@ -1,15 +1,12 @@
 $(function(){
-	$('#pronto_debug_bar').click(function(){
-		var cnt = $('#pronto_debug');
-		if(cnt.css('height').substr(-1) == '%') {
-			cnt.animate({
-				height: '0px'
-			}, 200, 'linear', function(){ $('#pronto_debug_bar').html('DEBUG') });
-			return;
-		}
-		cnt.animate({
+	$('#pronto_debug_bar').toggle(function(){
+		$('#pronto_debug').animate({
 			height: '80%'
 		}, 200, 'linear', function(){ $('#pronto_debug_bar').html('CLOSE') });
+	}, function(){
+		$('#pronto_debug').animate({
+			height: '0px'
+		}, 200, 'linear', function(){ $('#pronto_debug_bar').html('DEBUG') });
 	});
 });
 

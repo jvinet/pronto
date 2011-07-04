@@ -487,6 +487,9 @@ class Page_Base
 	 */
 	function render_json($data)
 	{
+		// enable AJAX mode to debugging output will be suppressed
+		$this->set_ajax(true);
+
 		$this->web->header('Content-Type', 'application/json');
 		echo json_encode($data);
 	}
