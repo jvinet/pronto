@@ -43,7 +43,7 @@ class DB_PostgreSQL extends DB_Base
 		}
 
 		if(!$this->conn) {
-			$this->_catch("Unable to connect to the database!");
+			$this->_catch("Unable to connect to the database: " . pg_last_error());
 			return false;
 		};
 

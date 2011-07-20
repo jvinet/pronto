@@ -27,14 +27,15 @@ class DB_SQLite extends DB_Base
 
 	function connect()
 	{
+		$errstr = '';
 		if($this->params['persistent']) {
-			$this->conn = sqlite_popen($this->params['file']);
+			$this->conn = sqlite_popen($this->params['file'], 0644, $errstr);
 		} else {
-			$this->conn = sqlite_open($this->params['file']);
+			$this->conn = sqlite_open($this->params['file'], 0644, $errstr);
 		}
 
 		if(!$this->conn) {
-			$this->_catch("Unable to connect to the database!");
+			$this->_catch("Unable to connect to the database: $errstr");
 			return false;
 		}
 		return true;

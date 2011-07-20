@@ -34,7 +34,7 @@ class DB_MySQL extends DB_Base
 		}
 
 		if(!$this->conn) {
-			$this->_catch("Unable to connect to the database!");
+			$this->_catch("Unable to connect to the database: " . mysql_error());
 			return false;
 		}
 

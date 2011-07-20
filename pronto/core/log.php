@@ -142,30 +142,32 @@ class Logger
  * Two arguments:   l($priority, $message)
  * Three arguments: l($facility, $priority, $message)
  */
-function l() {
-	$logger =& Registry::get('pronto:logger');
-	if(!$logger) return;
+if(!function_exists('l')) {
+	function l() {
+		$logger =& Registry::get('pronto:logger');
+		if(!$logger) return;
 
-	$args = func_get_args();
-	if(count($args) == 1) {
-		$facility = 'app';
-		$priority = 'info';
-		$message  = $args[0];
-	} else if(count($args) == 2) {
-		$facility = 'app';
-		$priority = $args[0];
-		$message  = $args[1];
-	} else if(count($args) == 3) {
-		$facility = $args[0];
-		$priority = $args[1];
-		$message  = $args[2];
-	} else {
-		$facility = $args[0];
-		$priority = $args[1];
-		$message  = vsprintf($args[2], array_slice($args, 3));
+		$args = func_get_args();
+		if(count($args) == 1) {
+			$facility = 'app';
+			$priority = 'info';
+			$message  = $args[0];
+		} else if(count($args) == 2) {
+			$facility = 'app';
+			$priority = $args[0];
+			$message  = $args[1];
+		} else if(count($args) == 3) {
+			$facility = $args[0];
+			$priority = $args[1];
+			$message  = $args[2];
+		} else {
+			$facility = $args[0];
+			$priority = $args[1];
+			$message  = vsprintf($args[2], array_slice($args, 3));
+		}
+
+		$logger->msg($facility, $priority, $message);
 	}
-
-	$logger->msg($facility, $priority, $message);
 }
 
 ?>

@@ -29,7 +29,12 @@ class DB_SQLite3 extends DB_Base
 
 	function connect()
 	{
-		$this->conn = new SQLite3($this->params['file']);
+		try {
+			$this->conn = new SQLite3($this->params['file']);
+		} catch (Exception $e) {
+			$this->_catch("Unable to connect to the database: " . $e->getMessage());
+			return false;
+		}
 
 		if(!$this->conn) {
 			$this->_catch("Unable to connect to the database!");
