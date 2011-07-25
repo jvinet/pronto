@@ -271,10 +271,6 @@ class Web {
 		$this->controller =& $class;
 		$this->ajax = $this->controller->ajax;
 
-		if(method_exists($class, '__init__')) {
-			call_user_func(array(&$class, '__init__'));
-		}
-
 		// start buffering output
 		if(!defined('OUTPUT_BUFFERING') || OUTPUT_BUFFERING !== false) ob_start();
 

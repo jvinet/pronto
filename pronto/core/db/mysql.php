@@ -55,7 +55,7 @@ class DB_MySQL extends DB_Base
 	}
 
 	function select($db) {
-		mysql_select_db($db, $this->conn) or $this->_catch("Unable to connect to the database!");
+		mysql_select_db($db, $this->conn) or $this->_catch("Unable to connect to the database: " . mysql_error($this->conn));
 	}		
 
 	function get_table_defn($table) {
