@@ -10,6 +10,12 @@
 
 class DB_MySQL extends DB_Base
 {
+	// Store the time of the last executed query. If the last query was sent
+	// over a minute ago, use mysql_ping() to check if the connection is still
+	// alive. MySQL's wait_timeout parameter may be low enough that our DB
+	// connection times out.
+	var $last_query_at;
+
 	function DB_MySQL($conn, $persistent) {
 		$this->safesql = new SafeSQL_MySQL;
 		$this->type = 'mysql';
@@ -38,6 +44,8 @@ class DB_MySQL extends DB_Base
 			return false;
 		}
 
+		$this->last_query_at = time();
+
 		if(DB_MYSQL_ANSI_MODE !== false) {
 			// Put MySQL into ANSI mode (or at least closer to it)
 			//   (this requires MySQL 4.1 or later)
@@ -65,7 +73,14 @@ class DB_MySQL extends DB_Base
 	function run_query($sql) {
 		if(!$this->conn) {
 			$this->connect();
+		} else if(time() - $this->last_query_at > 60) {
+			if(!$this->ping()) {
+				// attempt a reconnect
+				mysql_close($this->conn);
+				$this->connect();
+			}
 		}
+		$this->last_query_at = time();
 		return mysql_query($sql, $this->conn);
 	}
 
