@@ -32,20 +32,36 @@ class LazyLoad
 		$this->object = null;
 	}
 
-	function __call($name, $args)
+	function _load()
 	{
 		if(!$this->loaded) {
 			require_once($this->filepath);
 			$this->object = new $this->classname();
 			$this->loaded = true;
 		}
+	}
 
+	function __call($name, $args)
+	{
+		$this->_load();
 		if(!method_exists($this->object, $name)) {
 			trigger_error("Method {$this->classname}::{$name}() does not exist");
 		}
 
 		// proxy the call to the real object
 		return call_user_func_array(array(&$this->object, $name), $args);
+	}
+
+	function __get($key)
+	{
+		$this->_load();
+		return $this->object->$key;
+	}
+
+	function __set($key, $val)
+	{
+		$this->_load();
+		$this->object->$key = $val;
 	}
 }
 
