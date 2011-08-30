@@ -21,7 +21,7 @@ CREATE TABLE "users" (
 	"confirm_token" VARCHAR(32),
 	"confirm_sent"  DATE
 
-) /*! DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci */;
+) /*! ENGINE=MyISAM DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci */;
 CREATE INDEX "users.access_keys" ON "users" ("access_keys");
 CREATE INDEX "users.openid" ON "users" ("openid");
 CREATE INDEX "users.email" ON "users" ("email");

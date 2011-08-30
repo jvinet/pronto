@@ -5,5 +5,5 @@ CREATE TABLE "sessions" (
 	"data" TEXT,
 
 	PRIMARY KEY("id")
-) /*! DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci */;
+) /*! ENGINE=MyISAM DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci */;
 CREATE INDEX "sessions.lastupdate" ON "sessions" ("lastupdate");
