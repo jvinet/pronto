@@ -90,7 +90,7 @@ class Cache_File extends Cache
 		$key = $this->_mangle_key($key);
 		$fn  = $this->cache_dir.DS.$key;
 
-		return @unlink($fn);
+		return is_file($fn) ? @unlink($fn) : false;
 	}
 
 	/**
