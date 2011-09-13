@@ -32,6 +32,10 @@ class DB_MySQL extends DB_Base
 	}
 
 	function connect() {
+		if($this->conn) {
+			@mysql_close($this->conn);
+		}
+
 		$p = $this->params;
 		if($p['persistent']) {
 			$this->conn = mysql_pconnect($p['host'], $p['user'], $p['pass']);
