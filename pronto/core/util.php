@@ -178,7 +178,7 @@ function backtrace()
 {
 	$out  = "Method/Function\t\t\tCaller\n";
 	$out .= "---------------\t\t\t------\n";
-	$bt = $backtrace ? $backtrace : debug_backtrace();
+	$bt = debug_backtrace();
 	array_shift($bt);
 	foreach($bt as $tp) {
 		$fn = $caller = '';

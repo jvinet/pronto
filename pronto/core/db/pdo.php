@@ -34,6 +34,8 @@ class DB_PDO extends DB_Base
 	}
 
 	function connect() {
+		$this->close();
+
 		$p = $this->params;
 		$att = array(PDO::ATTR_PERSISTENT => $p['persistent']);
 		try {
@@ -56,6 +58,16 @@ class DB_PDO extends DB_Base
 		}
 
 		return true;
+	}
+
+	function close()
+	{
+		if($this->conn) {
+			// the connection should be GC'ed and terminated
+			$this->conn = null;
+			return true;
+		}
+		return false;
 	}
 
 	function get_table_defn($table) {

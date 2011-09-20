@@ -28,6 +28,8 @@ class DB_PostgreSQL extends DB_Base
 	}
 
 	function connect() {
+		$this->close();
+
 		$p = $this->params;
 
 		$connstr = "dbname={$p['name']}";
@@ -48,6 +50,11 @@ class DB_PostgreSQL extends DB_Base
 		};
 
 		return true;
+	}
+
+	function close() {
+		if($this->conn) return @pg_close($this->conn);
+		return false;
 	}
 
 	function ping() {

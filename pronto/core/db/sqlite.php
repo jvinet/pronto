@@ -40,6 +40,15 @@ class DB_SQLite extends DB_Base
 		}
 		return true;
 	}
+	
+	function close()
+	{
+		if($this->conn) {
+			@sqlite_close($this->conn);
+			return true;
+		}
+		return false;
+	}
 
 	function get_table_defn($table) {
 		if(PHP_VERSION < 5) return false;

@@ -101,8 +101,8 @@ class Web {
 	 */
 	function enable_debug()
 	{
-		$this->queue_css_load('debug', url('/css/debug.css', true));
-		$this->queue_js_load('debug', url('/js/debug.js', true));
+		$this->queue_css_load('debug', url('/css/debug.css'));
+		$this->queue_js_load('debug', url('/js/debug.js'));
 		ob_start();
 	}
 

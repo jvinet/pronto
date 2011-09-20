@@ -74,6 +74,14 @@ class DB_Base
 	}
 
 	/**
+	 * Close an active database connection, if there is one.
+	 */
+	function close()
+	{
+		return false;
+	}
+
+	/**
 	 * Ping the database connection or attempt a reconnection if it is broken.
 	 */
 	function ping()

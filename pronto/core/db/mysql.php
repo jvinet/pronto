@@ -32,9 +32,7 @@ class DB_MySQL extends DB_Base
 	}
 
 	function connect() {
-		if($this->conn) {
-			@mysql_close($this->conn);
-		}
+		$this->close();
 
 		$p = $this->params;
 		if($p['persistent']) {
@@ -60,6 +58,11 @@ class DB_MySQL extends DB_Base
 		return true;
 	}
 
+	function close() {
+		if($this->conn) return @mysql_close($this->conn);
+		return false;
+	}
+
 	function ping() {
 		if(!$this->conn) return $this->connect();
 
@@ -79,8 +82,6 @@ class DB_MySQL extends DB_Base
 			$this->connect();
 		} else if(time() - $this->last_query_at > 60) {
 			if(!$this->ping()) {
-				// attempt a reconnect
-				mysql_close($this->conn);
 				$this->connect();
 			}
 		}

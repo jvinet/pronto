@@ -43,6 +43,12 @@ class DB_SQLite3 extends DB_Base
 		return true;
 	}
 
+	function close()
+	{
+		if($this->conn) return @$this->conn->close();
+		return false;
+	}
+
 	function get_table_defn($table) {
 		return false;
 	}

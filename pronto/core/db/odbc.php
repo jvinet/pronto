@@ -26,6 +26,8 @@ class DB_ODBC extends DB_Base
 	}
 
 	function connect() {
+		$this->close();
+
 		$p = $this->params;
 		$this->conn = odbc_connect("DRIVER=FreeTDS;SERVER=".$p['host'].";DATABASE=".$p['name'], $p['user'], $p['pass']);
 		if(!$this->conn) {
@@ -33,6 +35,15 @@ class DB_ODBC extends DB_Base
 			return false;
 	 	}
 		return true;
+	}
+
+	function close()
+	{
+		if($this->conn) {
+			@odbc_close($this->conn);
+			return true;
+		}
+		return false;
 	}
 
 	function select($db) {
