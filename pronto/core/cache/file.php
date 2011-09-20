@@ -57,7 +57,15 @@ class Cache_File extends Cache
 		// We use the file's modtime to store the expiry time (in seconds).
 		// Files that never expire will have modtimes of December 31, 1969
 		$mtime = $expire > 0 ? time()+$expire : 0;
-		touch($fn, $mtime);
+		@touch($fn, $mtime);
+
+		// We use loose permissions on each cache file, otherwise apps
+		// may run into permission issues if they run commandline scripts
+		// under a different UID than their web server.
+		//
+		// If you're concerned about the loose permissions, adjust the
+		// ownership/permissions on the "cache" directory to be secure.
+		@chmod($fn, 0666);
 	}
 
 	function &get($key)
