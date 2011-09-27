@@ -450,8 +450,9 @@ class tpTable extends Plugin
 							case isset($column['display_func']): $f = $column['display_func']; break;
 							default:                             $f = $column['cb_fn']; break;
 						}
-						if(!function_exists($f)) {
-							// it's not a function, so create one
+						if(!is_callable($f)) {
+							// It's not a function, but some inline PHP code passed through as a string.
+							// In this case, we'll wrap it in a proper lambda function, then.
 							// $g is an array of all global callback vars as defined in cb_vars
 							// $d is the full data array for this row
 							$f = create_function('$g,$d', $f);
