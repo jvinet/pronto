@@ -170,13 +170,15 @@ class tpTable extends Plugin
 
 		// save grid configuration in the DOM so we can send it back to the
 		// page controller alongside AJAX requests
-		$p = $params;
+		// XXX: disabled - this was used for tpGrid, which is defunct at this time.
+		/*$p = $params;
 		unset($p['data'], $p['cb_vars']);
 		$out .= '<script type="text/javascript">';
 		$out .= 'if(typeof window.grid == "undefined") window.grid = {};';
 		//$out .= "window.grid.{$guid} = ".json_encode($p).";";
 		$out .= "window.grid.{$guid} = '".str_replace("'", "\\'", serialize($p))."';";
 		$out .= "</script>\n";
+		*/
 
 		// <table>
 		$out .= '<table id="'.$guid.'" cellspacing="0"';

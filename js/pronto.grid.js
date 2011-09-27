@@ -13,7 +13,8 @@ function grid_submit(form) {
 	// form -> tbody -> table
 	var guid = $(form).parent().parent().attr('id');
 	var url = $(form).attr('action') + '?' + $(form).serialize();
-	$.get(url, {_ajax: 1, gridcfg: window.grid[guid]}, function(d) {
+	var gridcfg = window.grid[guid] || {};
+	$.get(url, {_ajax: 1, gridcfg: gridcfg, function(d) {
 		console.log(d);
 	});
 	return false;
