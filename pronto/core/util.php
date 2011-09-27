@@ -464,7 +464,7 @@ function empty_date($d)
 }
 
 /**
- * Shortcut function for Web::has_access()
+ * Shortcut function for Access::has_access()
  */
 function a($key)
 {
@@ -473,6 +473,15 @@ function a($key)
 	// called by a commandline script.  The a() access-check shortcut is
 	// sometimes used in models, so we have to return something.
 	return is_object($access) ? $access->has_access($key) : true;
+}
+
+/**
+ * Shortcut function for Access::get_id()
+ */
+function access_id()
+{
+	$access =& Registry::get('pronto:access');
+	return $access->get_id();
 }
 
 /***********************************************************************

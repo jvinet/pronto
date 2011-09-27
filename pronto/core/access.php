@@ -57,6 +57,14 @@ class Access
 	}
 
 	/**
+	 * Return the session token.
+	 */
+	function get_token()
+	{
+		return session_id();
+	}
+
+	/**
 	 * Set one access key.
 	 * If in 'roles' mode, this will be the name of a role.
 	 * If in 'discrete' mode, this will be the name of an access key.
