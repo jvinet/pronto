@@ -116,6 +116,9 @@ class RecordSelector
 	 */
 	function limit($num, $offset=0)
 	{
+		$num    = (int)$num;
+		$offset = (int)$offset;
+
 		$this->_reset_state();
 		$this->sql_limit = "LIMIT $num OFFSET $offset";
 		return $this;
