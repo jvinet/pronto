@@ -160,14 +160,12 @@ function debug($var, $queue=true)
 }
 
 /**
- * Trigger an error through PHP's E_USER_ERROR level.  Errors will
- * only be triggered if Debug mode is enabled.
+ * Trigger an error through PHP's E_USER_ERROR level.
  *
  * @param string $message
  */
 function error($message)
 {
-	if(DEBUG !== true) return;
 	trigger_error($message, E_USER_ERROR);
 }
 
