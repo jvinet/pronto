@@ -116,11 +116,14 @@ class Logger
 	function _log_msg($filename, $facility, $priority, $message)
 	{
 		// silently fail if the log directory doesn't exist
-		if(!is_dir(DIR_FS_LOG)) return;
+		if(!is_dir(DIR_FS_LOG) || !is_writable(DIR_FS_LOG)) return;
 
 		if(!is_resource($this->files[$filename])) {
 			// prepend the log directory path if the filepath is not absolute
 			$path = substr($filename, 0, 1) == DS ? $filename : DIR_FS_LOG.DS.$filename;
+			// catch permission errors that may make fopen() error out.
+			if(file_exists($path) && !is_writable($path)) return;
+
 			$this->files[$filename] = @fopen($path, 'a');
 			if(!is_resource($this->files[$filename])) {
 				// Undecided on how we should act here.  For now, we quietly ignore the error.
