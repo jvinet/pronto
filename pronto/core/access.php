@@ -89,6 +89,38 @@ class Access
 	}
 
 	/**
+	 * Unset/remove one access key.
+	 * If in 'roles' mode, this will be the name of a role.
+	 * If in 'discrete' mode, this will be the name of an access key.
+	 */
+	function unset_key($key)
+	{
+		if(empty($key) || !isset($GLOBALS['ACCESS_KEYS'][$key])) return;
+		if(ACCESS_MODEL === "roles") {
+			foreach($GLOBALS['ACCESS_KEYS'][$key] as $k) {
+				if(substr($k, 0, 1) == '@') {
+					// This key references another role - pull in all keys from that role
+					$this->unset_key(substr($k, 1));
+				} else {
+					$old = $this->access_keys;
+					$this->access_keys = array();
+					foreach($old as $v) {
+						if($v !== $k) $this->access_keys[] = $v;
+					}
+				}
+			}
+		} else if(ACCESS_MODEL === "discrete") {
+			$old = $this->access_keys;
+			$this->access_keys = array();
+			foreach($old as $v) {
+				if($v !== $key) $this->access_keys[] = $v;
+			}
+		}
+
+		$_SESSION['_ACCESS']['keys'] = $this->access_keys;
+	}
+
+	/**
 	 * Set one or more access keys.
 	 * If in 'roles' mode, this will be the name of one or more roles.
 	 * If in 'discrete' mode, this will be the name of one or more keys.
