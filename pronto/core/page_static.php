@@ -14,6 +14,14 @@ class Page_Static extends Page
 {
 	var $template_dir = 'home';
 
+	// Number of path arguments to shift off before resolving the
+	// remaining path to a template filename.
+	//
+	// Example:  /home/welcome
+	//   with $path_shift=0, template file will be home__welcome.php
+	//   with $path_shift=1, template file will be welcome.php
+	var $path_shift = 0;
+
 	/**
 	 * Set the template directory
 	 *
@@ -26,7 +34,7 @@ class Page_Static extends Page
 
 	function GET()
 	{
-		$path = implode('__', $this->path_args());
+		$path = implode('__', $this->path_args($this->path_shift));
 		if(empty($path)) $path = 'index';
 		if(!preg_match('|^[A-z0-9+_-]+$|', $path)) {
 			$this->web->notfound();
