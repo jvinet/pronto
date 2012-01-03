@@ -479,6 +479,9 @@ function a($key)
 function access_id()
 {
 	$access =& Registry::get('pronto:access');
+	// if in a cmdline execution profile, there will be no pronto:access
+	if(!$access) return 0;
+
 	return $access->get_id();
 }
 
