@@ -40,10 +40,6 @@ class LazyLoad
 			$this->loaded = true;
 		}
 
-		if(!method_exists($this->object, $name)) {
-			trigger_error("Method {$this->classname}::{$name}() does not exist");
-		}
-
 		// proxy the call to the real object
 		$ret = call_user_func_array(array(&$this->object, $name), $args);
 		return true;
