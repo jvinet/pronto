@@ -56,6 +56,7 @@ class Web {
 
 		$this->debug_messages = array();
 
+		$this->context = new StdClass();
 		$this->context->protocol = isset($_SERVER['HTTPS']) ? 'https' : 'http';
 		$this->context->host     = $_SERVER['SERVER_NAME'];
 		$this->context->port     = $_SERVER['SERVER_PORT'];
