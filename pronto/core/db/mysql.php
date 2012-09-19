@@ -66,7 +66,12 @@ class DB_MySQL extends DB_Base
 	function ping() {
 		if(!$this->conn) return $this->connect();
 
-		return mysql_ping($this->conn);
+		$alive = @mysql_ping($this->conn);
+		if(!$alive) {
+			// attempt a reconnect
+			return $this->connect();
+		}
+		return $alive;
 	}
 
 	function select($db) {
