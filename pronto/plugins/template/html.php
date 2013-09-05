@@ -224,7 +224,7 @@ class tpHtml extends Plugin
 	}
 
 	/**
-	 * Create a new URL by adding or substituting in new query arguments
+	 * Create a new URL by adding or substituting new query arguments
 	 *
 	 * @param array $args An associative array of name-value pairs of query arguments
 	 *                    to add to $base_url
@@ -235,7 +235,7 @@ class tpHtml extends Plugin
 	function composite_url($args, $base_url='')
 	{
 		if(!is_array($args)) {
-			// backwards compatibility for the old prototype: ($base_url, $args)
+			// backwards compatibility for the old signature: ($base_url, $args)
 			$t = $args;
 			$args = $base_url;
 			$base_url = $t;
@@ -248,7 +248,7 @@ class tpHtml extends Plugin
 		$query = array();
 		foreach(explode('&', $parts['query']) as $q) {
 			$p = explode('=', $q);
-			$query[$p[0]] = $p[1];
+			if($p[0]) $query[$p[0]] = $p[1];
 		}
 
 		// now add (or sub) in the new ones
