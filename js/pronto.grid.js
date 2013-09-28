@@ -346,14 +346,29 @@ Pronto.UI.Grid = function($table, url, cfg) {
 		$tfoot.empty();
 
 		// Private functions
-		function _getrowdata(row, pk_col) {
-			if(typeof pk_col == 'array') {
+		var _getrowdata = function(row, pk_col) {
+			if(typeof(pk_col) == 'array') {
 				if(pk_col.length == 1) return row[pk_col[0]];
 				var singleidx = pk_col.shift();
 				return _getrowdata(row[pk_col[0]], pk_col);
 			}
 			return row[pk_col];
 		}
+
+		var _build_link = function(url, row) {
+			var link = url.replace(/_ID_/g, _getrowdata(row, self.cfg.data_id));
+
+			// also sub in values for column names of the form <colname>
+			var re = /<([A-z0-9\._-]+)>/g;
+			var final_link = link;
+			var subs;
+			while(subs = re.exec(link)) {
+				if(typeof(subs) == 'object') {
+					final_link = final_link.replace(subs[0], _getrowdata(row, subs[1]));
+				}
+			}
+			return final_link;
+		};
 
 		// TODO: handle cb_vars
 
@@ -384,7 +399,13 @@ Pronto.UI.Grid = function($table, url, cfg) {
 			}
 
 			if(self.cfg.rowclick) {
-				// TODO
+				if(typeof(self.cfg.rowclick) == 'function') {
+					$tr.click(self.cfg.rowclick);
+				} else {
+					$tr.click(function() {
+						window.location.href = _build_link(self.cfg.rowclick, row);
+					});
+				}
 			}
 
 			$.each(self.cfg.columns, function(colname,col){
@@ -393,19 +414,11 @@ Pronto.UI.Grid = function($table, url, cfg) {
 
 				if(/^\$options/.test(colname)) {
 					$td.addClass('options');
-					$.each(col, function(_,opt){
-						// TODO: if(function_exists($opt)) ...
-						var link = opt.replace(/_ID_/g, _getrowdata(row, self.cfg.data_id));
-
-						// also sub in values for column names of the form <colname>
-						var re = /<([A-z0-9\._-]+)>/g;
-						var final_link = link;
-						while(subs = re.exec(link)) {
-							if(typeof subs == 'object') {
-								final_link = final_link.replace(subs[0], _getrowdata(row, subs[1]));
-							}
+					$.each(col, function(_,opturl){
+						if(typeof(opturl) == 'function') {
+							opturl = opturl(row);
 						}
-						$td.append(final_link);
+						$td.append(_build_link(opturl, row));
 					});
 				} else if(/^\$multi/.test(colname)) {
 					// TODO
@@ -425,11 +438,11 @@ Pronto.UI.Grid = function($table, url, cfg) {
 					// TODO: mangle row data if necessary
 					if(col.display_map && col.display_map[data]) {
 						data = col.display_map[data];
-					} else if(typeof col.display_func == 'function') {
+					} else if(typeof(col.display_func) == 'function') {
 						// TODO: use cb_vars like the old one?
 						data = col.display_func.call(row);
 					} else if(col.format) {
-						if(typeof $.sprintf != 'function') {
+						if(typeof($.sprintf) != 'function') {
 							pronto.load_js('jq/jquery.sprintf', function(){
 								data = $.sprintf(col.format, data);
 								// have to issue the .html() call here since, the one below
