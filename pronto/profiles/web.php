@@ -46,7 +46,7 @@ if(!function_exists('json_encode')) {
 	require_once(DIR_FS_PRONTO.DS.'extlib'.DS.'json-php4.php');
 }
 
-if(DEBUG === true && isset($_GET['phpinfo'])) {
+if(defined('DEBUG') && DEBUG === true && isset($_GET['phpinfo'])) {
 	phpinfo();
 	die;
 }
@@ -191,7 +191,7 @@ unset($p);
  * HANDLE ERRORS/DEBUGGING/PROFILING
  ************************************************************************/
 $old = error_reporting(E_ALL & ~E_NOTICE);
-if(DEBUG === true) {
+if(defined('DEBUG') && DEBUG === true) {
 	$web->enable_debug();
 
 	if(defined('DB_NAME')) {
