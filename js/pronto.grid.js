@@ -121,7 +121,7 @@ Pronto.UI.Grid = function($table, url, cfg) {
 	this.build = function() {
 		var self = this;
 
-		// Create orgnizational elements
+		// Create organizational elements
 		self.$table.append('<thead></thead>')
 			.append('<tbody></tbody')
 			.append('<tfoot></tfoot>');
@@ -315,9 +315,12 @@ Pronto.UI.Grid = function($table, url, cfg) {
 
 	/**
 	 * Fetch data from backend and pass it to a callback function.
+	 * If data was passed into the constructor, then we don't make any
+	 * backend calls.
 	 */
 	this.fetch = function(params, cb) {
 		var self = this;
+
 		var params = params || {};
 		var cb = cb || function(d) { self.body(); self.foot(); };
 
@@ -440,7 +443,7 @@ Pronto.UI.Grid = function($table, url, cfg) {
 						data = col.display_map[data];
 					} else if(typeof(col.display_func) == 'function') {
 						// TODO: use cb_vars like the old one?
-						data = col.display_func.call(row);
+						data = col.display_func.call(this, row);
 					} else if(col.format) {
 						if(typeof($.sprintf) != 'function') {
 							pronto.load_js('jq/jquery.sprintf', function(){
@@ -453,7 +456,7 @@ Pronto.UI.Grid = function($table, url, cfg) {
 							data = $.sprintf(col.format, data);
 						}
 					} else if(col.date_format) {
-						if(typeof dateFormat != 'function') {
+						if(typeof(dateFormat) != 'function') {
 							pronto.load_js('date.format', function(){
 								data = dateFormat(col.date_format, data);
 								// have to issue the .html() call here since, the one below
