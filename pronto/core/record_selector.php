@@ -261,9 +261,9 @@ class RecordSelector
 				$kp[]   = "\"$k\"='%s'";
 				$args[] = $v;
 			}
-			$q = $this->model->db->query("UPDATE {$this->model->table} SET ".implode(',',$kp).$this->_build_clause(), $args);
+			$q = $this->model->db->query("UPDATE {$this->model->table} SET ".implode(',',$kp).$this->_build_clause(false), $args);
 		} else {
-			$q = $this->model->db->query("UPDATE {$this->model->table} SET \"$key\"='%s'".$this->_build_clause(), array($val));
+			$q = $this->model->db->query("UPDATE {$this->model->table} SET \"$key\"='%s'".$this->_build_clause(false), array($val));
 		}
 		$this->invalidate();
 		return $this->model->db->execute($q);
@@ -355,12 +355,15 @@ class RecordSelector
 		$this->id_cache = array();
 	}
 
-	function _build_clause()
+	function _build_clause($is_select=true)
 	{
 		$sql = '';
 		if($this->sql_where) $sql .= ' '.$this->sql_where;
-		if($this->sql_order) $sql .= ' '.$this->sql_order;
-		if($this->sql_limit) $sql .= ' '.$this->sql_limit;
+		// These SQL fragments are only legal for SELECT queries.
+		if($is_select) {
+			if($this->sql_order) $sql .= ' '.$this->sql_order;
+			if($this->sql_limit) $sql .= ' '.$this->sql_limit;
+		}
 		return $sql;
 	}
 }
