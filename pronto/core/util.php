@@ -280,45 +280,49 @@ function pronto_error($errno, $message, $file, $line, $context=null, $backtrace=
 	// which profile we're in and whether we're in Debug mode or not.
 	extract($tvars, EXTR_OVERWRITE);
 	ob_start();
-	if(DEBUG === true) {
-		// Display to screen/browser
-		if(is_object($web) && (!defined('PROFILE') || PROFILE === 'web')) {
-			// include web info
-			require(DIR_FS_PRONTO.DS.'core'.DS.'error'.DS.'web.html.php');
-		} else {
-			// no web info
-			require(DIR_FS_PRONTO.DS.'core'.DS.'error'.DS.'text.php');
-		}
-		$content = ob_get_contents();
-		ob_end_clean();
-		echo "\n$content\n";
+
+	// Should we show the output data to stdout and/or the browser?
+	//   We always show output when in the 'cmdline' profile.
+	//   We only show output in the 'web' profile when DEBUG is enabled.
+	$output_error = false;
+	if(defined('DEBUG') && DEBUG === true) $output_error = true;
+	if(defined('PROFILE') && PROFILE === 'cmdline') $output_error = true;
+
+	// Should we email the error? Only if not in DEBUG mode.
+	$email_error = false;
+	if(defined('DEBUG') && DEBUG === true) $email_error = true;
+
+	// Construct the message.
+	if(is_object($web) && (!defined('PROFILE') || PROFILE === 'web')) {
+		// include web info
+		require(DIR_FS_PRONTO.DS.'core'.DS.'error'.DS.'web.html.php');
 	} else {
-		// Use text format and email results
-		if(!defined('PROFILE') || PROFILE === 'web') {
-			// include web info
-			require(DIR_FS_PRONTO.DS.'core'.DS.'error'.DS.'web.text.php');
-		} else {
-			// no web info
-			require(DIR_FS_PRONTO.DS.'core'.DS.'error'.DS.'text.php');
-		}
-		$content = ob_get_contents();
-		ob_end_clean();
+		// no web info
+		require(DIR_FS_PRONTO.DS.'core'.DS.'error'.DS.'text.php');
+	}
+	$content = ob_get_contents();
+	ob_end_clean();
+
+	if($output_error) {
+		echo "\n$content\n";
+	}
+	if($email_error) {
 		$email = defined('TECH_EMAIL') ? TECH_EMAIL : ADMIN_EMAIL;
 		@mail($email, SITE_NAME.": Error", $content);
+	}
 
-		// Log the error
-		if(function_exists('l')) {
-			l('app', 'error', 'FATAL ERROR: '.$content);
-		}
+	// Always log the error
+	if(function_exists('l')) {
+		l('app', 'error', 'FATAL ERROR: '.$content);
+	}
 
-		$web =& Registry::get('pronto:web');
-		if(is_object($web)) {
-			// call Web's error handler, which usually renders an error page to
-			// the end user.
-			$web->internalerror();
-		} else if(function_exists('internalerror')) {
-			internalerror();
-		}
+	$web =& Registry::get('pronto:web');
+	if(is_object($web)) {
+		// call Web's error handler, which usually renders an error page to
+		// the end user.
+		$web->internalerror();
+	} else if(function_exists('internalerror')) {
+		internalerror();
 	}
 	die;
 }
