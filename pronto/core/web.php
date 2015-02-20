@@ -193,10 +193,16 @@ class Web {
 			$this->notfound();
 		}
 
-		// Look for a special redirect URL (eg, ">/admin/user/list")
-		if(substr($class_name, 0, 1) == '>') {
+		// Look for a special redirects:
+		//   301 (eg, ">>/admin/user/list"), or
+		//   302 (eg, ">/admin/user/list")
+		if(substr($class_name, 0, 2) == '>>') {
+			$redir_url = trim(substr($class_name, 2));
+			$this->redirect($redir_url, 301);
+			return;
+		} else if(substr($class_name, 0, 1) == '>') {
 			$redir_url = trim(substr($class_name, 1));
-			$this->redirect($redir_url);
+			$this->redirect($redir_url, 302);
 			return;
 		}
 
@@ -387,7 +393,7 @@ class Web {
 	 *
 	 * @param string $url
 	 */
-	function redirect($url)
+	function redirect($url, $code=302)
 	{
 		// XXX: Technically, HTTP/1.1 requires an absolute URL in a
 		// Location header, but the major web browsers don't seem to care.
@@ -395,6 +401,14 @@ class Web {
 		// Two slashes (//) is a shortcut for the url() function, which builds
 		// us an internal URL relative to our DIR_WS_BASE.
 		if(substr($url, 0, 2) == '//') $url = url(substr($url, 1));
+
+		switch($code) {
+			case 301: header('HTTP/1.1 301 Moved Permanently'); break;
+			case 302: break; // a 302 (Moved Temporarily) is implied if not explicitly set.
+			case 303: header('HTTP/1.1 303 See Other'); break;
+			case 307: header('HTTP/1.1 307 Temporary Redirect'); break;
+		}
+
 		$this->header("Location", $url);
 	}
 

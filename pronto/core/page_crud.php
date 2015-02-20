@@ -339,7 +339,7 @@ class Page_CRUD extends Page
 
 		// Gather list parameters from the model
 		$params = $this->model->enum_schema();
-		if(empty($params['order'])) $params['order'] = "{$this->model->pk} ASC"; 
+		if(empty($params['order'])) $params['order'] = "{$this->model->pk} ASC";
 		if(empty($params['limit'])) $params['limit'] = 50;
 		if($this->hook_list__params($params) === false) return;
 
